@@ -1,0 +1,58 @@
+
+# This is a basic workflow to build robot code.
+
+name: Check Gradle
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the main branch.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a job called "build" & a job called "formatting"
+  Build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # This grabs the WPILib docker container
+    container: wpilib/roborio-cross-ubuntu:2022-20.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: gradle/gradle-build-action@v2 # enables fancy caching.
+    - uses: actions/checkout@v2
+    - uses: gradle/wrapper-validation-action@v1 # this validates the jar file
+
+    # Make gradlew executable & fix git issue
+    - name: Make grandlew executable
+      run: chmod +x gradlew && git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+    # build.
+    - name: Compile and run tests on robot code
+      run: ./gradlew build
+  Formatting:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # This grabs the WPILib docker container
+    container: wpilib/roborio-cross-ubuntu:2022-20.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: gradle/gradle-build-action@v2 # enables fancy caching.
+    - uses: actions/checkout@v2
+    - uses: gradle/wrapper-validation-action@v1 # this validates the jar file
+
+    # Make gradlew executable & fix git issue
+    - name: Make grandlew executable
+      run: chmod +x gradlew && git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+    # check formatting.
+    - name: Validate Code is properly formatted
+      run: ./gradlew spotlessCheck
