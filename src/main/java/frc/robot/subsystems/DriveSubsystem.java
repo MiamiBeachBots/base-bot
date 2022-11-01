@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Victor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class DriveTrain extends SubsystemBase {
+public class DriveSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
 
   // math constants
@@ -32,7 +32,7 @@ public class DriveTrain extends SubsystemBase {
   // drive function
   private DifferentialDrive m_ddrive;
 
-  public DriveTrain() {
+  public DriveSubsystem() {
     // init motors
     m_frontRight = new Victor(Constants.MOTORFRONTRIGHTCHANNEL);
     m_backLeft = new Victor(Constants.MOTORBACKLEFTCHANNEL);
