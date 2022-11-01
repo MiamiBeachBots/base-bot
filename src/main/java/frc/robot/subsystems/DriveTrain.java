@@ -18,8 +18,8 @@ public class DriveTrain extends SubsystemBase {
     /** Creates a new ExampleSubsystem. */
 
     // math constants
-    private final double delta = 0.05;
-    private final double kP = 0.015;
+    private final double DELTA = 0.05;
+    private final double KP = 0.015;
 
     // motors
     private Victor m_frontRight;
@@ -36,10 +36,10 @@ public class DriveTrain extends SubsystemBase {
 
     public DriveTrain() {
         // init motors
-        m_frontRight = new Victor(Constants.motorFrontRightChannel);
-        m_backLeft = new Victor(Constants.motorBackLeftChannel);
-        m_backRight = new Victor(Constants.motorBackRightChannel);
-        m_frontLeft = new Victor(Constants.motorFrontLeftChannel);
+        m_frontRight = new Victor(Constants.MOTORFRONTRIGHTCHANNEL);
+        m_backLeft = new Victor(Constants.MOTORBACKLEFTCHANNEL);
+        m_backRight = new Victor(Constants.MOTORBACKRIGHTCHANNEL);
+        m_frontLeft = new Victor(Constants.MOTORFRONTLEFTCHANNEL);
 
         // init motors controllers
         m_left = new MotorControllerGroup(m_backLeft, m_frontLeft);
