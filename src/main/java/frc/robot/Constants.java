@@ -13,8 +13,19 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  /// PWM ports until we switch to ring.
+  // Drive Train Motors
   public static final int MOTORFRONTRIGHTCHANNEL = 4;
   public static final int MOTORFRONTLEFTCHANNEL = 1;
   public static final int MOTORBACKRIGHTCHANNEL = 3;
   public static final int MOTORBACKLEFTCHANNEL = 2;
+  // Elevator Motors
+  public static final int ELEVATORMOTORCHANNEL = 0;
+  // Intake Motors
+  public static final int INTAKEMOTORFRONTCHANNEL = 5;
+  public static final int INTAKEMOTORBACKCHANNEL = 8;
+  // Shooter Motors and Servos
+  public static final int SHOOTERMOTOR1CHANNEL = 7;
+  public static final int SHOOTERMOTOR2CHANNEL = 6;
+  public static final int SHOOTERSERVOCHANNEL = 9;
 }
