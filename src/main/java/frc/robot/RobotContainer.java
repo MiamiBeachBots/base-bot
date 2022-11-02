@@ -8,12 +8,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.AutoCommand;
 import frc.robot.commands.DefaultDrive;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -29,13 +28,15 @@ public class RobotContainer {
   private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICKUSBINDEX);
 
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
   private final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
   private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
 
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  private final AutoCommand m_autoCommand =
+      new AutoCommand(m_driveSubsystem, m_shooterSubsystem, m_elevatorSubsystem);
   private final ShooterCommand m_shooterCommand =
       new ShooterCommand(m_shooterSubsystem, m_elevatorSubsystem, m_flightStick::getY);
   private final DefaultDrive m_defaultDrive =
