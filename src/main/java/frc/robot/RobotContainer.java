@@ -8,9 +8,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShooterCommand;
-import frc.robot.commands.DefaultDrive;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -30,7 +30,7 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final DriveSubsystem  m_driveSubsystem = new DriveSubsystem();
+  private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
   private final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
   private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
@@ -38,7 +38,8 @@ public class RobotContainer {
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
   private final ShooterCommand m_shooterCommand =
       new ShooterCommand(m_shooterSubsystem, m_elevatorSubsystem, m_flightStick::getY);
-  private final DefaultDrive m_defaultDrive = new DefaultDrive(m_driveSubsystem, m_controller1::getThrottle, m_controller1::getY);
+  private final DefaultDrive m_defaultDrive =
+      new DefaultDrive(m_driveSubsystem, m_controller1::getThrottle, m_controller1::getY);
 
   // misc init
   private JoystickButton m_switchCameraButton;
@@ -85,16 +86,16 @@ public class RobotContainer {
     return m_defaultDrive;
   }
   // to swap camera type.
-  public JoystickButton getCameraButton() { 
+  public JoystickButton getCameraButton() {
     return m_switchCameraButton;
   }
-   // for future SmartDashboard uses.
-  public Joystick getController1() { 
+  // for future SmartDashboard uses.
+  public Joystick getController1() {
     return this.m_controller1;
   }
-  
+
   // for smart dashboard.
-  public Joystick getFlightStick() { 
+  public Joystick getFlightStick() {
     return this.m_flightStick;
   }
 
