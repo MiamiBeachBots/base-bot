@@ -13,6 +13,11 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final double MAX_SPEED = 0.8;
+
+  // USB Devices
+  public static final int CONTROLLERUSBINDEX = 0;
+  public static final int FLIGHTSTICKUSBINDEX = 1;
   /// PWM ports until we switch to ring.
   // Drive Train Motors
   public static final int MOTORFRONTRIGHTCHANNEL = 4;
