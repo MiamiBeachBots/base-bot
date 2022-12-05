@@ -48,9 +48,9 @@ public class Robot extends TimedRobot {
 
     camera1 = CameraServer.startAutomaticCapture(0);
     camera2 = CameraServer.startAutomaticCapture(1);
-    // Tell both cameras to stream to the dashboard
-    camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    // Tell both cameras to always stream.
+    //camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    //camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
 
