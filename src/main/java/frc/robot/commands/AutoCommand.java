@@ -7,14 +7,10 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 
 /** An example command that uses an example subsystem. */
 public class AutoCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
-  private final ShooterSubsystem m_shooterSubsystem;
-  private final ElevatorSubsystem m_elevatorSubsystem;
   private Timer robotTimer = new Timer();
   private boolean timer_complete = false;
 
@@ -23,13 +19,10 @@ public class AutoCommand extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public AutoCommand(
-      DriveSubsystem d_subsystem, ShooterSubsystem s_subsystem, ElevatorSubsystem e_subsystem) {
+  public AutoCommand(DriveSubsystem d_subsystem) {
     m_driveSubsystem = d_subsystem;
-    m_shooterSubsystem = s_subsystem;
-    m_elevatorSubsystem = e_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(d_subsystem, s_subsystem, e_subsystem);
+    addRequirements(d_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -43,15 +36,9 @@ public class AutoCommand extends CommandBase {
   public void execute() {
     if (robotTimer.get() <= 4) {
       stop();
-      // m_robotContainer.doLift(1);
-      // m_robotContainer.doElevatorLift(-1);
-      m_shooterSubsystem.shoot(0.60);
     } else if (robotTimer.get() >= 4.5 && robotTimer.get() < 6) {
-      m_elevatorSubsystem.lift(-1);
-      m_shooterSubsystem.shoot(0.60);
     } else if (robotTimer.get() >= 6 && robotTimer.get() < 10) {
       backward();
-      // m_robotContainer.doLift(0);
     } else {
       timer_complete = true;
     }
