@@ -6,7 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+// import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -49,8 +49,8 @@ public class Robot extends TimedRobot {
     camera1 = CameraServer.startAutomaticCapture(0);
     camera2 = CameraServer.startAutomaticCapture(1);
     // Tell both cameras to always stream.
-    //camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    //camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    // camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    // camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
 
