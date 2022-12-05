@@ -6,9 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
 // import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,7 +32,7 @@ public class Robot extends TimedRobot {
 
   private UsbCamera camera1;
   private UsbCamera camera2;
-  private NetworkTableEntry cameraSelection;
+  private VideoSink mainCameraServer;
   private int cameraCounter = 2;
 
   /**
@@ -48,11 +47,10 @@ public class Robot extends TimedRobot {
 
     camera1 = CameraServer.startAutomaticCapture(0);
     camera2 = CameraServer.startAutomaticCapture(1);
+    mainCameraServer = CameraServer.getServer();
     // Tell both cameras to always stream.
     // camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     // camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-
-    cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
 
     // this is to put git info in the dashboard & Logs
     String deployDir = Filesystem.getDeployDirectory().getPath();
@@ -130,10 +128,10 @@ public class Robot extends TimedRobot {
                   cameraCounter++;
                   if (cameraCounter % 2 == 0) {
                     System.out.println("Setting Camera 2");
-                    cameraSelection.setString(camera2.getName());
+                    mainCameraServer.setSource(camera2);
                   } else {
                     System.out.println("Setting Camera 1");
-                    cameraSelection.setString(camera1.getName());
+                    mainCameraServer.setSource(camera1);
                   }
                 }));
   }
