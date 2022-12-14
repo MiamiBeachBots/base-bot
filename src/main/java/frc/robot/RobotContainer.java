@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -21,6 +22,10 @@ public class RobotContainer {
   // Init joysticks
   private final Joystick m_controller1 = new Joystick(Constants.CONTROLLERUSBINDEX);
   private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICKUSBINDEX);
+
+  // Init Gyro & ultrasonic
+  private AnalogPotentiometer m_ultrasonic1 =
+      new AnalogPotentiometer(Constants.ULTRASONIC1PORT, 500, 30);
 
   // The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -56,6 +61,10 @@ public class RobotContainer {
   // for autonomous
   public DefaultDrive getDefaultDrive() {
     return m_defaultDrive;
+  }
+  // for autonomous
+  public AnalogPotentiometer getUltrasonic() {
+    return m_ultrasonic1;
   }
   // to swap camera type.
   public JoystickButton getCameraButton() {

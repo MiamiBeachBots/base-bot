@@ -36,7 +36,9 @@ public class AutoCommand extends CommandBase {
   public void execute() {
     if (robotTimer.get() <= 4) {
       stop();
+      // also shoot here
     } else if (robotTimer.get() >= 4.5 && robotTimer.get() < 6) {
+      // shoot here
     } else if (robotTimer.get() >= 6 && robotTimer.get() < 10) {
       backward();
     } else {

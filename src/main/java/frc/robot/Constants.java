@@ -33,4 +33,6 @@ public final class Constants {
   public static final int SHOOTERMOTOR1CHANNEL = 7;
   public static final int SHOOTERMOTOR2CHANNEL = 6;
   public static final int SHOOTERSERVOCHANNEL = 9;
+  // Ultrasonic Sensors and ports.
+  public static final int ULTRASONIC1PORT = 0;
 }
