@@ -50,8 +50,16 @@ public class DriveSubsystem extends SubsystemBase {
   // default tank drive function
   // **tank drive = specific control style where two parallel forces of motion are controlled to
   // create linear and rotational motion
-  public void defaultDrive(double leftSpeed, double rightSpeed) {
+  public void tankDrive(double leftSpeed, double rightSpeed) {
     m_ddrive.tankDrive(leftSpeed, rightSpeed);
+  }
+
+  public void backward() {
+    this.tankDrive(0.5, -0.5);
+  }
+
+  public void stop() {
+    this.tankDrive(0, 0);
   }
 
   @Override

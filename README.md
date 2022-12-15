@@ -2,7 +2,8 @@
 
 ## TODO
 
-* Clean up the code
+
+
 * Command based controls
 * Finish Gyro
 * Pathweaver/trajectory planning
@@ -13,3 +14,5 @@
 ---
 * Create the readme
 * CAN support
+* Finish Commands & Finish Buttons.
+* Finish Migrating Robot.java
