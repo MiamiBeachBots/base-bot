@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class UltrasonicSubsystem extends SubsystemBase {
   private final AnalogInput m_rawUltrasonic;
-  private double voltageScaleFactor = 1;
+  private double voltageScaleFactor;
 
   /** Creates a new UltrasonicSubsystem. */
   public UltrasonicSubsystem(int PortNumber) {
