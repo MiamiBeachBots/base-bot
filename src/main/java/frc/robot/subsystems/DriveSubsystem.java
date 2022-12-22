@@ -20,17 +20,17 @@ public class DriveSubsystem extends SubsystemBase {
   private final double KP = 0.015;
 
   // motors
-  private Victor m_frontRight;
-  private Victor m_backLeft;
-  private Victor m_backRight;
-  private Victor m_frontLeft;
+  private final Victor m_frontRight;
+  private final Victor m_backLeft;
+  private final Victor m_backRight;
+  private final Victor m_frontLeft;
 
   // motors controllers
-  private MotorControllerGroup m_left;
-  private MotorControllerGroup m_right;
+  private final MotorControllerGroup m_left;
+  private final MotorControllerGroup m_right;
 
   // drive function
-  private DifferentialDrive m_ddrive;
+  private final DifferentialDrive m_ddrive;
 
   public DriveSubsystem() {
     // init motors
