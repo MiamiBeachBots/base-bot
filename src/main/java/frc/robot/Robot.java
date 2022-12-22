@@ -139,7 +139,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    System.out.println("Ultrasonic info: " + m_robotContainer.getUltrasonic().get());
+    System.out.println(
+        "Ultrasonic Distance In Inches: " + m_robotContainer.getUltrasonic1().DistanceIn());
     // TODO: add dashboard stuff
     // SmartDashboard.putNumber("Ultrasonic Sensor Distance", getRangeInches(ultrasonic1));
     // SmartDashboard.putNumber("Ultrasonic Top Sensor Distance", getRangeInches(ultrasonic2));
