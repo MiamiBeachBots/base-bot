@@ -4,7 +4,6 @@
 
 
 
-* Command based controls
 * Finish Gyro
 * Pathweaver/trajectory planning
 * Network Tables
@@ -14,5 +13,3 @@
 ---
 * Create the readme
 * CAN support
-* Finish Commands & Finish Buttons.
-* Finish Migrating Robot.java

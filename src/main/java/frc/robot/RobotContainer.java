@@ -4,13 +4,13 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.UltrasonicSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -24,8 +24,8 @@ public class RobotContainer {
   private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICKUSBINDEX);
 
   // Init Gyro & ultrasonic
-  private AnalogPotentiometer m_ultrasonic1 =
-      new AnalogPotentiometer(Constants.ULTRASONIC1PORT, 500, 30);
+  private final UltrasonicSubsystem m_ultrasonic1 =
+      new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
   // The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -63,7 +63,7 @@ public class RobotContainer {
     return m_defaultDrive;
   }
   // for autonomous
-  public AnalogPotentiometer getUltrasonic() {
+  public UltrasonicSubsystem getUltrasonic1() {
     return m_ultrasonic1;
   }
   // to swap camera type.
