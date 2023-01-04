@@ -1,5 +1,5 @@
 # Team 7652
-
+[![Build & Format Check](https://github.com/MiamiBeachBots/base-bot/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/MiamiBeachBots/base-bot/actions/workflows/gradle-build.yml)
 ## TODO
 
 
