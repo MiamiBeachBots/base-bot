@@ -23,15 +23,18 @@ public class RobotContainer {
   private final Joystick m_controller1 = new Joystick(Constants.CONTROLLERUSBINDEX);
   private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICKUSBINDEX);
 
+  // The robot's subsystems are defined here...
+  // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+
   // Init Gyro & ultrasonic
   private final UltrasonicSubsystem m_ultrasonic1 =
       new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
-  // The robot's subsystems and commands are defined here...
-  // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
 
+  // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+
   private final AutoCommand m_autoCommand = new AutoCommand(m_driveSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, m_controller1::getThrottle, m_controller1::getY);
@@ -43,6 +46,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
   }

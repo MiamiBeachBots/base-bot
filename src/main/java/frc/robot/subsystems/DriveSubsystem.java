@@ -1,6 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) Jack Nelson & Miami Beach Bots
 
 package frc.robot.subsystems;
 
@@ -11,8 +9,8 @@ import edu.wpi.first.wpilibj.motorcontrol.Victor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+/** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
 
   // math constants
   private final double DELTA = 0.05;
@@ -32,6 +30,7 @@ public class DriveSubsystem extends SubsystemBase {
   // drive function
   private final DifferentialDrive m_ddrive;
 
+  /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     // init motors
     m_frontRight = new Victor(Constants.MOTORFRONTRIGHTCHANNEL);
