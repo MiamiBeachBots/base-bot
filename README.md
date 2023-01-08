@@ -17,4 +17,4 @@ TODO
 - [ ]  Py Coprocessor
 - [ ]  Smart Dashboard
 - [ ] Finish the readme
-- [ ]  CAN support
+- [x]  CAN support
