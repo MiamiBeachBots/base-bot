@@ -16,21 +16,12 @@ public final class Constants {
   // USB Devices
   public static final int CONTROLLERUSBINDEX = 0;
   public static final int FLIGHTSTICKUSBINDEX = 1;
-  /// PWM ports until we switch to ring.
+  /// CAN Bus Devices
   // Drive Train Motors
-  public static final int MOTORFRONTRIGHTCHANNEL = 4;
-  public static final int MOTORFRONTLEFTCHANNEL = 1;
-  public static final int MOTORBACKRIGHTCHANNEL = 3;
-  public static final int MOTORBACKLEFTCHANNEL = 2;
-  // Elevator Motors
-  public static final int ELEVATORMOTORCHANNEL = 0;
-  // Intake Motors
-  public static final int INTAKEMOTORFRONTCHANNEL = 5;
-  public static final int INTAKEMOTORBACKCHANNEL = 8;
-  // Shooter Motors and Servos
-  public static final int SHOOTERMOTOR1CHANNEL = 7;
-  public static final int SHOOTERMOTOR2CHANNEL = 6;
-  public static final int SHOOTERSERVOCHANNEL = 9;
+  public static final int MOTORFRONTRIGHTID = 1;
+  public static final int MOTORBACKRIGHTID = 2;
+  public static final int MOTORFRONTLEFTID = 3;
+  public static final int MOTORBACKLEFTID = 4;
   // Ultrasonic Sensors and ports.
   public static final int ULTRASONIC1PORT = 0;
 }

@@ -3,9 +3,9 @@
 package frc.robot.subsystems;
 
 // import motor & frc dependencies
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.motorcontrol.Victor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -18,10 +18,10 @@ public class DriveSubsystem extends SubsystemBase {
   private final double KP = 0.015;
 
   // motors
-  private final Victor m_frontRight;
-  private final Victor m_backLeft;
-  private final Victor m_backRight;
-  private final Victor m_frontLeft;
+  private final WPI_TalonFX m_backLeft;
+  private final WPI_TalonFX m_frontLeft;
+  private final WPI_TalonFX m_backRight;
+  private final WPI_TalonFX m_frontRight;
 
   // motors controllers
   private final MotorControllerGroup m_left;
@@ -33,10 +33,11 @@ public class DriveSubsystem extends SubsystemBase {
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     // init motors
-    m_frontRight = new Victor(Constants.MOTORFRONTRIGHTCHANNEL);
-    m_backLeft = new Victor(Constants.MOTORBACKLEFTCHANNEL);
-    m_backRight = new Victor(Constants.MOTORBACKRIGHTCHANNEL);
-    m_frontLeft = new Victor(Constants.MOTORFRONTLEFTCHANNEL);
+    // rio means built into the roboRIO
+    m_backLeft = new WPI_TalonFX(Constants.MOTORBACKLEFTID, "rio");
+    m_frontLeft = new WPI_TalonFX(Constants.MOTORFRONTLEFTID, "rio");
+    m_frontRight = new WPI_TalonFX(Constants.MOTORFRONTRIGHTID, "rio");
+    m_backRight = new WPI_TalonFX(Constants.MOTORBACKRIGHTID, "rio");
 
     // init motors controllers
     m_left = new MotorControllerGroup(m_backLeft, m_frontLeft);
