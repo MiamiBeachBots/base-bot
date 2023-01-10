@@ -1,18 +1,16 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) Jack Nelson & Miami Beach Bots
 
 package frc.robot.subsystems;
 
 // import motor & frc dependencies
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.motorcontrol.Victor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+/** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
 
   // math constants
   private final double DELTA = 0.05;
@@ -20,10 +18,10 @@ public class DriveSubsystem extends SubsystemBase {
   private final double KP = 0.015;
 
   // motors
-  private final Victor m_frontRight;
-  private final Victor m_backLeft;
-  private final Victor m_backRight;
-  private final Victor m_frontLeft;
+  private final WPI_VictorSPX m_backLeft;
+  private final WPI_VictorSPX m_frontLeft;
+  private final WPI_VictorSPX m_backRight;
+  private final WPI_VictorSPX m_frontRight;
 
   // motors controllers
   private final MotorControllerGroup m_left;
@@ -32,12 +30,14 @@ public class DriveSubsystem extends SubsystemBase {
   // drive function
   private final DifferentialDrive m_ddrive;
 
+  /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     // init motors
-    m_frontRight = new Victor(Constants.MOTORFRONTRIGHTCHANNEL);
-    m_backLeft = new Victor(Constants.MOTORBACKLEFTCHANNEL);
-    m_backRight = new Victor(Constants.MOTORBACKRIGHTCHANNEL);
-    m_frontLeft = new Victor(Constants.MOTORFRONTLEFTCHANNEL);
+    // rio means built into the roboRIO
+    m_backLeft = new WPI_VictorSPX(Constants.MOTORBACKLEFTID);
+    m_frontLeft = new WPI_VictorSPX(Constants.MOTORFRONTLEFTID);
+    m_frontRight = new WPI_VictorSPX(Constants.MOTORFRONTRIGHTID);
+    m_backRight = new WPI_VictorSPX(Constants.MOTORBACKRIGHTID);
 
     // init motors controllers
     m_left = new MotorControllerGroup(m_backLeft, m_frontLeft);

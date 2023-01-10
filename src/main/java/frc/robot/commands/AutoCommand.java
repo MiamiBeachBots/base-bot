@@ -1,23 +1,20 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
+// Copyright (c) Jack Nelson & Miami Beach Bots
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
 
-/** An example command that uses an example subsystem. */
+/** The autonomous mode command that uses the drive subsystem. */
 public class AutoCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
   private Timer robotTimer = new Timer();
   private boolean timer_complete = false;
 
   /**
-   * Creates a new ShooterCommand.
+   * Creates a new AutoCommand.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param d_subsystem The drive subsystem used by this command.
    */
   public AutoCommand(DriveSubsystem d_subsystem) {
     m_driveSubsystem = d_subsystem;

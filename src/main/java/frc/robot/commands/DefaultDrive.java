@@ -1,6 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) Jack Nelson & Miami Beach Bots
 
 package frc.robot.commands;
 
@@ -9,16 +7,19 @@ import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
-/** An example command that uses an example subsystem. */
+/** The default drive command that uses the drive subsystem. */
 public class DefaultDrive extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
   private final DoubleSupplier m_joy_x; // this gives us the x axis for current controller
   private final DoubleSupplier m_joy_y; // this gives us the y axis for current controller
 
   /**
-   * Creates a new ShooterCommand.
+   * Creates a new DefaultDrive command.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param d_subsystem The drive subsystem used by this command.
+   * @param joystick_throttle_func A function that returns the value of the x axis / throttle axis
+   *     for the joystick.
+   * @param joystick_y_func A function that returns the value of the Y axis for the joystick.
    */
   public DefaultDrive(
       DriveSubsystem d_subsystem,

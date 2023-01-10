@@ -1,7 +1,6 @@
-
-# This is a basic workflow to build robot code.
-
-name: Check Gradle
+---
+## This is a basic workflow to build and check the formatting of the robot code.
+name: Build & Format Check
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the main branch.
@@ -19,39 +18,48 @@ jobs:
     runs-on: ubuntu-latest
 
     # This grabs the WPILib docker container
-    container: wpilib/roborio-cross-ubuntu:2022-20.04
+    container: wpilib/roborio-cross-ubuntu:2023-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: gradle/gradle-build-action@v2 # enables fancy caching.
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: gradle/wrapper-validation-action@v1 # this validates the jar file
 
-    # Make gradlew executable & fix git issue
+    # Declares the repository safe and not under dubious ownership.
+    - name: Add repository to git safe directories
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+    # Make gradlew executable
     - name: Make grandlew executable
-      run: chmod +x gradlew && git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      run: chmod +x gradlew
 
     # build.
     - name: Compile and run tests on robot code
       run: ./gradlew build
+
   Formatting:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     # This grabs the WPILib docker container
-    container: wpilib/roborio-cross-ubuntu:2022-20.04
+    container: wpilib/roborio-cross-ubuntu:2023-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: gradle/gradle-build-action@v2 # enables fancy caching.
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: gradle/wrapper-validation-action@v1 # this validates the jar file
 
-    # Make gradlew executable & fix git issue
+    # Declares the repository safe and not under dubious ownership.
+    - name: Add repository to git safe directories
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+    # Make gradlew executable
     - name: Make grandlew executable
-      run: chmod +x gradlew && git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      run: chmod +x gradlew
 
     # check formatting.
     - name: Validate Code is properly formatted
