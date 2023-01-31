@@ -19,9 +19,9 @@ public class GyroSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double error = m_Gyro.getRate();
-    System.out.println("Gyro:");
-    System.out.println(error);
+    // double error = m_Gyro.getRate();
+    // System.out.println("Gyro:");
+    // System.out.println(error);
   }
 
   @Override

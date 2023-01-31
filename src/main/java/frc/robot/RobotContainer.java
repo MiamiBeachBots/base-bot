@@ -63,8 +63,8 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // camera button
-    m_switchCameraButton = new JoystickButton(m_controller1, 1);
-    m_aimButton = new JoystickButton(m_flightStick, 12);
+    m_switchCameraButton = new JoystickButton(m_controller1, Constants.SWAPCAMBUTTON);
+    m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     m_aimButton.whileTrue(m_aimCommand);
   }
 

@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
 import org.photonvision.PhotonCamera;
@@ -12,8 +14,10 @@ import org.photonvision.PhotonCamera;
 public class AimCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
   private final PhotonCamera m_camera;
-  private double FirstLevelSpeed = 0.6;
-  private double SecondLevelSpeed = 0.45;
+  private final double SMALLDISTANCESPEED = 0.6;
+  private final double LARGEDISTANCESPEED = 0.45;
+  private final String CAMERANAME = "OV5647";
+  private final NetworkTableEntry targetDetected;
   /**
    * Creates a new ExampleCommand.
    *
@@ -23,7 +27,10 @@ public class AimCommand extends CommandBase {
     m_driveSubsystem = d_subsystem;
 
     // Change this to match the name of your camera
-    m_camera = new PhotonCamera("OV5647");
+    m_camera = new PhotonCamera(CAMERANAME);
+
+    // init networktables
+    targetDetected = NetworkTableInstance.getDefault().getTable("").getEntry("targetDetected");
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(d_subsystem);
@@ -36,21 +43,24 @@ public class AimCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var result = m_camera.getLatestResult();
+    var artemCAMRESULT = m_camera.getLatestResult();
     // will not work if cam is defined incorrectly, but will not tell you
-    if (result.hasTargets()) {
+    if (artemCAMRESULT.hasTargets()) {
+      targetDetected.setString("true");
       // Calculate angular turn power
       // -1.0 required to ensure positive PID controller effort _increases_ yaw
       // drivetrain too "fast"/not enough tourqe to be slow, very annoying
-      if (result.getBestTarget().getPitch() > 10) {
-        this.m_driveSubsystem.tankDrive(FirstLevelSpeed, FirstLevelSpeed);
-      } else if (result.getBestTarget().getPitch() < -10) {
-        this.m_driveSubsystem.tankDrive(-FirstLevelSpeed, -FirstLevelSpeed);
-      } else if (result.getBestTarget().getPitch() < -2) {
-        this.m_driveSubsystem.tankDrive(-SecondLevelSpeed, -SecondLevelSpeed);
-      } else if (result.getBestTarget().getPitch() > 2) {
-        this.m_driveSubsystem.tankDrive(SecondLevelSpeed, SecondLevelSpeed);
+      if (artemCAMRESULT.getBestTarget().getPitch() > 10) {
+        this.m_driveSubsystem.tankDrive(SMALLDISTANCESPEED, SMALLDISTANCESPEED);
+      } else if (artemCAMRESULT.getBestTarget().getPitch() < -10) {
+        this.m_driveSubsystem.tankDrive(-SMALLDISTANCESPEED, -SMALLDISTANCESPEED);
+      } else if (artemCAMRESULT.getBestTarget().getPitch() < -2) {
+        this.m_driveSubsystem.tankDrive(-LARGEDISTANCESPEED, -LARGEDISTANCESPEED);
+      } else if (artemCAMRESULT.getBestTarget().getPitch() > 2) {
+        this.m_driveSubsystem.tankDrive(LARGEDISTANCESPEED, LARGEDISTANCESPEED);
       }
+    } else {
+      targetDetected.setString("false");
     }
   }
 
