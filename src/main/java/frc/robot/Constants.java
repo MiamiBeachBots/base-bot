@@ -24,4 +24,7 @@ public final class Constants {
   public static final int MOTORBACKLEFTID = 4;
   // Ultrasonic Sensors and ports.
   public static final int ULTRASONIC1PORT = 0;
+  // Buttons
+  public static final int SWAPCAMBUTTON = 1;
+  public static final int AIMBUTTON = 12;
 }

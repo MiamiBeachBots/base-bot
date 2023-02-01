@@ -7,9 +7,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.AimCommand;
 import frc.robot.commands.AutoCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 
 /**
@@ -31,16 +33,18 @@ public class RobotContainer {
       new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
-
+  private final GyroSubsystem m_GyroSubsystem = new GyroSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
   private final AutoCommand m_autoCommand = new AutoCommand(m_driveSubsystem);
+  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, m_controller1::getThrottle, m_controller1::getY);
 
   // misc init
   private JoystickButton m_switchCameraButton;
+  private JoystickButton m_aimButton;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -59,7 +63,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // camera button
-    m_switchCameraButton = new JoystickButton(m_controller1, 1);
+    m_switchCameraButton = new JoystickButton(m_controller1, Constants.SWAPCAMBUTTON);
+    m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
+    m_aimButton.whileTrue(m_aimCommand);
   }
 
   // for autonomous
