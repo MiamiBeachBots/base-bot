@@ -51,7 +51,7 @@ public class DriveSubsystem extends SubsystemBase {
   // **tank drive = specific control style where two parallel forces of motion are controlled to
   // create linear and rotational motion
   public void tankDrive(double leftSpeed, double rightSpeed) {
-    m_ddrive.tankDrive(leftSpeed, rightSpeed);
+    m_ddrive.tankDrive(Constants.MAX_SPEED * leftSpeed, Constants.MAX_SPEED * rightSpeed);
   }
 
   public void backward() {

@@ -3,7 +3,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
@@ -39,8 +38,7 @@ public class DefaultDrive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    this.m_driveSubsystem.tankDrive(
-        Constants.MAX_SPEED * m_joy_x.getAsDouble(), -Constants.MAX_SPEED * m_joy_y.getAsDouble());
+    this.m_driveSubsystem.tankDrive(m_joy_x.getAsDouble(), -m_joy_y.getAsDouble());
   }
 
   public void backward() {
