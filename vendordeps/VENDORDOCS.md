@@ -4,3 +4,5 @@
 * Phonenix.json (Victor SPX) [Docs](https://v5.docs.ctr-electronics.com/en/stable/),  [API Docs](https://api.ctr-electronics.com/phoenix/release/java/index.html)
 
 * REVLib.json (Spark Max) [Docs](https://docs.revrobotics.com/sparkmax/), [API Docs](https://codedocs.revrobotics.com/java/com/revrobotics/package-summary.html)
+
+* NavX.json (gyro) [Docs](https://pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java/) [API Docs](https://www.kauailabs.com/public_files/navx-mxp/apidocs/java/)
