@@ -13,10 +13,15 @@ import frc.robot.Constants;
 public class DriveSubsystem extends SubsystemBase {
 
   // math constants
-  private final double DELTA = 0.05;
-
-  private final double KP = 0.015;
-
+  static final double kP = 0.03;
+  static final double kI = 0.00;
+  static final double kD = 0.00;
+  static final double kF = 0.00;
+  
+  static final double kToleranceDegrees = 2.0f;    
+  
+  static final double kTargetAngleDegrees = 90.0f;
+  
   // motors
   private final WPI_VictorSPX m_backLeft;
   private final WPI_VictorSPX m_frontLeft;
