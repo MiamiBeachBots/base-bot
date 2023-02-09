@@ -4,6 +4,8 @@ package frc.robot.subsystems;
 
 // import motor & frc dependencies
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -11,17 +13,21 @@ import frc.robot.Constants;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
+  // constants for Angle PID
 
-  // math constants
   static final double kP = 0.03;
   static final double kI = 0.00;
   static final double kD = 0.00;
-  static final double kF = 0.00;
-  
-  static final double kToleranceDegrees = 2.0f;    
-  
-  static final double kTargetAngleDegrees = 90.0f;
-  
+
+  // Variables for Angle PID
+
+  // false when inactive, true when active / a target is set.
+  private boolean turnControllerEnabled = false;
+  private double rotateToAngleRate; // This value will be updated by the PID Controller
+
+  // pid controller for "RotateToAngle"
+  private final PIDController m_turnController = new PIDController(kP, kI, kD);
+
   // motors
   private final WPI_VictorSPX m_backLeft;
   private final WPI_VictorSPX m_frontLeft;
@@ -50,6 +56,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     // init drive function
     m_ddrive = new DifferentialDrive(m_left, m_right);
+    // config pid controller for motors.
+    m_turnController.enableContinuousInput(-180.0f, 180.0f);
   }
 
   // default tank drive function
@@ -65,6 +73,46 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void stop() {
     this.tankDrive(0, 0);
+  }
+
+  public void resetPID() {
+    /** This should be run when stopping a pid command. */
+    turnControllerEnabled = false;
+  }
+
+  private void calcuateAngleRate(double gyroYawAngle, double TargetAngleDegrees) {
+    if (!turnControllerEnabled) {
+      m_turnController.setSetpoint(TargetAngleDegrees);
+      turnControllerEnabled = true;
+    }
+    rotateToAngleRate = MathUtil.clamp(m_turnController.calculate(gyroYawAngle), -1.0, 1.0);
+  }
+
+  public void turnToAngle(double gyroYawAngle, double TargetAngleDegrees) {
+    /*
+     * When this function is activated, execute another command to rotate to target angle. Since a Tank drive
+     * system cannot move forward simultaneously while rotating, all joystick input
+     * is ignored until this button is released.
+     */
+    this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
+    double leftStickValue = rotateToAngleRate;
+    double rightStickValue = rotateToAngleRate;
+    this.tankDrive(leftStickValue, -rightStickValue);
+  }
+
+  // magnitude = (joystickL + joystickR) / 2;
+  public void driveStraight(
+      double gyroYawAngle, double gyroAccumYawAngle, double joystickMagnitude) {
+    /*
+     * WWhen this function is activated, the robot is in "drive straight" mode.
+     * Whatever direction the robot was heading when "drive straight" mode was
+     * entered will be maintained. The average speed of both joysticks is the
+     * magnitude of motion.
+     */
+    this.calcuateAngleRate(gyroYawAngle, gyroAccumYawAngle);
+    double leftStickValue = joystickMagnitude + rotateToAngleRate;
+    double rightStickValue = joystickMagnitude - rotateToAngleRate;
+    this.tankDrive(leftStickValue, -rightStickValue);
   }
 
   @Override
