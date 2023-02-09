@@ -8,14 +8,14 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.GyroSubsystem;
 import org.photonvision.PhotonCamera;
 
 /** An example command that uses an example subsystem. */
 public class AimCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
+  private final GyroSubsystem m_gyroSubsystem;
   private final PhotonCamera m_camera;
-  private final double SMALLDISTANCESPEED = 0.6;
-  private final double LARGEDISTANCESPEED = 0.45;
   private final String CAMERANAME = "OV5647";
   private final NetworkTableEntry targetDetected;
   /**
@@ -23,8 +23,9 @@ public class AimCommand extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public AimCommand(DriveSubsystem d_subsystem) {
+  public AimCommand(DriveSubsystem d_subsystem, GyroSubsystem g_subsystem) {
     m_driveSubsystem = d_subsystem;
+    m_gyroSubsystem = g_subsystem;
 
     // Change this to match the name of your camera
     m_camera = new PhotonCamera(CAMERANAME);
@@ -33,7 +34,7 @@ public class AimCommand extends CommandBase {
     targetDetected = NetworkTableInstance.getDefault().getTable("").getEntry("targetDetected");
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(d_subsystem);
+    addRequirements(d_subsystem, g_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -47,18 +48,11 @@ public class AimCommand extends CommandBase {
     // will not work if cam is defined incorrectly, but will not tell you
     if (artemCAMRESULT.hasTargets()) {
       targetDetected.setString("true");
-      // Calculate angular turn power
-      // -1.0 required to ensure positive PID controller effort _increases_ yaw
-      // drivetrain too "fast"/not enough tourqe to be slow, very annoying
-      if (artemCAMRESULT.getBestTarget().getPitch() > 10) {
-        this.m_driveSubsystem.tankDrive(SMALLDISTANCESPEED, SMALLDISTANCESPEED);
-      } else if (artemCAMRESULT.getBestTarget().getPitch() < -10) {
-        this.m_driveSubsystem.tankDrive(-SMALLDISTANCESPEED, -SMALLDISTANCESPEED);
-      } else if (artemCAMRESULT.getBestTarget().getPitch() < -2) {
-        this.m_driveSubsystem.tankDrive(-LARGEDISTANCESPEED, -LARGEDISTANCESPEED);
-      } else if (artemCAMRESULT.getBestTarget().getPitch() > 2) {
-        this.m_driveSubsystem.tankDrive(LARGEDISTANCESPEED, LARGEDISTANCESPEED);
-      }
+      // use gyro PID with angle, very easy
+      m_driveSubsystem.turnToAngle(
+          m_gyroSubsystem.getYaw(), artemCAMRESULT.getBestTarget().getPitch());
+      // we reset the angle everytime as the target could change / move.
+      m_driveSubsystem.resetPID();
     } else {
       targetDetected.setString("false");
     }
@@ -66,7 +60,9 @@ public class AimCommand extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_driveSubsystem.resetPID(); // we make sure to clear the PID angle
+  }
 
   // Returns true when the command should end.
   @Override

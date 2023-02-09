@@ -39,7 +39,7 @@ public class RobotContainer {
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
   private final AutoCommand m_autoCommand = new AutoCommand(m_driveSubsystem);
-  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem);
+  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_gyroSubsystem);
   private final BalanceCommand m_balanceCommand =
       new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);
   private final DefaultDrive m_defaultDrive =
