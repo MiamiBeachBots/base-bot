@@ -103,7 +103,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   // magnitude = (joystickL + joystickR) / 2;
-  public void driveStraight(
+  public void driveStraight( // we command you to stay straight,
       double gyroYawAngle, double gyroAccumYawAngle, double joystickMagnitude) {
     /*
      * WWhen this function is activated, the robot is in "drive straight" mode.

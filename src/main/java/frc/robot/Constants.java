@@ -32,4 +32,5 @@ public final class Constants {
   public static final int SWAPCAMBUTTON = 1;
   public static final int AIMBUTTON = 12;
   public static final int BALANCEBUTTON = 6;
+  public static final int STRAIGHTBUTTON = 8;
 }

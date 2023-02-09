@@ -11,6 +11,7 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.AutoCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.StraightCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
@@ -44,11 +45,15 @@ public class RobotContainer {
       new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, m_controller1::getThrottle, m_controller1::getY);
+  private final StraightCommand m_straightCommand =
+      new StraightCommand(
+          m_driveSubsystem, m_gyroSubsystem, m_controller1::getThrottle, m_controller1::getY);
 
   // misc init
   private JoystickButton m_switchCameraButton;
   private JoystickButton m_aimButton;
   private JoystickButton m_balanceButton;
+  private JoystickButton m_straightButton;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -70,9 +75,11 @@ public class RobotContainer {
     m_switchCameraButton = new JoystickButton(m_controller1, Constants.SWAPCAMBUTTON);
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     m_balanceButton = new JoystickButton(m_controller1, Constants.BALANCEBUTTON);
+    m_straightButton = new JoystickButton(m_controller1, Constants.STRAIGHTBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
     m_aimButton.whileTrue(m_aimCommand);
+    m_straightButton.whileTrue(m_straightCommand);
   }
 
   // for autonomous

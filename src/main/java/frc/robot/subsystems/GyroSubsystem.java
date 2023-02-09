@@ -35,7 +35,7 @@ public class GyroSubsystem extends SubsystemBase {
   }
 
   // for PID control (turn by degrees)
-  public double getAccumAngle() {
+  public double getAccumYaw() {
     return m_Gyro.getAngle(); // get angle in degrees
   }
 
