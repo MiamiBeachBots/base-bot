@@ -38,7 +38,7 @@ public class DefaultDrive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    this.m_driveSubsystem.tankDrive(m_joy_x.getAsDouble(), -m_joy_y.getAsDouble());
+    this.m_driveSubsystem.tankDrive(m_joy_x.getAsDouble(), m_joy_y.getAsDouble());
   }
 
   public void backward() {

@@ -64,11 +64,13 @@ public class DriveSubsystem extends SubsystemBase {
   // **tank drive = specific control style where two parallel forces of motion are controlled to
   // create linear and rotational motion
   public void tankDrive(double leftSpeed, double rightSpeed) {
-    m_ddrive.tankDrive(Constants.MAX_SPEED * leftSpeed, Constants.MAX_SPEED * rightSpeed);
+    m_ddrive.tankDrive(
+        Constants.MAX_SPEED * leftSpeed,
+        -Constants.MAX_SPEED * rightSpeed); // negative as motors are swapped rn
   }
 
   public void backward() {
-    this.tankDrive(0.5, -0.5);
+    this.tankDrive(0.5, 0.5);
   }
 
   public void stop() {
@@ -97,7 +99,7 @@ public class DriveSubsystem extends SubsystemBase {
     this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
     double leftStickValue = rotateToAngleRate;
     double rightStickValue = rotateToAngleRate;
-    this.tankDrive(leftStickValue, -rightStickValue);
+    this.tankDrive(leftStickValue, rightStickValue);
   }
 
   // magnitude = (joystickL + joystickR) / 2;
@@ -112,7 +114,7 @@ public class DriveSubsystem extends SubsystemBase {
     this.calcuateAngleRate(gyroYawAngle, gyroAccumYawAngle);
     double leftStickValue = joystickMagnitude + rotateToAngleRate;
     double rightStickValue = joystickMagnitude - rotateToAngleRate;
-    this.tankDrive(leftStickValue, -rightStickValue);
+    this.tankDrive(leftStickValue, rightStickValue);
   }
 
   @Override

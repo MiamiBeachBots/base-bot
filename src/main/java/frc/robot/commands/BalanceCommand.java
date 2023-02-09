@@ -38,7 +38,7 @@ public class BalanceCommand extends CommandBase {
   public void execute() {
     balanceResult = m_GyroSubsystem.balanceCorrection();
     System.out.println(balanceResult);
-    m_driveSubsystem.tankDrive(balanceResult, -balanceResult);
+    m_driveSubsystem.tankDrive(balanceResult, balanceResult);
   }
 
   // Called once the command ends or is interrupted.
