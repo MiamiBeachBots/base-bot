@@ -11,7 +11,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import org.photonvision.PhotonCamera;
 
-/** An example command that uses an example subsystem. */
+/** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
   private final GyroSubsystem m_gyroSubsystem;
@@ -19,9 +19,10 @@ public class AimCommand extends CommandBase {
   private final String CAMERANAME = "OV5647";
   private final NetworkTableEntry targetDetected;
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new AimCommand.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param d_subsystem The drive subsystem used by this command.
+   * @param g_subsystem The gyro subsystem used by this command.
    */
   public AimCommand(DriveSubsystem d_subsystem, GyroSubsystem g_subsystem) {
     m_driveSubsystem = d_subsystem;
