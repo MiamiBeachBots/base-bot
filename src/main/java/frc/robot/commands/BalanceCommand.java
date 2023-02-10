@@ -10,9 +10,8 @@ import frc.robot.subsystems.GyroSubsystem;
 
 /** A Balancing command that uses the gyro subsystem. */
 public class BalanceCommand extends CommandBase {
-  private final GyroSubsystem m_GyroSubsystem;
+  private final GyroSubsystem m_gyroSubsystem;
   private final DriveSubsystem m_driveSubsystem;
-  private double balanceResult;
 
   /**
    * Creates a new BalanceCommand.
@@ -22,9 +21,9 @@ public class BalanceCommand extends CommandBase {
    */
   public BalanceCommand(DriveSubsystem d_subsystem, GyroSubsystem g_subsystem) {
     m_driveSubsystem = d_subsystem;
-    m_GyroSubsystem = g_subsystem;
+    m_gyroSubsystem = g_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_driveSubsystem, m_GyroSubsystem);
+    addRequirements(m_driveSubsystem, m_gyroSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -36,9 +35,7 @@ public class BalanceCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    balanceResult = m_GyroSubsystem.balanceCorrection();
-    System.out.println(balanceResult);
-    m_driveSubsystem.tankDrive(balanceResult, balanceResult);
+    m_driveSubsystem.balanceCorrection(m_gyroSubsystem.getPitch());
   }
 
   // Called once the command ends or is interrupted.

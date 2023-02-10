@@ -28,12 +28,6 @@ public class GyroSubsystem extends SubsystemBase {
     return m_Gyro.getPitch(); // get pitch in degrees
   }
 
-  public double balanceCorrection() { // pitch radians
-    double pitchAngleRadians = this.getPitch() * (Math.PI / 180.0);
-    double xAxisRate = Math.sin(pitchAngleRadians) * -1;
-    return xAxisRate; // return from sin;
-  }
-
   // for PID control (turn by degrees)
   public double getAccumYaw() {
     return m_Gyro.getAngle(); // get angle in degrees

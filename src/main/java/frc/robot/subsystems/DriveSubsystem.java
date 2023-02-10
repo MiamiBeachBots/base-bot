@@ -77,6 +77,13 @@ public class DriveSubsystem extends SubsystemBase {
     this.tankDrive(0, 0);
   }
 
+  public void balanceCorrection(double gyroPitchAngle) {
+    double pitchAngleRadians = gyroPitchAngle * (Math.PI / 180.0);
+    double xAxisRate = Math.sin(pitchAngleRadians) * -1;
+    System.out.println(xAxisRate);
+    this.tankDrive(xAxisRate, xAxisRate);
+  }
+  // these next 4 functions are for turning a set radius while using the gyro.
   public void resetPID() {
     /** This should be run when stopping a pid command. */
     turnControllerEnabled = false;
