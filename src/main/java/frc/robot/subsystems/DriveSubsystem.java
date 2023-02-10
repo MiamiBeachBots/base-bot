@@ -79,7 +79,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void balanceCorrection(double gyroPitchAngle) {
     double pitchAngleRadians = gyroPitchAngle * (Math.PI / 180.0);
-    double xAxisRate = Math.sin(pitchAngleRadians) * -1;
+    double xAxisRate = (Math.sin(pitchAngleRadians) * -1);
     System.out.println(xAxisRate);
     this.tankDrive(xAxisRate, xAxisRate);
   }
