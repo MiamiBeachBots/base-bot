@@ -57,7 +57,7 @@ public class StraightCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.resetPID(); // we make sure to clear the PID angle
+    m_driveSubsystem.turnResetPID(); // we make sure to clear the PID angle
     System.out.println("Ending 'StraightCommand.");
   }
 

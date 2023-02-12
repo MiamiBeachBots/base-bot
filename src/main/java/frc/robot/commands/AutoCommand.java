@@ -41,7 +41,7 @@ public class AutoCommand extends CommandBase {
     } else if (robotTimer.get() >= 4.5 && robotTimer.get() < 6) {
       m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), 90);
     } else if (robotTimer.get() >= 6 && robotTimer.get() < 10) {
-      m_driveSubsystem.resetPID();
+      m_driveSubsystem.turnResetPID();
       backward();
       m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), -90);
     } else {
@@ -60,7 +60,7 @@ public class AutoCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.resetPID();
+    m_driveSubsystem.turnResetPID();
     stop();
   }
 

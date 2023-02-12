@@ -15,18 +15,18 @@ import frc.robot.Constants;
 public class DriveSubsystem extends SubsystemBase {
   // constants for Angle PID
 
-  static final double kP = 0.03;
-  static final double kI = 0.00;
-  static final double kD = 0.00;
+  static final double turn_kP = 0.03;
+  static final double turn_kI = 0.00;
+  static final double turn_kD = 0.00;
 
   // Variables for Angle PID
 
   // false when inactive, true when active / a target is set.
   private boolean turnControllerEnabled = false;
-  private double rotateToAngleRate; // This value will be updated by the PID Controller
+  private double turnRotateToAngleRate; // This value will be updated by the PID Controller
 
   // pid controller for "RotateToAngle"
-  private final PIDController m_turnController = new PIDController(kP, kI, kD);
+  private final PIDController m_turnController = new PIDController(turn_kP, turn_kI, turn_kD);
 
   // motors
   private final WPI_VictorSPX m_backLeft;
@@ -64,9 +64,7 @@ public class DriveSubsystem extends SubsystemBase {
   // **tank drive = specific control style where two parallel forces of motion are controlled to
   // create linear and rotational motion
   public void tankDrive(double leftSpeed, double rightSpeed) {
-    m_ddrive.tankDrive(
-        Constants.MAX_SPEED * leftSpeed,
-        -Constants.MAX_SPEED * rightSpeed); // negative as motors are swapped rn
+    m_ddrive.tankDrive(leftSpeed, -rightSpeed); // negative as motors are swapped rn
   }
 
   public void backward() {
@@ -84,7 +82,7 @@ public class DriveSubsystem extends SubsystemBase {
     this.tankDrive(xAxisRate, xAxisRate);
   }
   // these next 4 functions are for turning a set radius while using the gyro.
-  public void resetPID() {
+  public void turnResetPID() {
     /** This should be run when stopping a pid command. */
     turnControllerEnabled = false;
   }
@@ -94,7 +92,7 @@ public class DriveSubsystem extends SubsystemBase {
       m_turnController.setSetpoint(TargetAngleDegrees);
       turnControllerEnabled = true;
     }
-    rotateToAngleRate = MathUtil.clamp(m_turnController.calculate(gyroYawAngle), -1.0, 1.0);
+    turnRotateToAngleRate = MathUtil.clamp(m_turnController.calculate(gyroYawAngle), -1.0, 1.0);
   }
 
   public void turnToAngle(double gyroYawAngle, double TargetAngleDegrees) {
@@ -104,8 +102,8 @@ public class DriveSubsystem extends SubsystemBase {
      * is ignored until this button is released.
      */
     this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
-    double leftStickValue = rotateToAngleRate;
-    double rightStickValue = rotateToAngleRate;
+    double leftStickValue = turnRotateToAngleRate;
+    double rightStickValue = turnRotateToAngleRate;
     this.tankDrive(leftStickValue, rightStickValue);
   }
 
@@ -119,8 +117,8 @@ public class DriveSubsystem extends SubsystemBase {
      * magnitude of motion.
      */
     this.calcuateAngleRate(gyroYawAngle, gyroAccumYawAngle);
-    double leftStickValue = joystickMagnitude + rotateToAngleRate;
-    double rightStickValue = joystickMagnitude - rotateToAngleRate;
+    double leftStickValue = joystickMagnitude + turnRotateToAngleRate;
+    double rightStickValue = joystickMagnitude - turnRotateToAngleRate;
     this.tankDrive(leftStickValue, rightStickValue);
   }
 

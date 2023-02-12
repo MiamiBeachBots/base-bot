@@ -53,7 +53,7 @@ public class AimCommand extends CommandBase {
       m_driveSubsystem.turnToAngle(
           m_gyroSubsystem.getYaw(), artemCAMRESULT.getBestTarget().getPitch());
       // we reset the angle everytime as the target could change / move.
-      m_driveSubsystem.resetPID();
+      m_driveSubsystem.turnResetPID();
     } else {
       targetDetected.setString("false");
     }
@@ -62,7 +62,7 @@ public class AimCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.resetPID(); // we make sure to clear the PID angle
+    m_driveSubsystem.turnResetPID(); // we make sure to clear the PID angle
   }
 
   // Returns true when the command should end.
