@@ -37,6 +37,18 @@ public class ArmSubsystem extends SubsystemBase {
     // arm go up and down like a funi dance
   }
 
+  public void clawOpen() {
+    // arm go droppy droppy
+  }
+
+  public void clawClose() {
+    // arm go grabby grabby
+  }
+
+  public void clawHold() {
+    // arm go holdy holdy
+  }
+
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
