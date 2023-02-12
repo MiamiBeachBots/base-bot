@@ -83,10 +83,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive.tankDrive(leftSpeed, -rightSpeed); // negative as motors are swapped rn
   }
 
-  public void backward() {
-    this.tankDrive(0.5, 0.5);
-  }
-
   public void stop() {
     this.tankDrive(0, 0);
   }

@@ -42,7 +42,7 @@ public class AutoCommand extends CommandBase {
       m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), 90);
     } else if (robotTimer.get() >= 6 && robotTimer.get() < 10) {
       m_driveSubsystem.turnResetPID();
-      backward();
+      this.backward();
       m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), -90);
     } else {
       timer_complete = true;
@@ -50,7 +50,7 @@ public class AutoCommand extends CommandBase {
   }
 
   public void backward() {
-    m_driveSubsystem.backward();
+    m_driveSubsystem.tankDrive(-0.5, -0.5);
   }
 
   public void stop() {

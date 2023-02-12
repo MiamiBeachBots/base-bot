@@ -44,18 +44,10 @@ public class DefaultDrive extends CommandBase {
         Constants.MAX_SPEED * m_joy_x.getAsDouble(), Constants.MAX_SPEED * m_joy_y.getAsDouble());
   }
 
-  public void backward() {
-    m_driveSubsystem.backward();
-  }
-
-  public void stop() {
-    m_driveSubsystem.stop();
-  }
-
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    stop(); // We might not want this
+    m_driveSubsystem.stop(); // We might not want this
   }
 
   // Returns true when the command should end.
