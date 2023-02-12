@@ -15,9 +15,9 @@ import frc.robot.Constants;
 public class DriveSubsystem extends SubsystemBase {
   // constants for Angle PID
 
-  static final double turn_kP = 0.03;
-  static final double turn_kI = 0.00;
-  static final double turn_kD = 0.00;
+  static final double turn_P = 0.03;
+  static final double turn_I = 0.00;
+  static final double turn_D = 0.00;
 
   // Variables for Angle PID
 
@@ -26,7 +26,21 @@ public class DriveSubsystem extends SubsystemBase {
   private double turnRotateToAngleRate; // This value will be updated by the PID Controller
 
   // pid controller for "RotateToAngle"
-  private final PIDController m_turnController = new PIDController(turn_kP, turn_kI, turn_kD);
+  private final PIDController m_turnController = new PIDController(turn_P, turn_I, turn_D);
+
+  // constants for Balance PID
+
+  static final double balance_P = 0.0625; // 1/16
+  static final double balance_I = 0.00;
+  static final double balance_D = 0.00;
+
+  // Variables for Balance PID
+
+  private double balanceThrottleRate; // This value will be updated by the PID Controller
+
+  // pid controller for balanceCorrection
+  private final PIDController m_balanceController =
+      new PIDController(balance_P, balance_I, balance_D);
 
   // motors
   private final WPI_VictorSPX m_backLeft;
@@ -58,6 +72,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive = new DifferentialDrive(m_left, m_right);
     // config pid controller for motors.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
+    m_balanceController.setSetpoint(0); // this can be from 1-2 degrees (the target)
   }
 
   // default tank drive function
@@ -77,10 +92,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   // this might need to be replaced by pid.
   public void balanceCorrection(double gyroPitchAngle) {
-    double pitchAngleRadians = gyroPitchAngle * (Math.PI / 180.0);
-    double xAxisRate = (Math.sin(pitchAngleRadians) * -1);
-    System.out.println(xAxisRate);
-    this.tankDrive(xAxisRate, xAxisRate);
+    balanceThrottleRate = MathUtil.clamp(m_turnController.calculate(gyroPitchAngle), -1.0, 1.0);
+    System.out.println(balanceThrottleRate);
+    this.tankDrive(balanceThrottleRate, balanceThrottleRate);
   }
   // these next 4 functions are for turning a set radius while using the gyro.
   public void turnResetPID() {

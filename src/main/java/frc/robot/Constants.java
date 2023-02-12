@@ -23,8 +23,8 @@ public final class Constants {
   public static final int MOTORFRONTRIGHTID = 13;
   public static final int MOTORBACKRIGHTID = 14;
   // Arm movement motors
-  public static final int ARMXMOTORID = 21;
-  public static final int ARMYMOTORID = 22;
+  public static final int ARMEXTENSIONMOTORID = 21;
+  public static final int ARMELEVATORMOTORID = 22;
   public static final int ARMCLAWMOTORID = 23;
   // Ultrasonic Sensors and ports.
   public static final int ULTRASONIC1PORT = 0;
