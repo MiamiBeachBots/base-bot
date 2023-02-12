@@ -72,7 +72,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive = new DifferentialDrive(m_left, m_right);
     // config pid controller for motors.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
-    m_balanceController.setSetpoint(0); // this can be from 1-2 degrees (the target)
+    // this is the minimum pitch error, it can be from 0-2 degrees (the target)
+    m_balanceController.setSetpoint(0);
   }
 
   // default tank drive function
@@ -90,7 +91,6 @@ public class DriveSubsystem extends SubsystemBase {
     this.tankDrive(0, 0);
   }
 
-  // this might need to be replaced by pid.
   public void balanceCorrection(double gyroPitchAngle) {
     balanceThrottleRate = MathUtil.clamp(m_turnController.calculate(gyroPitchAngle), -1.0, 1.0);
     System.out.println(balanceThrottleRate);
@@ -123,7 +123,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   // magnitude = (joystickL + joystickR) / 2;
-  public void driveStraight( // we command you to stay straight,
+  public void driveStraight(
       double gyroYawAngle, double gyroAccumYawAngle, double joystickMagnitude) {
     /*
      * WWhen this function is activated, the robot is in "drive straight" mode.
