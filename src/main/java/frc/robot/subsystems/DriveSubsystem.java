@@ -64,9 +64,10 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight = new WPI_VictorSPX(Constants.MOTORFRONTRIGHTID);
     m_backRight = new WPI_VictorSPX(Constants.MOTORBACKRIGHTID);
 
-    // init motors controllers
+    // init motor controller groups
     m_left = new MotorControllerGroup(m_backLeft, m_frontLeft);
     m_right = new MotorControllerGroup(m_frontRight, m_backRight);
+    m_right.setInverted(true); // invert right side
 
     // init drive function
     m_ddrive = new DifferentialDrive(m_left, m_right);
@@ -80,7 +81,7 @@ public class DriveSubsystem extends SubsystemBase {
   // **tank drive = specific control style where two parallel forces of motion are controlled to
   // create linear and rotational motion
   public void tankDrive(double leftSpeed, double rightSpeed) {
-    m_ddrive.tankDrive(leftSpeed, -rightSpeed); // negative as motors are swapped rn
+    m_ddrive.tankDrive(leftSpeed, rightSpeed);
   }
 
   public void stop() {
