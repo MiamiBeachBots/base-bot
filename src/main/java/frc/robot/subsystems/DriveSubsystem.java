@@ -85,8 +85,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive = new DifferentialDrive(m_motorsLeft, m_motorsRight);
     // config pid controller for motors.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
-    // this is the minimum pitch error, it can be from 0-2 degrees (the target)
-    m_balanceController.setSetpoint(0);
+    // this is the minimum pitch/ tilt error, it can be from 0-2 degrees (the target)
+    m_balanceController.setSetpoint(1);
     // init Encoders
     m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
     m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
@@ -95,8 +95,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderRight.setDistancePerPulse(distancePerPulse); // distance in inches
     m_encoderLeft.setSamplesToAverage(5);
     m_encoderRight.setSamplesToAverage(5);
-    m_encoderLeft.setMinRate(10); // min rate to be determined moving
-    m_encoderRight.setMinRate(10); // min rate to be determined moving
+    m_encoderLeft.setMinRate(6); // min rate to be determined moving
+    m_encoderRight.setMinRate(6); // min rate to be determined moving
     m_encoderLeft.reset(); // clear encoder
     m_encoderRight.reset(); // clear encoder
   }
