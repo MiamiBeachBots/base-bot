@@ -28,6 +28,11 @@ public final class Constants {
   public static final int ARMCLAWMOTORID = 23;
   // Ultrasonic Sensors and ports.
   public static final int ULTRASONIC1PORT = 0;
+  // Encoder Digital Ports
+  public static final int DRIVEENCODERLEFTA = 0;
+  public static final int DRIVEENCODERLEFTB = 1;
+  public static final int DRIVEENCODERRIGHTA = 2;
+  public static final int DRIVEENCODERRIGHTB = 3;
   // Buttons
   public static final int SWAPCAMBUTTON = 1;
   public static final int AIMBUTTON = 12;

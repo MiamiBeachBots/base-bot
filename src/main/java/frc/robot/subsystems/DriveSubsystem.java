@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -49,11 +50,15 @@ public class DriveSubsystem extends SubsystemBase {
   private final WPI_VictorSPX m_frontRight;
 
   // motors controllers
-  private final MotorControllerGroup m_left;
-  private final MotorControllerGroup m_right;
+  private final MotorControllerGroup m_motorsLeft;
+  private final MotorControllerGroup m_motorsRight;
 
   // drive function
   private final DifferentialDrive m_ddrive;
+
+  // encoders
+  private final Encoder m_encoderLeft;
+  private final Encoder m_encoderRight;
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -65,16 +70,27 @@ public class DriveSubsystem extends SubsystemBase {
     m_backRight = new WPI_VictorSPX(Constants.MOTORBACKRIGHTID);
 
     // init motor controller groups
-    m_left = new MotorControllerGroup(m_backLeft, m_frontLeft);
-    m_right = new MotorControllerGroup(m_frontRight, m_backRight);
-    m_right.setInverted(true); // invert right side
+    m_motorsLeft = new MotorControllerGroup(m_backLeft, m_frontLeft);
+    m_motorsRight = new MotorControllerGroup(m_frontRight, m_backRight);
+    m_motorsRight.setInverted(true); // invert right side
 
     // init drive function
-    m_ddrive = new DifferentialDrive(m_left, m_right);
+    m_ddrive = new DifferentialDrive(m_motorsLeft, m_motorsRight);
     // config pid controller for motors.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
     // this is the minimum pitch error, it can be from 0-2 degrees (the target)
     m_balanceController.setSetpoint(0);
+    // init Encoders
+    m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
+    m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
+    // configure encoders
+    // Configures the encoders to measure 1 rotation, or 2048 pulses. (rps)
+    m_encoderLeft.setDistancePerPulse(2048);
+    m_encoderRight.setDistancePerPulse(2048);
+    m_encoderLeft.setSamplesToAverage(5);
+    m_encoderRight.setSamplesToAverage(5);
+    m_encoderLeft.setMinRate(10); // min rate to be determined moving
+    m_encoderRight.setMinRate(10); // min rate to be determined moving
   }
 
   // default tank drive function
