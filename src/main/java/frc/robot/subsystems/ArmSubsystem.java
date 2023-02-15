@@ -4,24 +4,34 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CANConstants;
+import frc.robot.Constants;
 
 public class ArmSubsystem extends SubsystemBase {
   /** Creates a new ArmSubsystem. */
-  private final CANSparkMax m_extensionMotor;
+  // motors
+  private final CANSparkMax m_extMotor;
 
   private final CANSparkMax m_elevatorMotor;
-
   private final CANSparkMax m_clawMotor;
+  // limit switches
+  private final DigitalInput m_extLimitSwitchFront;
+  private final DigitalInput m_extLimitSwitchBack;
+  private final DigitalInput m_clawLimitSwitch;
 
   public ArmSubsystem() {
     // arm extention/x motor
-    m_extensionMotor = new CANSparkMax(CANConstants.ARMEXTENSIONMOTORID, MotorType.kBrushless);
+    m_extMotor = new CANSparkMax(CANConstants.ARMEXTENSIONMOTORID, MotorType.kBrushless);
     // arm up/y motor
     m_elevatorMotor = new CANSparkMax(CANConstants.ARMELEVATORMOTORID, MotorType.kBrushless);
     // claw go grabby grabby
     m_clawMotor = new CANSparkMax(CANConstants.ARMCLAWMOTORID, MotorType.kBrushless);
+    // limit switches
+    m_extLimitSwitchFront = new DigitalInput(Constants.LSWITCHEXTFRONT);
+    m_extLimitSwitchBack = new DigitalInput(Constants.LSWITCHEXTBACK);
+    m_clawLimitSwitch = new DigitalInput(Constants.LSWITCHCLAW);
   }
 
   @Override
