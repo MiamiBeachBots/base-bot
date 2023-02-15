@@ -5,7 +5,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.CANConstants;
 
 public class ArmSubsystem extends SubsystemBase {
   /** Creates a new ArmSubsystem. */
@@ -17,11 +17,11 @@ public class ArmSubsystem extends SubsystemBase {
 
   public ArmSubsystem() {
     // arm extention/x motor
-    m_extensionMotor = new CANSparkMax(Constants.ARMEXTENSIONMOTORID, MotorType.kBrushless);
+    m_extensionMotor = new CANSparkMax(CANConstants.ARMEXTENSIONMOTORID, MotorType.kBrushless);
     // arm up/y motor
-    m_elevatorMotor = new CANSparkMax(Constants.ARMELEVATORMOTORID, MotorType.kBrushless);
+    m_elevatorMotor = new CANSparkMax(CANConstants.ARMELEVATORMOTORID, MotorType.kBrushless);
     // claw go grabby grabby
-    m_clawMotor = new CANSparkMax(Constants.ARMCLAWMOTORID, MotorType.kBrushless);
+    m_clawMotor = new CANSparkMax(CANConstants.ARMCLAWMOTORID, MotorType.kBrushless);
   }
 
   @Override
