@@ -7,7 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.CANConstants;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
@@ -34,10 +34,10 @@ public class DriveSubsystem extends SubsystemBase {
   public DriveSubsystem() {
     // init motors
     // rio means built into the roboRIO
-    m_backLeft = new WPI_VictorSPX(Constants.MOTORBACKLEFTID);
-    m_frontLeft = new WPI_VictorSPX(Constants.MOTORFRONTLEFTID);
-    m_frontRight = new WPI_VictorSPX(Constants.MOTORFRONTRIGHTID);
-    m_backRight = new WPI_VictorSPX(Constants.MOTORBACKRIGHTID);
+    m_backLeft = new WPI_VictorSPX(CANConstants.MOTORBACKLEFTID);
+    m_frontLeft = new WPI_VictorSPX(CANConstants.MOTORFRONTLEFTID);
+    m_frontRight = new WPI_VictorSPX(CANConstants.MOTORFRONTRIGHTID);
+    m_backRight = new WPI_VictorSPX(CANConstants.MOTORBACKRIGHTID);
 
     // init motors controllers
     m_left = new MotorControllerGroup(m_backLeft, m_frontLeft);

@@ -16,19 +16,24 @@ public final class Constants {
   // USB Devices
   public static final int CONTROLLERUSBINDEX = 0;
   public static final int FLIGHTSTICKUSBINDEX = 1;
-  /// CAN Bus Devices
-  // Drive Train Motors
-  public static final int MOTORFRONTLEFTID = 11;
-  public static final int MOTORBACKLEFTID = 12;
-  public static final int MOTORFRONTRIGHTID = 13;
-  public static final int MOTORBACKRIGHTID = 14;
-  // Arm movement motors
-  public static final int ARMEXTENSIONMOTORID = 21;
-  public static final int ARMELEVATORMOTORID = 22;
-  public static final int ARMCLAWMOTORID = 23;
-  // Ultrasonic Sensors and ports.
-  public static final int ULTRASONIC1PORT = 0;
-  // Buttons
+
+  // Joystick Buttons
   public static final int SWAPCAMBUTTON = 1;
   public static final int AIMBUTTON = 12;
+  public static final int BALANCEBUTTON = 6;
+  public static final int STRAIGHTBUTTON = 8;
+  // Analog Ports
+  /// Ultrasonic Sensors and ports.
+  public static final int ULTRASONIC1PORT = 0;
+
+  // Digital Ports
+  /// Encoder Ports
+  public static final int DRIVEENCODERLEFTA = 0;
+  public static final int DRIVEENCODERLEFTB = 1;
+  public static final int DRIVEENCODERRIGHTA = 2;
+  public static final int DRIVEENCODERRIGHTB = 3;
+  /// Limit Switches
+  public static final int LSWITCHCLAW = 4;
+  public static final int LSWITCHEXTFRONT = 5;
+  public static final int LSWITCHEXTBACK = 6;
 }
