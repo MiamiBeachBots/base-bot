@@ -14,6 +14,12 @@ import frc.robot.Constants;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
+  // Drive train characteristics
+  private static final double wheelDiameter = 6; // inches
+  private static final double pulsesPerRevolution = 2048; // resolution of encoder
+  private static final double GEAR_RATIO = 1;
+  private static final double distancePerPulse =
+      (Math.PI * wheelDiameter) / pulsesPerRevolution / GEAR_RATIO;
   // constants for Angle PID
 
   static final double turn_P = 0.03;
@@ -84,13 +90,14 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
     m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
     // configure encoders
-    // Configures the encoders to measure 1 rotation, or 2048 pulses. (rps)
-    m_encoderLeft.setDistancePerPulse(2048);
-    m_encoderRight.setDistancePerPulse(2048);
+    m_encoderLeft.setDistancePerPulse(distancePerPulse); // distance in inches
+    m_encoderRight.setDistancePerPulse(distancePerPulse); // distance in inches
     m_encoderLeft.setSamplesToAverage(5);
     m_encoderRight.setSamplesToAverage(5);
     m_encoderLeft.setMinRate(10); // min rate to be determined moving
     m_encoderRight.setMinRate(10); // min rate to be determined moving
+    m_encoderLeft.reset(); // clear encoder
+    m_encoderRight.reset(); // clear encoder
   }
 
   // default tank drive function
