@@ -2,6 +2,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -15,7 +16,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax m_extMotor;
 
   private final CANSparkMax m_elevatorMotor;
-  private final CANSparkMax m_clawMotor;
+  private final WPI_VictorSPX m_clawMotor;
   // limit switches
   private final DigitalInput m_extLimitSwitchFront;
   private final DigitalInput m_extLimitSwitchBack;
@@ -27,7 +28,7 @@ public class ArmSubsystem extends SubsystemBase {
     // arm up/y motor
     m_elevatorMotor = new CANSparkMax(CANConstants.ARMELEVATORMOTORID, MotorType.kBrushless);
     // claw go grabby grabby
-    m_clawMotor = new CANSparkMax(CANConstants.ARMCLAWMOTORID, MotorType.kBrushless);
+    m_clawMotor = new WPI_VictorSPX(CANConstants.ARMCLAWMOTORID);
     // limit switches
     m_extLimitSwitchFront = new DigitalInput(Constants.LSWITCHEXTFRONT);
     m_extLimitSwitchBack = new DigitalInput(Constants.LSWITCHEXTBACK);
