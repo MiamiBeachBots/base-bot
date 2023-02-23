@@ -39,22 +39,15 @@ public class DefaultDrive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // we include a limit on the drivers speed for safety.
     this.m_driveSubsystem.tankDrive(
-        Constants.MAX_SPEED * m_joy_x.getAsDouble(), -Constants.MAX_SPEED * m_joy_y.getAsDouble());
-  }
-
-  public void backward() {
-    m_driveSubsystem.backward();
-  }
-
-  public void stop() {
-    m_driveSubsystem.stop();
+        Constants.MAX_SPEED * m_joy_x.getAsDouble(), Constants.MAX_SPEED * m_joy_y.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    stop(); // We might not want this
+    m_driveSubsystem.stop(); // We might not want this
   }
 
   // Returns true when the command should end.
