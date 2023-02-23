@@ -91,6 +91,7 @@ public class DriveSubsystem extends SubsystemBase {
     // init Encoders
     m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
     m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
+    m_encoderRight.setReverseDirection(true);
     // configure encoders
     m_encoderLeft.setDistancePerPulse(distancePerPulse); // distance in inches
     m_encoderRight.setDistancePerPulse(distancePerPulse); // distance in inches
