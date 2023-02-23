@@ -4,10 +4,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.GyroSubsystem;
 
 /** The autonomous mode command that uses the drive subsystem. */
 public class AutoCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
+  private final GyroSubsystem m_gyroSubsystem;
   private Timer robotTimer = new Timer();
   private boolean timer_complete = false;
 
@@ -15,11 +17,13 @@ public class AutoCommand extends CommandBase {
    * Creates a new AutoCommand.
    *
    * @param d_subsystem The drive subsystem used by this command.
+   * @param g_subsystem The gyro subsystem used by this command.
    */
-  public AutoCommand(DriveSubsystem d_subsystem) {
+  public AutoCommand(DriveSubsystem d_subsystem, GyroSubsystem g_subsystem) {
     m_driveSubsystem = d_subsystem;
+    m_gyroSubsystem = g_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(d_subsystem);
+    addRequirements(d_subsystem, g_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -35,16 +39,18 @@ public class AutoCommand extends CommandBase {
       stop();
       // also shoot here
     } else if (robotTimer.get() >= 4.5 && robotTimer.get() < 6) {
-      // shoot here
+      m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), 90);
     } else if (robotTimer.get() >= 6 && robotTimer.get() < 10) {
-      backward();
+      m_driveSubsystem.turnResetPID();
+      this.backward();
+      m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), -90);
     } else {
       timer_complete = true;
     }
   }
 
   public void backward() {
-    m_driveSubsystem.backward();
+    m_driveSubsystem.tankDrive(-0.5, -0.5);
   }
 
   public void stop() {
@@ -54,6 +60,7 @@ public class AutoCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    m_driveSubsystem.turnResetPID();
     stop();
   }
 
