@@ -20,7 +20,8 @@ public class ArmSubsystem extends SubsystemBase {
   // limit switches
   private final DigitalInput m_extLimitSwitchFront;
   private final DigitalInput m_extLimitSwitchBack;
-  private final DigitalInput m_clawLimitSwitch;
+  private final DigitalInput m_clawLimitSwitchOpen;
+  private final DigitalInput m_clawLimitSwitchClose;
 
   public ArmSubsystem() {
     // arm extention/x motor
@@ -32,7 +33,8 @@ public class ArmSubsystem extends SubsystemBase {
     // limit switches
     m_extLimitSwitchFront = new DigitalInput(Constants.LSWITCHEXTFRONT);
     m_extLimitSwitchBack = new DigitalInput(Constants.LSWITCHEXTBACK);
-    m_clawLimitSwitch = new DigitalInput(Constants.LSWITCHCLAW);
+    m_clawLimitSwitchOpen = new DigitalInput(Constants.LSWITCHCLAWOPEN);
+    m_clawLimitSwitchClose = new DigitalInput(Constants.LSWITCHCLAWCLOSE);
   }
 
   @Override
@@ -41,23 +43,31 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void armExtension(double value, double speed) {
-    // arm extend crab
+    if (m_extLimitSwitchFront.get() != true || m_extLimitSwitchBack.get() != true) {
+      // move with value and speed
+    }
   }
 
   public void armElevator(double value, double speed) {
-    // arm go up and down like a funi dance
+    // arm up down
   }
 
   public void clawOpen() {
-    // arm go droppy droppy
+    if (m_clawLimitSwitchOpen.get() != true) { // going to error until we get limit switch ids set
+      m_clawMotor.set(0.1);
+    }
+    else {
+      m_clawMotor.set(0.0);
+    }
   }
 
   public void clawClose() {
-    // arm go grabby grabby
-  }
-
-  public void clawHold() {
-    // arm go holdy holdy
+    if (m_clawLimitSwitchClose.get() != true) { // going to error until we get limit switch ids set
+      m_clawMotor.set(0.1);
+    }
+    else {
+      m_clawMotor.set(0.01);
+    }
   }
 
   @Override

@@ -33,7 +33,8 @@ public final class Constants {
   public static final int DRIVEENCODERRIGHTA = 2;
   public static final int DRIVEENCODERRIGHTB = 3;
   /// Limit Switches
-  public static final int LSWITCHCLAW = 4;
-  public static final int LSWITCHEXTFRONT = 5;
-  public static final int LSWITCHEXTBACK = 6;
+  public static final int LSWITCHCLAWOPEN = 4;
+  public static final int LSWITCHCLAWCLOSE = 5;
+  public static final int LSWITCHEXTFRONT = 6;
+  public static final int LSWITCHEXTBACK = 7;
 }
