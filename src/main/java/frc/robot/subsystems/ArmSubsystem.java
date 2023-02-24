@@ -2,7 +2,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -16,35 +15,22 @@ public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax m_extMotor;
 
   private final CANSparkMax m_elevatorMotor;
-  private final WPI_VictorSPX m_clawMotor;
   // limit switches
   private final DigitalInput m_extLimitSwitchFront;
   private final DigitalInput m_extLimitSwitchBack;
-
-  private final DigitalInput m_clawLimitSwitchOpen;
-  private final DigitalInput m_clawLimitSwitchClose;
 
   public ArmSubsystem() {
     // arm extention/x motor
     m_extMotor = new CANSparkMax(CANConstants.ARMEXTENSIONMOTORID, MotorType.kBrushless);
     // arm up/y motor
     m_elevatorMotor = new CANSparkMax(CANConstants.ARMELEVATORMOTORID, MotorType.kBrushless);
-    // claw go grabby grabby
-    m_clawMotor = new WPI_VictorSPX(CANConstants.ARMCLAWMOTORID);
     // limit switches
     m_extLimitSwitchFront = new DigitalInput(Constants.LSWITCHEXTFRONT);
     m_extLimitSwitchBack = new DigitalInput(Constants.LSWITCHEXTBACK);
-    m_clawLimitSwitchOpen = new DigitalInput(Constants.LSWITCHCLAWOPEN);
-    m_clawLimitSwitchClose = new DigitalInput(Constants.LSWITCHCLAWCLOSE);
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
   }
 
   public void armExtension(double value, double speed) {
-    if (m_extLimitSwitchFront.get() != true || m_extLimitSwitchBack.get() != true) {
+    if (!m_extLimitSwitchFront.get() || !m_extLimitSwitchBack.get()) {
       // move with value and speed
     }
   }
@@ -53,20 +39,9 @@ public class ArmSubsystem extends SubsystemBase {
     // arm up down
   }
 
-  public void clawOpen() {
-    if (m_clawLimitSwitchOpen.get() != true) { // going to error until we get limit switch ids set
-      m_clawMotor.set(0.1);
-    } else {
-      m_clawMotor.set(0.0);
-    }
-  }
-
-  public void clawClose() {
-    if (m_clawLimitSwitchClose.get() != true) { // going to error until we get limit switch ids set
-      m_clawMotor.set(0.1);
-    } else {
-      m_clawMotor.set(0.01);
-    }
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
   }
 
   @Override

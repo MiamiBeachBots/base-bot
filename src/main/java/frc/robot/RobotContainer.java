@@ -14,6 +14,7 @@ import frc.robot.commands.ClawCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.StraightCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClawSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
@@ -39,6 +40,7 @@ public class RobotContainer {
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final GyroSubsystem m_gyroSubsystem = new GyroSubsystem();
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
+  private final ClawSubsystem m_clawSubsystem = new ClawSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -51,7 +53,7 @@ public class RobotContainer {
   private final StraightCommand m_straightCommand =
       new StraightCommand(
           m_driveSubsystem, m_gyroSubsystem, m_controller1::getThrottle, m_controller1::getY);
-  private final ClawCommand m_clawCommand = new ClawCommand(m_armSubsystem);
+  private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem);
 
   // misc init
   private JoystickButton m_switchCameraButton;
@@ -67,6 +69,8 @@ public class RobotContainer {
 
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
+    // set claw default command
+    m_clawSubsystem.setDefaultCommand(m_clawCommand);
   }
 
   /**

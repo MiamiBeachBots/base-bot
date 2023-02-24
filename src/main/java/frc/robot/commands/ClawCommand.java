@@ -3,20 +3,20 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClawSubsystem;
 
-/** The claw command that uses the arm subsystem. */
+/** The claw command that uses the claw subsystem. */
 public class ClawCommand extends CommandBase {
-  private final ArmSubsystem m_armSubsystem;
+  private final ClawSubsystem m_clawSubsystem;
   private boolean openClaw = true;
 
   /**
    * Creates a new ClawCommand command.
    *
-   * @param a_subsystem The arm subsystem used by this command.
+   * @param a_subsystem The claw subsystem used by this command.
    */
-  public ClawCommand(ArmSubsystem a_subsystem) {
-    m_armSubsystem = a_subsystem;
+  public ClawCommand(ClawSubsystem a_subsystem) {
+    m_clawSubsystem = a_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(a_subsystem);
   }
@@ -29,9 +29,9 @@ public class ClawCommand extends CommandBase {
   @Override
   public void execute() {
     if (this.openClaw) {
-      m_armSubsystem.clawOpen();
+      m_clawSubsystem.clawOpen();
     } else {
-      m_armSubsystem.clawClose();
+      m_clawSubsystem.clawClose();
     }
   }
 
