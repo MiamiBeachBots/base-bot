@@ -10,8 +10,10 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.AutoCommand;
 import frc.robot.commands.BalanceCommand;
+import frc.robot.commands.ClawCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.StraightCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
@@ -36,6 +38,7 @@ public class RobotContainer {
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final GyroSubsystem m_gyroSubsystem = new GyroSubsystem();
+  private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -48,12 +51,14 @@ public class RobotContainer {
   private final StraightCommand m_straightCommand =
       new StraightCommand(
           m_driveSubsystem, m_gyroSubsystem, m_controller1::getThrottle, m_controller1::getY);
+  private final ClawCommand m_clawCommand = new ClawCommand(m_armSubsystem);
 
   // misc init
   private JoystickButton m_switchCameraButton;
   private JoystickButton m_aimButton;
   private JoystickButton m_balanceButton;
   private JoystickButton m_straightButton;
+  private JoystickButton m_clawButton;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -76,10 +81,12 @@ public class RobotContainer {
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     m_balanceButton = new JoystickButton(m_controller1, Constants.BALANCEBUTTON);
     m_straightButton = new JoystickButton(m_controller1, Constants.STRAIGHTBUTTON);
+    m_clawButton = new JoystickButton(m_controller1, Constants.CLAWBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
     m_aimButton.whileTrue(m_aimCommand);
     m_straightButton.whileTrue(m_straightCommand);
+    m_clawButton.toggleOnTrue(m_clawCommand).toggleOnFalse(m_clawCommand);
   }
 
   // for autonomous

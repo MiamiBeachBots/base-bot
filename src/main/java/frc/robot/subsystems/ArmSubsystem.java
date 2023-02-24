@@ -20,6 +20,7 @@ public class ArmSubsystem extends SubsystemBase {
   // limit switches
   private final DigitalInput m_extLimitSwitchFront;
   private final DigitalInput m_extLimitSwitchBack;
+
   private final DigitalInput m_clawLimitSwitchOpen;
   private final DigitalInput m_clawLimitSwitchClose;
 
@@ -55,8 +56,7 @@ public class ArmSubsystem extends SubsystemBase {
   public void clawOpen() {
     if (m_clawLimitSwitchOpen.get() != true) { // going to error until we get limit switch ids set
       m_clawMotor.set(0.1);
-    }
-    else {
+    } else {
       m_clawMotor.set(0.0);
     }
   }
@@ -64,8 +64,7 @@ public class ArmSubsystem extends SubsystemBase {
   public void clawClose() {
     if (m_clawLimitSwitchClose.get() != true) { // going to error until we get limit switch ids set
       m_clawMotor.set(0.1);
-    }
-    else {
+    } else {
       m_clawMotor.set(0.01);
     }
   }

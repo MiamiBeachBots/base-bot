@@ -22,6 +22,7 @@ public final class Constants {
   public static final int AIMBUTTON = 12;
   public static final int BALANCEBUTTON = 6;
   public static final int STRAIGHTBUTTON = 8;
+  public static final int CLAWBUTTON = 9;
   // Analog Ports
   /// Ultrasonic Sensors and ports.
   public static final int ULTRASONIC1PORT = 0;
