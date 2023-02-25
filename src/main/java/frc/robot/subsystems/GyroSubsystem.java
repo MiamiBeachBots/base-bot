@@ -4,6 +4,7 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -16,11 +17,12 @@ public class GyroSubsystem extends SubsystemBase {
     m_Gyro = new AHRS(SPI.Port.kMXP);
   }
 
-  @Override
-  public void periodic() {}
-
   public void calibrate() {
     m_Gyro.calibrate();
+  }
+
+  public Rotation2d getRotation2d() {
+    return m_Gyro.getRotation2d();
   }
 
   // for balance correction
@@ -40,6 +42,9 @@ public class GyroSubsystem extends SubsystemBase {
   public void zeroYaw() {
     m_Gyro.zeroYaw();
   }
+
+  @Override
+  public void periodic() {}
 
   @Override
   public void simulationPeriodic() {

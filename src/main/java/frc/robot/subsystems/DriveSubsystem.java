@@ -6,6 +6,9 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -13,63 +16,54 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CANConstants;
 import frc.robot.Constants;
+import frc.robot.DriveConstants;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
-  // Drive train characteristics
-  private static final double wheelDiameter = 6; // inches
-  private static final double pulsesPerRevolution = 2048; // resolution of encoder
-  private static final double GEAR_RATIO = 1;
-  private static final double distancePerPulse =
-      (Math.PI * wheelDiameter) / pulsesPerRevolution / GEAR_RATIO;
-  // constants for Angle PID
-
-  static final double turn_P = 0.03;
-  static final double turn_I = 0.00;
-  static final double turn_D = 0.00;
-
-  // Variables for Angle PID
-
-  // false when inactive, true when active / a target is set.
-  private boolean turnControllerEnabled = false;
-  private double turnRotateToAngleRate; // This value will be updated by the PID Controller
-
-  // pid controller for "RotateToAngle"
-  private final PIDController m_turnController = new PIDController(turn_P, turn_I, turn_D);
-
-  // constants for Balance PID
-
-  static final double balance_P = 0.0625; // 1/16
-  static final double balance_I = 0.00;
-  static final double balance_D = 0.00;
-
-  // Variables for Balance PID
-
-  private double balanceThrottleRate; // This value will be updated by the PID Controller
-
-  // pid controller for balanceCorrection
-  private final PIDController m_balanceController =
-      new PIDController(balance_P, balance_I, balance_D);
+  // Gyro Subsystem
+  private final GyroSubsystem m_gyroSubsystem;
 
   // motors
   private final WPI_VictorSPX m_backLeft;
   private final WPI_VictorSPX m_frontLeft;
   private final WPI_VictorSPX m_backRight;
   private final WPI_VictorSPX m_frontRight;
-
-  // motors controllers
+  // Motor Controllers
   private final MotorControllerGroup m_motorsLeft;
   private final MotorControllerGroup m_motorsRight;
-
-  // drive function
+  // Main drive function
   private final DifferentialDrive m_ddrive;
 
-  // encoders
+  // Encoders
   private final Encoder m_encoderLeft;
   private final Encoder m_encoderRight;
 
+  // Angle PID / RotateToAngle
+  static final double turn_P = 0.03;
+  static final double turn_I = 0.00;
+  static final double turn_D = 0.00;
+  // false when inactive, true when active / a target is set.
+  private boolean turnControllerEnabled = false;
+  private double turnRotateToAngleRate; // This value will be updated by the PID Controller
+  // pid controller for "RotateToAngle"
+  private final PIDController m_turnController = new PIDController(turn_P, turn_I, turn_D);
+
+  // Balance PID / AutoBalance
+
+  static final double balance_P = 0.0625; // 1/16
+  static final double balance_I = 0.00;
+  static final double balance_D = 0.00;
+  private double balanceThrottleRate; // This value will be updated by the PID Controller
+  // pid controller for balanceCorrection
+  private final PIDController m_balanceController =
+      new PIDController(balance_P, balance_I, balance_D);
+
+  // Odometry class for tracking robot pose
+  private final DifferentialDriveOdometry m_driveOdometry;
+
   /** Creates a new DriveSubsystem. */
-  public DriveSubsystem() {
+  public DriveSubsystem(final GyroSubsystem g_subsystem) {
+    m_gyroSubsystem = g_subsystem;
     // init motors
     // rio means built into the roboRIO
     m_backLeft = new WPI_VictorSPX(CANConstants.MOTORBACKLEFTID);
@@ -93,14 +87,18 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
     m_encoderRight.setReverseDirection(true);
     // configure encoders
-    m_encoderLeft.setDistancePerPulse(distancePerPulse); // distance in inches
-    m_encoderRight.setDistancePerPulse(distancePerPulse); // distance in inches
+    m_encoderLeft.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in inches
+    m_encoderRight.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in inches
     m_encoderLeft.setSamplesToAverage(5);
     m_encoderRight.setSamplesToAverage(5);
     m_encoderLeft.setMinRate(6); // min rate to be determined moving
     m_encoderRight.setMinRate(6); // min rate to be determined moving
-    m_encoderLeft.reset(); // clear encoder
-    m_encoderRight.reset(); // clear encoder
+    // configure Odemetry
+    m_driveOdometry =
+        new DifferentialDriveOdometry(
+            m_gyroSubsystem.getRotation2d(),
+            m_encoderLeft.getDistance(),
+            m_encoderRight.getDistance());
   }
 
   // default tank drive function
@@ -108,6 +106,42 @@ public class DriveSubsystem extends SubsystemBase {
   // create linear and rotational motion
   public void tankDrive(double leftSpeed, double rightSpeed) {
     m_ddrive.tankDrive(leftSpeed, rightSpeed);
+  }
+
+  // for odemetry (path following)
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(m_encoderLeft.getRate(), m_encoderRight.getRate());
+  }
+
+  public Pose2d getPose() {
+    return m_driveOdometry.getPoseMeters();
+  }
+
+  /**
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * @param leftVolts the commanded left output
+   * @param rightVolts the commanded right output
+   */
+  public void tankDriveVolts(double leftVolts, double rightVolts) {
+    m_motorsLeft.setVoltage(leftVolts);
+    m_motorsRight.setVoltage(rightVolts);
+    m_ddrive.feed();
+  }
+
+  /**
+   * Resets the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   */
+  public void resetOdometry(Pose2d pose) {
+    m_encoderLeft.reset(); // clear encoder
+    m_encoderRight.reset(); // clear encoders
+    m_driveOdometry.resetPosition(
+        m_gyroSubsystem.getRotation2d(),
+        m_encoderLeft.getDistance(),
+        m_encoderRight.getDistance(),
+        pose);
   }
 
   public void stop() {
@@ -163,8 +197,11 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Left Encoder Speed (In/s)", this.m_encoderLeft.getRate());
-    SmartDashboard.putNumber("Right Encoder Speed (In/s)", this.m_encoderRight.getRate());
+    SmartDashboard.putNumber("Left Encoder Speed (M/s)", this.m_encoderLeft.getRate());
+    SmartDashboard.putNumber("Right Encoder Speed (M/s)", this.m_encoderRight.getRate());
+    // Update the odometry in the periodic block
+    m_driveOdometry.update(
+        m_gyroSubsystem.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
   }
 
   @Override

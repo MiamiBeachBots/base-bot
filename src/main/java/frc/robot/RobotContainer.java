@@ -4,8 +4,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.AutoCommand;
@@ -18,6 +26,7 @@ import frc.robot.subsystems.ClawSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
+import java.util.List;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -37,8 +46,8 @@ public class RobotContainer {
   private final UltrasonicSubsystem m_ultrasonic1 =
       new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
-  private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final GyroSubsystem m_gyroSubsystem = new GyroSubsystem();
+  private final DriveSubsystem m_driveSubsystem = new DriveSubsystem(m_gyroSubsystem);
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
   private final ClawSubsystem m_clawSubsystem = new ClawSubsystem();
   // The robots commands are defined here..
@@ -121,7 +130,36 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+    // An example trajectory to follow.  All units in meters.
+    Trajectory exampleTrajectory =
+        TrajectoryGenerator.generateTrajectory(
+            // Start at the origin facing the +X direction
+            new Pose2d(0, 0, new Rotation2d(0)),
+            // Pass through these two interior waypoints, making an 's' curve path
+            List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+            // End 3 meters straight ahead of where we started, facing forward
+            new Pose2d(3, 0, new Rotation2d(0)),
+            // Pass config
+            DriveConstants.driveTrajectoryConfig);
+
+    RamseteCommand ramseteCommand =
+        new RamseteCommand(
+            exampleTrajectory,
+            m_driveSubsystem::getPose,
+            new RamseteController(DriveConstants.kRamseteB, DriveConstants.kRamseteZeta),
+            DriveConstants.FeedForward,
+            DriveConstants.kDriveKinematics,
+            m_driveSubsystem::getWheelSpeeds,
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            // RamseteCommand passes volts to the callback
+            m_driveSubsystem::tankDriveVolts,
+            m_driveSubsystem);
+
+    // Reset odometry to the starting pose of the trajectory.
+    m_driveSubsystem.resetOdometry(exampleTrajectory.getInitialPose());
+
+    // Run path following command, then stop at the end.
+    return ramseteCommand.andThen(() -> m_driveSubsystem.tankDriveVolts(0, 0));
   }
 }
