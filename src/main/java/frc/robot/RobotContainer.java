@@ -143,19 +143,36 @@ public class RobotContainer {
             DriveConstants.driveTrajectoryConfig);
 
     RamseteCommand ramseteCommand =
-      new RamseteCommand(
-      exampleTrajectory, // The trajectory to follow
-      m_driveSubsystem::getPose, // A method for getting the current pose of the drive subsystem
-      new RamseteController(DriveConstants.kRamseteB, DriveConstants.kRamseteZeta), // A RamseteController that controls the drive subsystem's motion
-      DriveConstants.FeedForward, // A feedforward value to apply to the drive subsystem's control signals
-      DriveConstants.kDriveKinematics, // The kinematics of the drive subsystem
-      m_driveSubsystem::getWheelSpeeds, // A method for getting the current wheel speeds of the drive subsystem
-      new PIDController(DriveConstants.kPDriveVel, 0, 0), // A PID controller for left wheel velocity control
-      new PIDController(DriveConstants.kPDriveVel, 0, 0), // A PID controller for right wheel velocity control
-      // RamseteCommand passes volts to the callback
-      m_driveSubsystem::tankDriveVolts, // A tank drive method that accepts voltage values to control the drive subsystem
-      m_driveSubsystem // The drive subsystem to control
-      );
+        new RamseteCommand(
+            exampleTrajectory, // The trajectory to follow
+            m_driveSubsystem
+                ::getPose, // A method for getting the current pose of the drive subsystem
+            new RamseteController(
+                DriveConstants.kRamseteB,
+                DriveConstants
+                    .kRamseteZeta), // A RamseteController that controls the drive subsystem's
+            // motion
+            DriveConstants
+                .FeedForward, // A feedforward value to apply to the drive subsystem's control
+            // signals
+            DriveConstants.kDriveKinematics, // The kinematics of the drive subsystem
+            m_driveSubsystem
+                ::getWheelSpeeds, // A method for getting the current wheel speeds of the drive
+            // subsystem
+            new PIDController(
+                DriveConstants.kPDriveVel,
+                0,
+                0), // A PID controller for left wheel velocity control
+            new PIDController(
+                DriveConstants.kPDriveVel,
+                0,
+                0), // A PID controller for right wheel velocity control
+            // RamseteCommand passes volts to the callback
+            m_driveSubsystem
+                ::tankDriveVolts, // A tank drive method that accepts voltage values to control the
+            // drive subsystem
+            m_driveSubsystem // The drive subsystem to control
+            );
 
     // Reset odometry to the starting pose of the trajectory.
     m_driveSubsystem.resetOdometry(exampleTrajectory.getInitialPose());

@@ -101,22 +101,6 @@ public class DriveSubsystem extends SubsystemBase {
             m_encoderRight.getDistance());
   }
 
-  // default tank drive function
-  // **tank drive = specific control style where two parallel forces of motion are controlled to
-  // create linear and rotational motion
-  public void tankDrive(double leftSpeed, double rightSpeed) {
-    m_ddrive.tankDrive(leftSpeed, rightSpeed);
-  }
-
-  // for odemetry (path following)
-  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(m_encoderLeft.getRate(), m_encoderRight.getRate());
-  }
-
-  public Pose2d getPose() {
-    return m_driveOdometry.getPoseMeters();
-  }
-
   /**
    * Controls the left and right sides of the drive directly with voltages.
    *
@@ -129,23 +113,11 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive.feed();
   }
 
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
-   */
-  public void resetOdometry(Pose2d pose) {
-    m_encoderLeft.reset(); // clear encoder
-    m_encoderRight.reset(); // clear encoders
-    m_driveOdometry.resetPosition(
-        m_gyroSubsystem.getRotation2d(),
-        m_encoderLeft.getDistance(),
-        m_encoderRight.getDistance(),
-        pose);
-  }
-
-  public void stop() {
-    this.tankDrive(0, 0);
+  // default tank drive function
+  // **tank drive = specific control style where two parallel forces of motion are controlled to
+  // create linear and rotational motion
+  public void tankDrive(double leftSpeed, double rightSpeed) {
+    m_ddrive.tankDrive(leftSpeed, rightSpeed);
   }
 
   public void balanceCorrection(double gyroPitchAngle) {
@@ -192,6 +164,34 @@ public class DriveSubsystem extends SubsystemBase {
     double leftStickValue = joystickMagnitude + turnRotateToAngleRate;
     double rightStickValue = joystickMagnitude - turnRotateToAngleRate;
     this.tankDrive(leftStickValue, rightStickValue);
+  }
+
+  // for odemetry (path following)
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(m_encoderLeft.getRate(), m_encoderRight.getRate());
+  }
+
+  public Pose2d getPose() {
+    return m_driveOdometry.getPoseMeters();
+  }
+
+  /**
+   * Resets the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   */
+  public void resetOdometry(Pose2d pose) {
+    m_encoderLeft.reset(); // clear encoder
+    m_encoderRight.reset(); // clear encoders
+    m_driveOdometry.resetPosition(
+        m_gyroSubsystem.getRotation2d(),
+        m_encoderLeft.getDistance(),
+        m_encoderRight.getDistance(),
+        pose);
+  }
+
+  public void stop() {
+    this.tankDrive(0, 0);
   }
 
   @Override
