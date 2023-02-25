@@ -88,6 +88,8 @@ public class RobotContainer {
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
     // set claw default command
     m_clawSubsystem.setDefaultCommand(m_clawCommand);
+    // set arm default command
+    m_armSubsystem.setDefaultCommand(m_armExtendCommand);
   }
 
   /**
