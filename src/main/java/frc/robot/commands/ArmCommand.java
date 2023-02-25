@@ -39,11 +39,11 @@ public class ArmCommand extends CommandBase {
   public void execute() {}
 
   public void up() {
-    m_armSubsystem.armElevator(0.0, 0.0);
+    m_armSubsystem.armElevator(0.0);
   }
 
   public void down() {
-    m_armSubsystem.armExtension(0.0, 0.0);
+    m_armSubsystem.armExtension(0.0);
   }
 
   // Called once the command ends or is interrupted.
