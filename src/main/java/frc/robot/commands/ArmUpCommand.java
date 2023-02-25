@@ -27,7 +27,7 @@ public class ArmUpCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_armSubsystem.armElevate(0.3);
+    m_armSubsystem.armElevate(true);
   } // change speed when we have the pid or smth calibarted
 
   // Called once the command ends or is interrupted.

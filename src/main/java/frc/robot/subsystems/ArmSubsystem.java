@@ -35,7 +35,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
   }
 
-  public void armElevate(double axisValue) {
+  public void armElevate(boolean direction) {
     // arm up down
   }
 
