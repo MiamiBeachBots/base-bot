@@ -68,7 +68,8 @@ public class RobotContainer {
   private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem);
   private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_armSubsystem);
   private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_armSubsystem);
-  private final ArmExtendCommand m_armExtendCommand = new ArmExtendCommand(m_armSubsystem, m_flightStick::getY);
+  private final ArmExtendCommand m_armExtendCommand =
+      new ArmExtendCommand(m_armSubsystem, m_flightStick::getY);
   // misc init
   private JoystickButton m_switchCameraButton;
   private JoystickButton m_aimButton;
@@ -77,7 +78,6 @@ public class RobotContainer {
   private JoystickButton m_clawButton;
   private JoystickButton m_armUpButton;
   private JoystickButton m_armDownButton;
-
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {

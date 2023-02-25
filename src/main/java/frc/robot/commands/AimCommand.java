@@ -50,8 +50,7 @@ public class AimCommand extends CommandBase {
     if (CamResult.hasTargets()) {
       targetDetected.setString("true");
       // use gyro PID with angle, very easy
-      m_driveSubsystem.turnToAngle(
-          m_gyroSubsystem.getYaw(), CamResult.getBestTarget().getPitch());
+      m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), CamResult.getBestTarget().getPitch());
       // we reset the angle everytime as the target could change / move.
       m_driveSubsystem.turnResetPID();
     } else {

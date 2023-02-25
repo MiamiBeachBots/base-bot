@@ -18,8 +18,7 @@ public class ArmExtendCommand extends CommandBase {
    * @param joystick_y_func A function that returns the value of the Y axis / height axis for said
    *     joystick.
    */
-  public ArmExtendCommand(
-      ArmSubsystem a_subsystem, DoubleSupplier joystick_y_func) {
+  public ArmExtendCommand(ArmSubsystem a_subsystem, DoubleSupplier joystick_y_func) {
     m_armSubsystem = a_subsystem;
     m_joy_y = joystick_y_func;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -32,7 +31,9 @@ public class ArmExtendCommand extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {m_armSubsystem.armExtend(m_joy_y.getAsDouble());}
+  public void execute() {
+    m_armSubsystem.armExtend(m_joy_y.getAsDouble());
+  }
 
   // Called once the command ends or is interrupted.
   @Override

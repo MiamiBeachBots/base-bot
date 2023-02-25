@@ -4,7 +4,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
-import java.util.function.DoubleSupplier;
 
 /** The default drive command that uses the drive subsystem. */
 public class ArmUpCommand extends CommandBase {
@@ -27,8 +26,9 @@ public class ArmUpCommand extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {m_armSubsystem.armElevate(0.3);}
-
+  public void execute() {
+    m_armSubsystem.armElevate(0.3);
+  } // change speed when we have the pid or smth calibarted
 
   // Called once the command ends or is interrupted.
   @Override
