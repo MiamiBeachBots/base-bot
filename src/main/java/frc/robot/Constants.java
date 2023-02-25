@@ -17,12 +17,15 @@ public final class Constants {
   public static final int CONTROLLERUSBINDEX = 0;
   public static final int FLIGHTSTICKUSBINDEX = 1;
 
-  // Joystick Buttons
+  // Controller Buttons
   public static final int SWAPCAMBUTTON = 1;
   public static final int AIMBUTTON = 12;
   public static final int BALANCEBUTTON = 6;
   public static final int STRAIGHTBUTTON = 8;
-  public static final int CLAWBUTTON = 9;
+  // Joystick buttons
+  public static final int CLAWBUTTON = 1;
+  public static final int ARMUPBUTTON = 3;
+  public static final int ARMDOWNBUTTON = 4;
   // Analog Ports
   /// Ultrasonic Sensors and ports.
   public static final int ULTRASONIC1PORT = 0;

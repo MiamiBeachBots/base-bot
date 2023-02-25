@@ -16,6 +16,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AimCommand;
+import frc.robot.commands.ArmDownCommand;
+import frc.robot.commands.ArmExtendCommand;
+import frc.robot.commands.ArmUpCommand;
 import frc.robot.commands.AutoCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.ClawCommand;
@@ -63,13 +66,18 @@ public class RobotContainer {
       new StraightCommand(
           m_driveSubsystem, m_gyroSubsystem, m_controller1::getThrottle, m_controller1::getY);
   private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem);
-
+  private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_armSubsystem);
+  private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_armSubsystem);
+  private final ArmExtendCommand m_armExtendCommand = new ArmExtendCommand(m_armSubsystem, m_flightStick::getY);
   // misc init
   private JoystickButton m_switchCameraButton;
   private JoystickButton m_aimButton;
   private JoystickButton m_balanceButton;
   private JoystickButton m_straightButton;
   private JoystickButton m_clawButton;
+  private JoystickButton m_armUpButton;
+  private JoystickButton m_armDownButton;
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -89,17 +97,22 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // buttons
+    // Controller buttons
     m_switchCameraButton = new JoystickButton(m_controller1, Constants.SWAPCAMBUTTON);
-    m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     m_balanceButton = new JoystickButton(m_controller1, Constants.BALANCEBUTTON);
     m_straightButton = new JoystickButton(m_controller1, Constants.STRAIGHTBUTTON);
-    m_clawButton = new JoystickButton(m_controller1, Constants.CLAWBUTTON);
+    // Joystick buttons
+    m_clawButton = new JoystickButton(m_flightStick, Constants.CLAWBUTTON);
+    m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
+    m_armDownButton = new JoystickButton(m_flightStick, Constants.ARMDOWNBUTTON);
+    m_armUpButton = new JoystickButton(m_flightStick, Constants.ARMUPBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
     m_aimButton.whileTrue(m_aimCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_clawButton.toggleOnTrue(m_clawCommand).toggleOnFalse(m_clawCommand);
+    m_armDownButton.whileTrue(m_armDownCommand);
+    m_armUpButton.whileTrue(m_armUpCommand);
   }
 
   // for autonomous

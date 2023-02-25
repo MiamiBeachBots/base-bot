@@ -45,13 +45,13 @@ public class AimCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var artemCAMRESULT = m_camera.getLatestResult();
+    var CamResult = m_camera.getLatestResult();
     // will not work if cam is defined incorrectly, but will not tell you
-    if (artemCAMRESULT.hasTargets()) {
+    if (CamResult.hasTargets()) {
       targetDetected.setString("true");
       // use gyro PID with angle, very easy
       m_driveSubsystem.turnToAngle(
-          m_gyroSubsystem.getYaw(), artemCAMRESULT.getBestTarget().getPitch());
+          m_gyroSubsystem.getYaw(), CamResult.getBestTarget().getPitch());
       // we reset the angle everytime as the target could change / move.
       m_driveSubsystem.turnResetPID();
     } else {
