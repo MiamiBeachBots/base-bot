@@ -29,13 +29,13 @@ public class ArmSubsystem extends SubsystemBase {
     m_extLimitSwitchBack = new DigitalInput(Constants.LSWITCHEXTBACK);
   }
 
-  public void armExtension(double axisValue) {
+  public void armExtend(double axisValue) {
     if (!m_extLimitSwitchFront.get() || !m_extLimitSwitchBack.get()) {
       // move with value and speed
     }
   }
 
-  public void armElevator(double axisValue) {
+  public void armElevate(double axisValue) {
     // arm up down
   }
 
