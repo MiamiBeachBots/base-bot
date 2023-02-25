@@ -30,7 +30,6 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void armExtend(double axisValue) {
-    System.out.println("Arm is Extending");
     if (!m_extLimitSwitchFront.get() || !m_extLimitSwitchBack.get()) {
       // move with value and speed
     }
