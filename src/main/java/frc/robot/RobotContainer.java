@@ -19,7 +19,6 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.ArmDownCommand;
 import frc.robot.commands.ArmExtendCommand;
 import frc.robot.commands.ArmUpCommand;
-import frc.robot.commands.AutoCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.ClawCommand;
 import frc.robot.commands.DefaultDrive;
@@ -56,7 +55,6 @@ public class RobotContainer {
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private final AutoCommand m_autoCommand = new AutoCommand(m_driveSubsystem, m_gyroSubsystem);
   private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_gyroSubsystem);
   private final BalanceCommand m_balanceCommand =
       new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);

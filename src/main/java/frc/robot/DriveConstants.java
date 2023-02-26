@@ -6,6 +6,10 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.math.util.Units;
 
+/**
+ * The DriveConstants class has all of the constants needed for autonomous / gyro assisted movement
+ * of the robot. This class is kept seperate as its values change quite a lot.
+ */
 public final class DriveConstants {
   // general drive constants
   public static final double WHEEL_DIAMETER = Units.inchesToMeters(6); // meters
