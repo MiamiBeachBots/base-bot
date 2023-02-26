@@ -3,7 +3,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ClawSubsystem;
+import frc.robot.subsystems.arm.ClawSubsystem;
 
 /** The claw command that uses the claw subsystem. */
 public class ClawCommand extends CommandBase {

@@ -1,23 +1,23 @@
 // Copyright (c) Jack Nelson & Miami Beach Bots
 
-package frc.robot.commands;
+package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.arm.ElevatorSubsystem;
 
-/** The default drive command that uses the drive subsystem. */
+/** The Arm Down Command that uses the elevator subsystem */
 public class ArmDownCommand extends CommandBase {
-  private final ArmSubsystem m_armSubsystem;
+  private final ElevatorSubsystem m_elevatorSubsystem;
 
   /**
-   * Creates a new DefaultDrive command.
+   * Creates a new Arm Down command.
    *
-   * @param d_subsystem The drive subsystem used by this command.
+   * @param e_subsystem The elevator subsystem used by this command.
    */
-  public ArmDownCommand(ArmSubsystem a_subsystem) {
-    m_armSubsystem = a_subsystem;
+  public ArmDownCommand(ElevatorSubsystem e_subsystem) {
+    m_elevatorSubsystem = e_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(a_subsystem);
+    addRequirements(e_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -27,7 +27,7 @@ public class ArmDownCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_armSubsystem.armElevate(false);
+    m_elevatorSubsystem.armElevate(false);
   }
 
   // Called once the command ends or is interrupted.

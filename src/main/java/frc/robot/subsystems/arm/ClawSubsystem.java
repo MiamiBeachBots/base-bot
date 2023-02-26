@@ -1,6 +1,6 @@
 // Copyright (c) Max Aitel, Jack Nelson & Miami Beach Bots
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.arm;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DigitalInput;

@@ -14,18 +14,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AimCommand;
-import frc.robot.commands.ArmDownCommand;
-import frc.robot.commands.ArmExtendCommand;
-import frc.robot.commands.ArmUpCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.ClawCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.StraightCommand;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ClawSubsystem;
+import frc.robot.commands.arm.ArmDownCommand;
+import frc.robot.commands.arm.ArmExtendCommand;
+import frc.robot.commands.arm.ArmUpCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
+import frc.robot.subsystems.arm.ClawSubsystem;
+import frc.robot.subsystems.arm.ElevatorSubsystem;
+import frc.robot.subsystems.arm.ExtensionSubsystem;
 import java.util.HashMap;
 import java.util.List;
 
@@ -49,7 +50,8 @@ public class RobotContainer {
 
   private final GyroSubsystem m_gyroSubsystem = new GyroSubsystem();
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem(m_gyroSubsystem);
-  private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
+  private final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
+  private final ExtensionSubsystem m_extensionSubsystem = new ExtensionSubsystem();
   private final ClawSubsystem m_clawSubsystem = new ClawSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
@@ -63,10 +65,10 @@ public class RobotContainer {
       new StraightCommand(
           m_driveSubsystem, m_gyroSubsystem, m_controller1::getThrottle, m_controller1::getY);
   private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem);
-  private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_armSubsystem);
-  private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_armSubsystem);
+  private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_elevatorSubsystem);
+  private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_elevatorSubsystem);
   private final ArmExtendCommand m_armExtendCommand =
-      new ArmExtendCommand(m_armSubsystem, m_flightStick::getY);
+      new ArmExtendCommand(m_extensionSubsystem, m_flightStick::getY);
   // misc init
   private JoystickButton m_switchCameraButton;
   private JoystickButton m_aimButton;
@@ -93,7 +95,7 @@ public class RobotContainer {
     // set claw default command
     m_clawSubsystem.setDefaultCommand(m_clawCommand);
     // set arm default command
-    m_armSubsystem.setDefaultCommand(m_armExtendCommand);
+    m_extensionSubsystem.setDefaultCommand(m_armExtendCommand);
   }
 
   /**

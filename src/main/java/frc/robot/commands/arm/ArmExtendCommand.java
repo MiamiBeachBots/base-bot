@@ -1,28 +1,28 @@
 // Copyright (c) Jack Nelson & Miami Beach Bots
 
-package frc.robot.commands;
+package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.arm.ExtensionSubsystem;
 import java.util.function.DoubleSupplier;
 
-/** The default drive command that uses the drive subsystem. */
+/** ArmExtend command that uses the extension subsystem. */
 public class ArmExtendCommand extends CommandBase {
-  private final ArmSubsystem m_armSubsystem;
+  private final ExtensionSubsystem m_extensionSubsystem;
   private final DoubleSupplier m_joy_y; // this gives us the y axis for current controller
 
   /**
-   * Creates a new DefaultDrive command.
+   * Creates a new ArmExtend command.
    *
-   * @param d_subsystem The drive subsystem used by this command.
+   * @param ext_subsystem The extension subsystem used by this command.
    * @param joystick_y_func A function that returns the value of the Y axis / height axis for said
    *     joystick.
    */
-  public ArmExtendCommand(ArmSubsystem a_subsystem, DoubleSupplier joystick_y_func) {
-    m_armSubsystem = a_subsystem;
+  public ArmExtendCommand(ExtensionSubsystem ext_subsystem, DoubleSupplier joystick_y_func) {
+    m_extensionSubsystem = ext_subsystem;
     m_joy_y = joystick_y_func;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(a_subsystem);
+    addRequirements(ext_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -32,7 +32,7 @@ public class ArmExtendCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_armSubsystem.armExtend(m_joy_y.getAsDouble());
+    m_extensionSubsystem.armExtend(m_joy_y.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
