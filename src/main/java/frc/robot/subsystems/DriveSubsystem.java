@@ -5,10 +5,11 @@ package frc.robot.subsystems;
 // import motor & frc dependencies
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -42,21 +43,38 @@ public class DriveSubsystem extends SubsystemBase {
   static final double turn_P = 0.03;
   static final double turn_I = 0.00;
   static final double turn_D = 0.00;
+  static final double MaxTurnRateDegPerS = 100;
+  static final double MaxTurnAccelerationDegPerSSquared = 300;
+  static final double TurnToleranceDeg = 3; // max diff in degrees
+  static final double TurnRateToleranceDegPerS = 10; // degrees per second
   // false when inactive, true when active / a target is set.
   private boolean turnControllerEnabled = false;
   private double turnRotateToAngleRate; // This value will be updated by the PID Controller
   // pid controller for "RotateToAngle"
-  private final PIDController m_turnController = new PIDController(turn_P, turn_I, turn_D);
+  private final ProfiledPIDController m_turnController =
+      new ProfiledPIDController(
+          turn_P,
+          turn_I,
+          turn_D,
+          new TrapezoidProfile.Constraints(MaxTurnRateDegPerS, MaxTurnAccelerationDegPerSSquared));
 
   // Balance PID / AutoBalance
 
   static final double balance_P = 0.0625; // 1/16
   static final double balance_I = 0.00;
   static final double balance_D = 0.00;
+  static final double MaxBalanceRateDegPerS = 5;
+  static final double MaxBalanceAccelerationDegPerSSquared = 10;
+  static final double BalanceToleranceDeg = 2; // max diff in degrees
   private double balanceThrottleRate; // This value will be updated by the PID Controller
   // pid controller for balanceCorrection
-  private final PIDController m_balanceController =
-      new PIDController(balance_P, balance_I, balance_D);
+  private final ProfiledPIDController m_balanceController =
+      new ProfiledPIDController(
+          balance_P,
+          balance_I,
+          balance_D,
+          new TrapezoidProfile.Constraints(
+              MaxBalanceRateDegPerS, MaxBalanceAccelerationDegPerSSquared));
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_driveOdometry;
@@ -80,19 +98,21 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive = new DifferentialDrive(m_motorsLeft, m_motorsRight);
     // config pid controller for motors.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
+    m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
     // this is the target pitch/ tilt error.
-    m_balanceController.setSetpoint(0);
+    m_balanceController.setGoal(0);
+    m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
     // init Encoders
     m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
     m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
     m_encoderRight.setReverseDirection(true);
     // configure encoders
-    m_encoderLeft.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in inches
-    m_encoderRight.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in inches
+    m_encoderLeft.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
+    m_encoderRight.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
     m_encoderLeft.setSamplesToAverage(5);
     m_encoderRight.setSamplesToAverage(5);
-    m_encoderLeft.setMinRate(6); // min rate to be determined moving
-    m_encoderRight.setMinRate(6); // min rate to be determined moving
+    m_encoderLeft.setMinRate(0.1); // min rate to be determined moving
+    m_encoderRight.setMinRate(0.1); // min rate to be determined moving
     // configure Odemetry
     m_driveOdometry =
         new DifferentialDriveOdometry(
@@ -133,7 +153,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private void calcuateAngleRate(double gyroYawAngle, double TargetAngleDegrees) {
     if (!turnControllerEnabled) {
-      m_turnController.setSetpoint(TargetAngleDegrees);
+      m_turnController.setGoal(TargetAngleDegrees);
       turnControllerEnabled = true;
     }
     turnRotateToAngleRate = MathUtil.clamp(m_turnController.calculate(gyroYawAngle), -1.0, 1.0);
