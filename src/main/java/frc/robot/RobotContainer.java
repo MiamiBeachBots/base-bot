@@ -127,6 +127,7 @@ public class RobotContainer {
     // Network Table Routine Options
     autoDashboardChooser.setDefaultOption("Auto With Balancing", "FullAuto");
     autoDashboardChooser.addOption("Auto Without Balancing", "AutoNoBalance");
+    autoDashboardChooser.addOption("Auto Test Mode", "Test");
 
     // Events
     // ex:
