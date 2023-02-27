@@ -66,6 +66,8 @@ public class DriveSubsystem extends SubsystemBase {
   static final double MaxBalanceRateDegPerS = 5;
   static final double MaxBalanceAccelerationDegPerSSquared = 10;
   static final double BalanceToleranceDeg = 2; // max diff in degrees
+  // false when inactive, true when active / a target is set.
+  private boolean balanceControllerEnabled = false;
   private double balanceThrottleRate; // This value will be updated by the PID Controller
   // pid controller for balanceCorrection
   private final ProfiledPIDController m_balanceController =
@@ -140,7 +142,15 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive.tankDrive(leftSpeed, rightSpeed);
   }
 
+  public void balanceResetPID() {
+    balanceControllerEnabled = false;
+  }
+
   public void balanceCorrection(double gyroPitchAngle) {
+    if (!balanceControllerEnabled) {
+      m_balanceController.reset(gyroPitchAngle);
+      balanceControllerEnabled = true;
+    }
     balanceThrottleRate = MathUtil.clamp(m_turnController.calculate(gyroPitchAngle), -1.0, 1.0);
     System.out.println(balanceThrottleRate);
     this.tankDrive(balanceThrottleRate, balanceThrottleRate);
@@ -153,6 +163,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private void calcuateAngleRate(double gyroYawAngle, double TargetAngleDegrees) {
     if (!turnControllerEnabled) {
+      m_turnController.reset(gyroYawAngle);
       m_turnController.setGoal(TargetAngleDegrees);
       turnControllerEnabled = true;
     }
@@ -219,6 +230,9 @@ public class DriveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Left Encoder Speed (M/s)", this.m_encoderLeft.getRate());
     SmartDashboard.putNumber("Right Encoder Speed (M/s)", this.m_encoderRight.getRate());
+    SmartDashboard.putNumber("Current Robot Location X axis", getPose().getX());
+    SmartDashboard.putNumber("Current Robot Location Y axis", getPose().getY());
+    SmartDashboard.putNumber("Current Robot Rotation", getPose().getRotation().getDegrees());
     // Update the odometry in the periodic block
     m_driveOdometry.update(
         m_gyroSubsystem.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());

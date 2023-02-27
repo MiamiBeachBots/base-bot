@@ -43,6 +43,7 @@ public class BalanceCommand extends CommandBase {
   public void end(boolean interrupted) {
     System.out.println("Ending balancing.");
     m_driveSubsystem.stop();
+    m_driveSubsystem.balanceResetPID();
   }
 
   // Returns true when the command should end.
