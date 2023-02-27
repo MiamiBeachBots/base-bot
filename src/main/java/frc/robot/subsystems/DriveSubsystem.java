@@ -93,8 +93,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     // init motor controller groups
     m_motorsLeft = new MotorControllerGroup(m_backLeft, m_frontLeft);
+    m_motorsLeft.setInverted(true); // invert left side
     m_motorsRight = new MotorControllerGroup(m_frontRight, m_backRight);
-    m_motorsRight.setInverted(true); // invert right side
 
     // init drive function
     m_ddrive = new DifferentialDrive(m_motorsLeft, m_motorsRight);
@@ -106,8 +106,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
     // init Encoders
     m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
+    m_encoderLeft.setReverseDirection(true); // invert left to match drive
     m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
-    m_encoderRight.setReverseDirection(true);
     // configure encoders
     m_encoderLeft.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
     m_encoderRight.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters

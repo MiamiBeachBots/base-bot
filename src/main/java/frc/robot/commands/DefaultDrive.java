@@ -40,8 +40,9 @@ public class DefaultDrive extends CommandBase {
   @Override
   public void execute() {
     // we include a limit on the drivers speed for safety.
+    // Additonally the axis's on the
     this.m_driveSubsystem.tankDrive(
-        Constants.MAX_SPEED * m_joy_x.getAsDouble(), Constants.MAX_SPEED * m_joy_y.getAsDouble());
+        Constants.MAX_SPEED * -m_joy_x.getAsDouble(), Constants.MAX_SPEED * -m_joy_y.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
