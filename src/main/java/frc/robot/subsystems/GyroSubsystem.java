@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** This Subsystem is what translates the output of the Gyro sensor to standard units. */
@@ -44,7 +45,9 @@ public class GyroSubsystem extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
+  }
 
   @Override
   public void simulationPeriodic() {
