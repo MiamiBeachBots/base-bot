@@ -165,13 +165,12 @@ public class RobotContainer {
             );
   }
 
-  // These are reversed as the right side is relative to the back of the robot
   public double getControllerRightY() {
-    return -m_controller1.getLeftY();
+    return -m_controller1.getRightY();
   }
 
   public double getControllerLeftY() {
-    return -m_controller1.getRightY();
+    return -m_controller1.getLeftY();
   }
 
   // for autonomous

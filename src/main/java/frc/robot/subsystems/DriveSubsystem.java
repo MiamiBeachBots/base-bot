@@ -93,8 +93,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     // init motor controller groups
     m_motorsLeft = new MotorControllerGroup(m_backLeft, m_frontLeft);
-    m_motorsLeft.setInverted(true); // invert left side
     m_motorsRight = new MotorControllerGroup(m_frontRight, m_backRight);
+    m_motorsRight.setInverted(true); // invert left side
 
     // init drive function
     m_ddrive = new DifferentialDrive(m_motorsLeft, m_motorsRight);
@@ -116,6 +116,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderLeft.setMinRate(0.1); // min rate to be determined moving
     m_encoderRight.setMinRate(0.1); // min rate to be determined moving
     resetEncoders();
+    m_gyroSubsystem.reset();
     // configure Odemetry
     m_driveOdometry =
         new DifferentialDriveOdometry(
@@ -198,8 +199,8 @@ public class DriveSubsystem extends SubsystemBase {
      * magnitude of motion.
      */
     this.calcuateAngleRate(gyroYawAngle, gyroAccumYawAngle);
-    double leftStickValue = joystickMagnitude - turnRotateToAngleRate;
-    double rightStickValue = joystickMagnitude + turnRotateToAngleRate;
+    double leftStickValue = joystickMagnitude + turnRotateToAngleRate;
+    double rightStickValue = joystickMagnitude - turnRotateToAngleRate;
     if (m_turnController.atGoal()) {
       this.tankDrive(leftStickValue, rightStickValue);
     }

@@ -15,10 +15,10 @@ public final class Constants {
   public static final class CANConstants {
     // CAN Bus Devices
     /// Drive Train Motors
-    public static final int MOTORFRONTLEFTID = 11;
-    public static final int MOTORBACKLEFTID = 12;
-    public static final int MOTORFRONTRIGHTID = 13;
-    public static final int MOTORBACKRIGHTID = 14;
+    public static final int MOTORFRONTRIGHTID = 11;
+    public static final int MOTORBACKRIGHTID = 12;
+    public static final int MOTORFRONTLEFTID = 13;
+    public static final int MOTORBACKLEFTID = 14;
     /// Arm movement motors
     public static final int ARMEXTENSIONMOTORID = 21;
     public static final int ARMELEVATORMOTORID = 22;
