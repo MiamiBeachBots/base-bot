@@ -63,8 +63,8 @@ public class DriveSubsystem extends SubsystemBase {
   static final double balance_P = 0.0625; // 1/16
   static final double balance_I = 0.00;
   static final double balance_D = 0.00;
-  static final double MaxBalanceRateDegPerS = 5;
-  static final double MaxBalanceAccelerationDegPerSSquared = 10;
+  static final double MaxBalanceRateDegPerS = 10;
+  static final double MaxBalanceAccelerationDegPerSSquared = 20;
   static final double BalanceToleranceDeg = 2; // max diff in degrees
   // false when inactive, true when active / a target is set.
   private boolean balanceControllerEnabled = false;
@@ -152,9 +152,12 @@ public class DriveSubsystem extends SubsystemBase {
       m_balanceController.reset(gyroPitchAngle);
       balanceControllerEnabled = true;
     }
-    balanceThrottleRate = MathUtil.clamp(m_turnController.calculate(gyroPitchAngle), -1.0, 1.0);
-    System.out.println(balanceThrottleRate);
-    this.tankDrive(balanceThrottleRate, balanceThrottleRate);
+    balanceThrottleRate = MathUtil.clamp(m_balanceController.calculate(gyroPitchAngle), -1.0, 1.0);
+    if (!m_balanceController.atGoal()) {
+      // we reverse the values beacuse the robot was balancing in the wrong direction.
+      this.tankDrive(-balanceThrottleRate, -balanceThrottleRate);
+      System.out.println(balanceThrottleRate);
+    }
   }
   // these next 4 functions are for turning a set radius while using the gyro.
   public void turnResetPID() {
@@ -180,7 +183,9 @@ public class DriveSubsystem extends SubsystemBase {
     this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
     double leftStickValue = turnRotateToAngleRate;
     double rightStickValue = turnRotateToAngleRate;
-    this.tankDrive(leftStickValue, rightStickValue);
+    if (m_turnController.atGoal()) {
+      this.tankDrive(leftStickValue, rightStickValue);
+    }
   }
 
   // magnitude = (joystickL + joystickR) / 2;
@@ -193,9 +198,11 @@ public class DriveSubsystem extends SubsystemBase {
      * magnitude of motion.
      */
     this.calcuateAngleRate(gyroYawAngle, gyroAccumYawAngle);
-    double leftStickValue = joystickMagnitude + turnRotateToAngleRate;
-    double rightStickValue = joystickMagnitude - turnRotateToAngleRate;
-    this.tankDrive(leftStickValue, rightStickValue);
+    double leftStickValue = joystickMagnitude - turnRotateToAngleRate;
+    double rightStickValue = joystickMagnitude + turnRotateToAngleRate;
+    if (m_turnController.atGoal()) {
+      this.tankDrive(leftStickValue, rightStickValue);
+    }
   }
 
   // for odemetry (path following)
