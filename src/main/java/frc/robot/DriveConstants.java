@@ -25,15 +25,15 @@ public final class DriveConstants {
   // The Robot Characterization Toolsuite provides a convenient tool for obtaining these
   // values for your robot.
   // Feed Forward Constants
-  public static final double Ks = 0.74056; // volts
-  public static final double Kv = 2.4474; // VoltSecondsPerMeter
-  public static final double Ka = 0.45481; // VoltSecondsSquaredPerMeter
+  public static final double Ks = 0.76856; // volts
+  public static final double Kv = 2.4467; // VoltSecondsPerMeter
+  public static final double Ka = 0.58646; // VoltSecondsSquaredPerMeter
   public static final SimpleMotorFeedforward FeedForward = new SimpleMotorFeedforward(Ks, Kv, Ka);
   // Feed Back / PID Constants
-  public static final double kPDriveVel = 3.5479;
+  public static final double kPDriveVel = 3.6293;
   // Helper class that converts a chassis velocity (dx and dtheta components) to left and right
   // wheel velocities for a differential drive.
-  public static final double kTrackwidthMeters = Units.inchesToMeters(21.0);
+  public static final double kTrackwidthMeters = 0.60048;
   public static final DifferentialDriveKinematics kDriveKinematics =
       new DifferentialDriveKinematics(kTrackwidthMeters);
   // MAX Acceleration & Velocity
