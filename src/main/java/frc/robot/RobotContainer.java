@@ -13,7 +13,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.ClawCommand;
@@ -39,7 +41,8 @@ import java.util.List;
  */
 public class RobotContainer {
   // Init joysticks
-  private final Joystick m_controller1 = new Joystick(Constants.CONTROLLERUSBINDEX);
+  private final CommandXboxController m_controller1 =
+      new CommandXboxController(Constants.CONTROLLERUSBINDEX);
   private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICKUSBINDEX);
 
   // The robot's subsystems are defined here...
@@ -61,20 +64,20 @@ public class RobotContainer {
   private final BalanceCommand m_balanceCommand =
       new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);
   private final DefaultDrive m_defaultDrive =
-      new DefaultDrive(m_driveSubsystem, m_controller1::getThrottle, m_controller1::getY);
+      new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
       new StraightCommand(
-          m_driveSubsystem, m_gyroSubsystem, m_controller1::getThrottle, m_controller1::getY);
+          m_driveSubsystem, m_gyroSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem);
   private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_elevatorSubsystem);
   private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_elevatorSubsystem);
   private final ArmExtendCommand m_armExtendCommand =
       new ArmExtendCommand(m_extensionSubsystem, m_flightStick::getY);
   // misc init
-  private JoystickButton m_switchCameraButton;
+  private Trigger m_switchCameraButton;
+  private Trigger m_balanceButton;
+  private Trigger m_straightButton;
   private JoystickButton m_aimButton;
-  private JoystickButton m_balanceButton;
-  private JoystickButton m_straightButton;
   private JoystickButton m_clawButton;
   private JoystickButton m_armUpButton;
   private JoystickButton m_armDownButton;
@@ -107,9 +110,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Controller buttons
-    m_switchCameraButton = new JoystickButton(m_controller1, Constants.SWAPCAMBUTTON);
-    m_balanceButton = new JoystickButton(m_controller1, Constants.BALANCEBUTTON);
-    m_straightButton = new JoystickButton(m_controller1, Constants.STRAIGHTBUTTON);
+    m_switchCameraButton = m_controller1.x();
+    m_balanceButton = m_controller1.rightBumper();
+    m_straightButton = m_controller1.rightTrigger();
     // Joystick buttons
     m_clawButton = new JoystickButton(m_flightStick, Constants.CLAWBUTTON);
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
@@ -162,6 +165,14 @@ public class RobotContainer {
             );
   }
 
+  private double getControllerRightY() {
+    return -m_controller1.getRightY();
+  }
+
+  private double getControllerLeftY() {
+    return m_controller1.getLeftY();
+  }
+
   // for autonomous
   public DefaultDrive getDefaultDrive() {
     return m_defaultDrive;
@@ -171,11 +182,11 @@ public class RobotContainer {
     return m_ultrasonic1;
   }
   // to swap camera type.
-  public JoystickButton getCameraButton() {
+  public Trigger getCameraButton() {
     return m_switchCameraButton;
   }
   // for future SmartDashboard uses.
-  public Joystick getController1() {
+  public CommandXboxController getController1() {
     return this.m_controller1;
   }
 
