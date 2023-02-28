@@ -115,6 +115,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderRight.setSamplesToAverage(5);
     m_encoderLeft.setMinRate(0.1); // min rate to be determined moving
     m_encoderRight.setMinRate(0.1); // min rate to be determined moving
+    resetEncoders();
     // configure Odemetry
     m_driveOdometry =
         new DifferentialDriveOdometry(
@@ -206,14 +207,22 @@ public class DriveSubsystem extends SubsystemBase {
     return m_driveOdometry.getPoseMeters();
   }
 
+  public void resetEncoders() {
+    m_encoderLeft.reset();
+    m_encoderRight.reset();
+  }
+
+  public double AverageDistance() {
+    return (m_encoderLeft.getDistance() + m_encoderRight.getDistance()) / 2;
+  }
+
   /**
    * Resets the odometry to the specified pose.
    *
    * @param pose The pose to which to set the odometry.
    */
   public void resetPose(Pose2d pose) {
-    m_encoderLeft.reset(); // clear encoder
-    m_encoderRight.reset(); // clear encoders
+    resetEncoders();
     m_driveOdometry.resetPosition(
         m_gyroSubsystem.getRotation2d(),
         m_encoderLeft.getDistance(),
@@ -233,6 +242,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Current Robot Location X axis", getPose().getX());
     SmartDashboard.putNumber("Current Robot Location Y axis", getPose().getY());
     SmartDashboard.putNumber("Current Robot Rotation", getPose().getRotation().getDegrees());
+    SmartDashboard.putNumber("Average Distance Traveled", AverageDistance());
     // Update the odometry in the periodic block
     m_driveOdometry.update(
         m_gyroSubsystem.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());

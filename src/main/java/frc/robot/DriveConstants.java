@@ -7,7 +7,9 @@ import edu.wpi.first.math.util.Units;
 
 /**
  * The DriveConstants class has all of the constants needed for autonomous / gyro assisted movement
- * of the robot. This class is kept seperate as its values change quite a lot.
+ * of the robot. This class is kept seperate as its values change quite a lot. Odemetry Is used to
+ * track the position and state of the robot. Kinemtatics is used to calculate how much power to
+ * apply to each motor.
  */
 public final class DriveConstants {
   // general drive constants
