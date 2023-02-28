@@ -106,8 +106,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
     // init Encoders
     m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
-    m_encoderLeft.setReverseDirection(true); // invert left to match drive
     m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
+    m_encoderRight.setReverseDirection(true); // invert left to match drive
     // configure encoders
     m_encoderLeft.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
     m_encoderRight.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
@@ -246,6 +246,8 @@ public class DriveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Left Encoder Speed (M/s)", this.m_encoderLeft.getRate());
     SmartDashboard.putNumber("Right Encoder Speed (M/s)", this.m_encoderRight.getRate());
+    SmartDashboard.putNumber("Distance L", this.m_encoderLeft.getDistance());
+    SmartDashboard.putNumber("Distance R", this.m_encoderRight.getDistance());
     SmartDashboard.putNumber("Current Robot Location X axis", getPose().getX());
     SmartDashboard.putNumber("Current Robot Location Y axis", getPose().getY());
     SmartDashboard.putNumber("Current Robot Rotation", getPose().getRotation().getDegrees());

@@ -37,8 +37,8 @@ public final class DriveConstants {
   public static final DifferentialDriveKinematics kDriveKinematics =
       new DifferentialDriveKinematics(kTrackwidthMeters);
   // MAX Acceleration & Velocity
-  public static final double kMaxSpeed = 3; // MetersPerSecond
-  public static final double kMaxAcceleration = 1; // MetersPerSecondSquared
+  public static final double kMaxSpeed = 1; // MetersPerSecond
+  public static final double kMaxAcceleration = 5; // MetersPerSecondSquared
   public static final PathConstraints autoPathConstraints =
       new PathConstraints(kMaxSpeed, kMaxAcceleration);
   // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
