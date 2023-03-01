@@ -20,6 +20,7 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.ClawCommand;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.StraightCommand;
 import frc.robot.commands.arm.ArmDownCommand;
 import frc.robot.commands.arm.ArmExtendCommand;
@@ -63,6 +64,7 @@ public class RobotContainer {
   private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_gyroSubsystem);
   private final BalanceCommand m_balanceCommand =
       new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);
+  private final PlaceCommand m_placeCommand = new PlaceCommand(m_clawSubsystem,m_elevatorSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
@@ -131,13 +133,14 @@ public class RobotContainer {
     // Network Table Routine Options
     autoDashboardChooser.setDefaultOption("Auto With Balancing", "FullAuto");
     autoDashboardChooser.addOption("Auto Without Balancing", "AutoNoBalance");
-    autoDashboardChooser.addOption("Auto Test Mode", "Test");
+    autoDashboardChooser.addOption("Auto Test Mode", "EndAtCones");
     SmartDashboard.putData(autoDashboardChooser);
 
     // Events
     // ex:
     // autonomousEventMap.put("A", new PathFollowingCommand(m_driveSubsystem, pathGroup.get(0)));
     autonomousEventMap.put("BalanceRobot", m_balanceCommand);
+    autonomousEventMap.put("PlaceCube", m_placeCommand);
 
     // Create the AutoBuilder. This only needs to be created once when robot code starts, not every
     // time you want to create an auto command.

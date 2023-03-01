@@ -60,7 +60,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
-  private void moveArm(double rotations) {
+  public boolean moveArm(double rotations) {
     double curPos = m_elevatorEncoder.getPosition();
     double newPos = curPos + rotations;
     if (newPos > kmaxRotations) {
@@ -69,6 +69,10 @@ public class ElevatorSubsystem extends SubsystemBase {
       newPos = 0;
     }
     m_elevatorPidController.setReference(newPos, CANSparkMax.ControlType.kPosition);
+    if (newPos <= kmaxRotations) {
+      return true;
+    }
+    return false;
   }
 
   @Override
