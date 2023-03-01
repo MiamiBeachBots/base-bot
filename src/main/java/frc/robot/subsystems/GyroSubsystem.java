@@ -40,8 +40,8 @@ public class GyroSubsystem extends SubsystemBase {
     return m_Gyro.getYaw();
   }
 
-  public void zeroYaw() {
-    m_Gyro.zeroYaw();
+  public void reset() {
+    m_Gyro.reset();
   }
 
   @Override
