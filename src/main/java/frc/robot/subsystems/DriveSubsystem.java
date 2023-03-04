@@ -40,7 +40,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final Encoder m_encoderRight;
 
   // Angle PID / RotateToAngle
-  static final double turn_P = 0.03;
+  static final double turn_P = 0.1;
   static final double turn_I = 0.00;
   static final double turn_D = 0.00;
   static final double MaxTurnRateDegPerS = 100;

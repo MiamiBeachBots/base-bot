@@ -5,7 +5,6 @@ package frc.robot.subsystems.arm;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANConstants;
 
@@ -14,7 +13,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   // elevator motor
   private final CANSparkMax m_elevatorMotor;
   // built in pid controller
-  private final SparkMaxPIDController m_elevatorPidController;
+  // private final SparkMaxPIDController m_elevatorPidController;
   // built in encoder
   private final RelativeEncoder m_elevatorEncoder;
 
@@ -34,46 +33,53 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem() {
     // arm up/y motor
     m_elevatorMotor = new CANSparkMax(CANConstants.ARMELEVATORMOTORID, MotorType.kBrushless);
-    m_elevatorPidController = m_elevatorMotor.getPIDController();
+    //   m_elevatorPidController = m_elevatorMotor.getPIDController();
     m_elevatorEncoder = m_elevatorMotor.getEncoder();
-    // configure elevator
-    m_elevatorPidController.setP(kP);
-    m_elevatorPidController.setI(kI);
-    m_elevatorPidController.setD(kD);
-    m_elevatorPidController.setOutputRange(kMinOutput, kMaxOutput);
-    m_elevatorPidController.setIZone(kIz);
-    m_elevatorPidController.setFF(kFF);
-    m_elevatorMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
-    m_elevatorMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
-    m_elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, kmaxRotations);
-    m_elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
+    //   // configure elevator
+    //   m_elevatorPidController.setP(kP);
+    //   m_elevatorPidController.setI(kI);
+    //   m_elevatorPidController.setD(kD);
+    //   m_elevatorPidController.setOutputRange(kMinOutput, kMaxOutput);
+    //   m_elevatorPidController.setIZone(kIz);
+    //   m_elevatorPidController.setFF(kFF);
+    //   m_elevatorMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+    //   m_elevatorMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+    //   m_elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, kmaxRotations);
+    //   m_elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
   }
 
-  public void armElevate(boolean direction) {
-    System.out.println("Arm is Elevating");
-    if (direction) {
-      // move up
-      moveArm(rotationsPerCall);
-    } else {
-      // move down
-      moveArm(-rotationsPerCall);
-    }
+  // public void armElevate(boolean direction) {
+  //   System.out.println("Arm is Elevating");
+  //   if (direction) {
+  //     // move up
+  //     moveArm(rotationsPerCall);
+  //   } else {
+  //     // move down
+  //     moveArm(-rotationsPerCall);
+  //   }
+
+  public void armElevateBasic(double speed) {
+    m_elevatorMotor.set(speed);
   }
 
-  public boolean moveArm(double rotations) {
-    double curPos = m_elevatorEncoder.getPosition();
-    double newPos = curPos + rotations;
-    if (newPos > kmaxRotations) {
-      newPos = kmaxRotations;
-    } else if (newPos < 0) {
-      newPos = 0;
-    }
-    m_elevatorPidController.setReference(newPos, CANSparkMax.ControlType.kPosition);
-    if (newPos <= kmaxRotations) {
-      return true;
-    }
-    return false;
+  public void armStop() {
+    m_elevatorMotor.set(0);
   }
+
+  // public boolean moveArm(double rotations) {
+  //   double curPos = m_elevatorEncoder.getPosition();
+  //   double newPos = curPos + rotations;
+  //   if (newPos > kmaxRotations) {
+  //     newPos = kmaxRotations;
+  //   } else if (newPos < 0) {
+  //     newPos = 0;
+  //   }
+  //   m_elevatorPidController.setReference(newPos, CANSparkMax.ControlType.kPosition);
+  //   if (newPos <= kmaxRotations) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   @Override
   public void periodic() {

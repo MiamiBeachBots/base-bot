@@ -23,14 +23,12 @@ import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.StraightCommand;
 import frc.robot.commands.arm.ArmDownCommand;
-import frc.robot.commands.arm.ArmExtendCommand;
 import frc.robot.commands.arm.ArmUpCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 import frc.robot.subsystems.arm.ClawSubsystem;
 import frc.robot.subsystems.arm.ElevatorSubsystem;
-import frc.robot.subsystems.arm.ExtensionSubsystem;
 import java.util.HashMap;
 import java.util.List;
 
@@ -56,7 +54,6 @@ public class RobotContainer {
   private final GyroSubsystem m_gyroSubsystem = new GyroSubsystem();
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem(m_gyroSubsystem);
   private final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
-  private final ExtensionSubsystem m_extensionSubsystem = new ExtensionSubsystem();
   private final ClawSubsystem m_clawSubsystem = new ClawSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
@@ -64,17 +61,16 @@ public class RobotContainer {
   private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_gyroSubsystem);
   private final BalanceCommand m_balanceCommand =
       new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);
-  private final PlaceCommand m_placeCommand = new PlaceCommand(m_clawSubsystem,m_elevatorSubsystem);
+  private final PlaceCommand m_placeCommand =
+      new PlaceCommand(m_clawSubsystem, m_elevatorSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
       new StraightCommand(
           m_driveSubsystem, m_gyroSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem);
+  private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem, m_flightStick::getY);
   private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_elevatorSubsystem);
   private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_elevatorSubsystem);
-  private final ArmExtendCommand m_armExtendCommand =
-      new ArmExtendCommand(m_extensionSubsystem, m_flightStick::getY);
   // misc init
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
@@ -100,8 +96,6 @@ public class RobotContainer {
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
     // set claw default command
     m_clawSubsystem.setDefaultCommand(m_clawCommand);
-    // set arm default command
-    m_extensionSubsystem.setDefaultCommand(m_armExtendCommand);
   }
 
   /**
@@ -132,8 +126,8 @@ public class RobotContainer {
   private void initializeAutonomous() {
     // Network Table Routine Options
     autoDashboardChooser.setDefaultOption("Auto With Balancing", "FullAuto");
-    autoDashboardChooser.addOption("Auto Without Balancing", "AutoNoBalance");
-    autoDashboardChooser.addOption("Auto Test Mode", "EndAtCones");
+    autoDashboardChooser.addOption("End at cones", "EndAtCones");
+    autoDashboardChooser.addOption("Do Nothing", "DoNothing");
     SmartDashboard.putData(autoDashboardChooser);
 
     // Events

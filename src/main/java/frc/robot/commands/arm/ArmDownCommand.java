@@ -27,17 +27,20 @@ public class ArmDownCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_elevatorSubsystem.armElevate(false);
+    System.out.println("DownCommand");
+    m_elevatorSubsystem.armElevateBasic(-0.2);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_elevatorSubsystem.armStop();
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    
+
     return false;
   }
 }

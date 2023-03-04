@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 2.0,
-        "y": 1.0
+        "x": 1.9121419127289037,
+        "y": 3.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0405716965280085,
-        "y": 1.0
+        "x": 2.9121419127289037,
+        "y": 3.0
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -26,12 +26,12 @@
     },
     {
       "anchorPoint": {
-        "x": 6.0,
-        "y": 1.0
+        "x": 4.0,
+        "y": 3.0
       },
       "prevControl": {
-        "x": 5.696454195229425,
-        "y": 1.0
+        "x": 3.6964541952294248,
+        "y": 3.0
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -40,7 +40,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "BalanceRobot"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0

@@ -34,8 +34,8 @@ public final class Constants {
   // Joystick buttons
   public static final int AIMBUTTON = 12;
   public static final int CLAWBUTTON = 1;
-  public static final int ARMUPBUTTON = 3;
-  public static final int ARMDOWNBUTTON = 4;
+  public static final int ARMDOWNBUTTON = 3;
+  public static final int ARMUPBUTTON = 4;
   // Analog Ports
   /// Ultrasonic Sensors and ports.
   public static final int ULTRASONIC1PORT = 0;
