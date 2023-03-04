@@ -2,6 +2,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 // import motor & frc dependencies
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.math.MathUtil;
@@ -222,6 +223,20 @@ public class DriveSubsystem extends SubsystemBase {
 
   public double AverageDistance() {
     return (m_encoderLeft.getDistance() + m_encoderRight.getDistance()) / 2;
+  }
+
+  public void SetBrakemode() {
+    m_backLeft.setNeutralMode(NeutralMode.Brake);
+    m_backRight.setNeutralMode(NeutralMode.Brake);
+    m_frontLeft.setNeutralMode(NeutralMode.Brake);
+    m_frontRight.setNeutralMode(NeutralMode.Brake);
+  }
+
+  public void SetCoastmode() {
+    m_backLeft.setNeutralMode(NeutralMode.Coast);
+    m_backRight.setNeutralMode(NeutralMode.Coast);
+    m_frontLeft.setNeutralMode(NeutralMode.Coast);
+    m_frontRight.setNeutralMode(NeutralMode.Coast);
   }
 
   /**
