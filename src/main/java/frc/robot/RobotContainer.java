@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.RamseteAutoBuilder;
@@ -13,6 +12,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -64,7 +65,8 @@ public class RobotContainer {
   private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_gyroSubsystem);
   private final BalanceCommand m_balanceCommand =
       new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);
-  private final PlaceCommand m_placeCommand = new PlaceCommand(m_clawSubsystem,m_elevatorSubsystem);
+  private final PlaceCommand m_placeCommand =
+      new PlaceCommand(m_clawSubsystem, m_elevatorSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
@@ -127,6 +129,9 @@ public class RobotContainer {
     m_clawButton.toggleOnTrue(m_clawCommand).toggleOnFalse(m_clawCommand);
     m_armDownButton.whileTrue(m_armDownCommand);
     m_armUpButton.whileTrue(m_armUpCommand);
+
+    m_controller1.a().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
+    m_controller1.b().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
   }
 
   private void initializeAutonomous() {
@@ -204,10 +209,14 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    /*
     pathGroup =
         PathPlanner.loadPathGroup(
             autoDashboardChooser.getSelected(), DriveConstants.autoPathConstraints);
     // Generate the auto command from the auto builder using the routine selected in the dashboard.
     return autoBuilder.fullAuto(pathGroup);
+    */
+    return new SequentialCommandGroup(
+        new DefaultDrive(m_driveSubsystem, () -> 0.33, () -> 0.33).withTimeout(3));
   }
 }
