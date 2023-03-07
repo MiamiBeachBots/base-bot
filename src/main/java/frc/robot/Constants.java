@@ -20,7 +20,6 @@ public final class Constants {
     public static final int MOTORFRONTLEFTID = 13;
     public static final int MOTORBACKLEFTID = 14;
     /// Arm movement motors
-    public static final int ARMEXTENSIONMOTORID = 21;
     public static final int ARMELEVATORMOTORID = 22;
     public static final int ARMCLAWMOTORID = 23;
   }
@@ -49,6 +48,4 @@ public final class Constants {
   /// Limit Switches
   public static final int LSWITCHCLAWOPEN = 4;
   public static final int LSWITCHCLAWCLOSE = 5;
-  public static final int LSWITCHEXTFRONT = 6;
-  public static final int LSWITCHEXTBACK = 7;
 }

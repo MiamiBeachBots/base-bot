@@ -25,7 +25,6 @@ import java.nio.file.Path;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-// TODO: Add gyro.
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 

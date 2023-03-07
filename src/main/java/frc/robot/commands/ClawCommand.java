@@ -39,16 +39,16 @@ public class ClawCommand extends CommandBase {
     //   m_clawSubsystem.clawClose();
     // }
     if (m_joy_y.getAsDouble() < 0.1 && m_joy_y.getAsDouble() > -0.1) {
-      m_clawSubsystem.clawBasic(0.05);
+      m_clawSubsystem.clawMotor(0.05);
     } else {
-      m_clawSubsystem.clawBasic(m_joy_y.getAsDouble());
+      m_clawSubsystem.clawMotor(m_joy_y.getAsDouble());
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // m_clawSubsystem.clawBasic(0.0); // change claw action on end.
+    // m_clawSubsystem.clawMotor(0.0); // change claw action on end.
   }
 
   // Returns true when the command should end.

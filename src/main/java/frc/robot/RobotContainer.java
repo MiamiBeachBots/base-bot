@@ -82,8 +82,8 @@ public class RobotContainer {
   private JoystickButton m_armDownButton;
   // Init For Autonomous
   private RamseteAutoBuilder autoBuilder;
-  private final HashMap<String, Command> autonomousEventMap = new HashMap<>();
-  private SendableChooser<String> autoDashboardChooser = new SendableChooser<>();
+  private final HashMap<String, Command> autonomousEventMap = new HashMap<String, Command>();
+  private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
   private List<PathPlannerTrajectory> pathGroup;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -209,6 +209,7 @@ public class RobotContainer {
     // Generate the auto command from the auto builder using the routine selected in the dashboard.
     return autoBuilder.fullAuto(pathGroup);
     */
+    // drive forward for 3 seconds.
     return new SequentialCommandGroup(
         new DefaultDrive(m_driveSubsystem, () -> 0.33, () -> 0.33).withTimeout(3));
   }

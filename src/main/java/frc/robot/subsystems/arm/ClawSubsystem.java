@@ -39,8 +39,8 @@ public class ClawSubsystem extends SubsystemBase {
     }
   }
 
-  public void clawBasic(double speed) {
-    m_clawMotor.set(speed);
+  public void clawMotor(double motorSpeed) {
+    m_clawMotor.set(motorSpeed);
   }
 
   public boolean clawClose() {
