@@ -62,6 +62,25 @@ public class DriveSubsystem extends SubsystemBase {
           turn_D,
           new TrapezoidProfile.Constraints(MaxTurnRateDegPerS, MaxTurnAccelerationDegPerSSquared));
 
+  // Distance PID / MoveDistance
+  static final double distance_P = 0.1;
+  static final double distance_I = 0.00;
+  static final double distance_D = 0.00;
+  static final double distanceMaxSpeed = 1; // m/s
+  static final double distanceMaxAcceleration = 2; // m/s^2
+  static final double DistanceTolerance = 0.01; // max diff in meters
+  static final double DistanceSpeedTolerance = 0.1; // ignore if velocity is below. (m)
+  // false when inactive, true when active / a target is set.
+  private boolean distanceControllerEnabled = false;
+  private double distanceThrottleRate; // This value will be updated by the PID Controller
+  // pid controller for "MoveDistance"
+  private final ProfiledPIDController m_distanceController =
+      new ProfiledPIDController(
+          distance_P,
+          distance_I,
+          distance_D,
+          new TrapezoidProfile.Constraints(distanceMaxSpeed, distanceMaxAcceleration));
+
   // Balance PID / AutoBalance
   static final double balance_P = 0.0625; // 1/16
   static final double balance_I = 0.00;
@@ -121,9 +140,11 @@ public class DriveSubsystem extends SubsystemBase {
             m_encoderLeft.getDistance(),
             m_encoderRight.getDistance());
 
-    // config pid controller for motors.
+    // config turn pid controller.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
     m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
+    // config distance pid controller
+    m_distanceController.setTolerance(DistanceTolerance, DistanceSpeedTolerance);
     // this is the target pitch/ tilt error.
     m_balanceController.setGoal(0);
     m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
@@ -149,6 +170,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void balanceResetPID() {
+    /** This should be run when stopping a pid command. */
     balanceControllerEnabled = false;
   }
 
@@ -164,6 +186,45 @@ public class DriveSubsystem extends SubsystemBase {
       System.out.println(balanceThrottleRate);
     }
   }
+
+  public void distanceResetPID() {
+    /** This should be run when stopping a pid command. */
+    distanceControllerEnabled = false;
+  }
+
+  private void calculateDistanceRate(double targetDistance) {
+    if (!distanceControllerEnabled) {
+      m_distanceController.reset(AverageDistance());
+      m_distanceController.setGoal(AverageDistance() + targetDistance);
+      distanceControllerEnabled = true;
+    }
+    distanceThrottleRate =
+        MathUtil.clamp(m_distanceController.calculate(AverageDistance()), -1.0, 1.0);
+  }
+
+  public void driveToDistance(double targetDistance) {
+    this.calculateDistanceRate(targetDistance);
+    double leftStickValue = turnRotateToAngleRate;
+    double rightStickValue = turnRotateToAngleRate;
+    if (!m_distanceController.atGoal()) {
+      this.tankDrive(leftStickValue, rightStickValue);
+    }
+  }
+
+  public void driveAndTurn(double gyroYawAngle, double TargetAngleDegrees, double targetDistance) {
+    /*
+    This lets you set a gyro angle and a distance you need to travel.
+    this should not be used in auto mode.
+     */
+    this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
+    this.calculateDistanceRate(targetDistance);
+    double leftStickValue = distanceThrottleRate + turnRotateToAngleRate;
+    double rightStickValue = distanceThrottleRate - turnRotateToAngleRate;
+    if (!m_turnController.atGoal()) {
+      this.tankDrive(leftStickValue, rightStickValue);
+    }
+  }
+
   // these next 4 functions are for turning a set radius while using the gyro.
   public void turnResetPID() {
     /** This should be run when stopping a pid command. */
@@ -188,7 +249,7 @@ public class DriveSubsystem extends SubsystemBase {
     this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
     double leftStickValue = turnRotateToAngleRate;
     double rightStickValue = turnRotateToAngleRate;
-    if (m_turnController.atGoal()) {
+    if (!m_turnController.atGoal()) {
       this.tankDrive(leftStickValue, rightStickValue);
     }
   }
@@ -203,11 +264,15 @@ public class DriveSubsystem extends SubsystemBase {
      * magnitude of motion.
      */
     this.calcuateAngleRate(gyroYawAngle, gyroAccumYawAngle);
-    double leftStickValue = joystickMagnitude + turnRotateToAngleRate;
-    double rightStickValue = joystickMagnitude - turnRotateToAngleRate;
-    if (m_turnController.atGoal()) {
-      this.tankDrive(leftStickValue, rightStickValue);
+    double angleRate;
+    if (!m_turnController.atGoal()) {
+      angleRate = turnRotateToAngleRate;
+    } else {
+      angleRate = 0;
     }
+    double leftStickValue = joystickMagnitude + angleRate;
+    double rightStickValue = joystickMagnitude - angleRate;
+    this.tankDrive(leftStickValue, rightStickValue);
   }
 
   // for odemetry (path following)

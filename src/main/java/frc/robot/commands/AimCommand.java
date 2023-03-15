@@ -4,12 +4,14 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 
 /** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends CommandBase {
@@ -18,6 +20,15 @@ public class AimCommand extends CommandBase {
   private final PhotonCamera m_camera;
   private final String CAMERANAME = "OV5647";
   private final NetworkTableEntry targetDetected;
+  // Constants such as camera and target height stored. Change per robot and goal!
+  final double CAMERA_HEIGHT_METERS = Units.inchesToMeters(24);
+  final double TARGET_HEIGHT_METERS = Units.feetToMeters(0.5);
+
+  // Angle between horizontal and the camera.
+  final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0);
+
+  // How far from the target we want to be
+  final double GOAL_RANGE_METERS = Units.feetToMeters(3);
   /**
    * Creates a new AimCommand.
    *
@@ -49,10 +60,19 @@ public class AimCommand extends CommandBase {
     // will not work if cam is defined incorrectly, but will not tell you
     if (CamResult.hasTargets()) {
       targetDetected.setString("true");
-      // use gyro PID with angle, very easy
-      m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), CamResult.getBestTarget().getPitch());
-      // we reset the angle everytime as the target could change / move.
+      double distanceFromTarget =
+          PhotonUtils.calculateDistanceToTargetMeters(
+                  CAMERA_HEIGHT_METERS,
+                  TARGET_HEIGHT_METERS,
+                  CAMERA_PITCH_RADIANS,
+                  Units.degreesToRadians(CamResult.getBestTarget().getPitch()))
+              - GOAL_RANGE_METERS;
+      // turn and move towards target.
+      m_driveSubsystem.driveAndTurn(
+          m_gyroSubsystem.getYaw(), CamResult.getBestTarget().getPitch(), distanceFromTarget);
+      // we reset both PID's everytime as the target could change / move.
       m_driveSubsystem.turnResetPID();
+      m_driveSubsystem.distanceResetPID();
     } else {
       targetDetected.setString("false");
     }
@@ -61,7 +81,8 @@ public class AimCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.turnResetPID(); // we make sure to clear the PID angle
+    m_driveSubsystem.turnResetPID(); // we clear the PID turn controller.
+    m_driveSubsystem.distanceResetPID(); // we clear the distance PID contoller too.
   }
 
   // Returns true when the command should end.
