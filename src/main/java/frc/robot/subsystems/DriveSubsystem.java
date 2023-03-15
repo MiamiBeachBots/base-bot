@@ -40,6 +40,9 @@ public class DriveSubsystem extends SubsystemBase {
   private final Encoder m_encoderLeft;
   private final Encoder m_encoderRight;
 
+  // Odometry class for tracking robot pose (position on field)
+  private final DifferentialDriveOdometry m_driveOdometry;
+
   // Angle PID / RotateToAngle
   static final double turn_P = 0.1;
   static final double turn_I = 0.00;
@@ -60,7 +63,6 @@ public class DriveSubsystem extends SubsystemBase {
           new TrapezoidProfile.Constraints(MaxTurnRateDegPerS, MaxTurnAccelerationDegPerSSquared));
 
   // Balance PID / AutoBalance
-
   static final double balance_P = 0.0625; // 1/16
   static final double balance_I = 0.00;
   static final double balance_D = 0.00;
@@ -79,9 +81,6 @@ public class DriveSubsystem extends SubsystemBase {
           new TrapezoidProfile.Constraints(
               MaxBalanceRateDegPerS, MaxBalanceAccelerationDegPerSSquared));
 
-  // Odometry class for tracking robot pose
-  private final DifferentialDriveOdometry m_driveOdometry;
-
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem(final GyroSubsystem g_subsystem) {
     m_gyroSubsystem = g_subsystem;
@@ -99,16 +98,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     // init drive function
     m_ddrive = new DifferentialDrive(m_motorsLeft, m_motorsRight);
-    // config pid controller for motors.
-    m_turnController.enableContinuousInput(-180.0f, 180.0f);
-    m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
-    // this is the target pitch/ tilt error.
-    m_balanceController.setGoal(0);
-    m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
+
     // init Encoders
     m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
     m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
     m_encoderRight.setReverseDirection(true); // invert left to match drive
+
     // configure encoders
     m_encoderLeft.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
     m_encoderRight.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
@@ -118,12 +113,20 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderRight.setMinRate(0.1); // min rate to be determined moving
     resetEncoders();
     m_gyroSubsystem.reset();
+
     // configure Odemetry
     m_driveOdometry =
         new DifferentialDriveOdometry(
             m_gyroSubsystem.getRotation2d(),
             m_encoderLeft.getDistance(),
             m_encoderRight.getDistance());
+
+    // config pid controller for motors.
+    m_turnController.enableContinuousInput(-180.0f, 180.0f);
+    m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
+    // this is the target pitch/ tilt error.
+    m_balanceController.setGoal(0);
+    m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
   }
 
   /**

@@ -19,12 +19,12 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
-import frc.robot.commands.ClawCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.StraightCommand;
 import frc.robot.commands.arm.ArmDownCommand;
 import frc.robot.commands.arm.ArmUpCommand;
+import frc.robot.commands.arm.ClawCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
@@ -117,8 +117,8 @@ public class RobotContainer {
     m_armUpButton = new JoystickButton(m_flightStick, Constants.ARMUPBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
-    m_aimButton.whileTrue(m_aimCommand);
     m_straightButton.whileTrue(m_straightCommand);
+    m_aimButton.whileTrue(m_aimCommand);
     m_clawButton.toggleOnTrue(m_clawCommand).toggleOnFalse(m_clawCommand);
     m_armDownButton.whileTrue(m_armDownCommand);
     m_armUpButton.whileTrue(m_armUpCommand);

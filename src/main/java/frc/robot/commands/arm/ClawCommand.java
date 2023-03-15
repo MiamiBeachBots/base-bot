@@ -1,6 +1,6 @@
 // Copyright (c) Jack Nelson, Max Aitel & Miami Beach Bots
 
-package frc.robot.commands;
+package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.arm.ClawSubsystem;
