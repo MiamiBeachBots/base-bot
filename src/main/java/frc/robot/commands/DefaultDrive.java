@@ -2,6 +2,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -12,6 +13,10 @@ public class DefaultDrive extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
   private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
   private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
+  // Creates a SlewRateLimiter that limits the rate of change of the signal to 0.5 units per second
+  private final double maxChange = 0.5; // 0.5 is 25% of -1 to 1
+  private final SlewRateLimiter left_limiter = new SlewRateLimiter(maxChange);
+  private final SlewRateLimiter right_limiter = new SlewRateLimiter(maxChange);
 
   /**
    * Creates a new DefaultDrive command.
@@ -37,10 +42,9 @@ public class DefaultDrive extends CommandBase {
   @Override
   public void execute() {
     // we include a limit on the drivers speed for safety.
-    // Additonally the axis's on the
     this.m_driveSubsystem.tankDrive(
-        Constants.MAX_SPEED * m_left_y.getAsDouble(),
-        Constants.MAX_SPEED * m_right_y.getAsDouble());
+        left_limiter.calculate(Constants.MAX_SPEED * m_left_y.getAsDouble()),
+        right_limiter.calculate(Constants.MAX_SPEED * m_right_y.getAsDouble()));
   }
 
   // Called once the command ends or is interrupted.
