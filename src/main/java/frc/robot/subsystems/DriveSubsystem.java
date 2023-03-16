@@ -220,7 +220,7 @@ public class DriveSubsystem extends SubsystemBase {
     this.calculateDistanceRate(targetDistance);
     double leftStickValue = distanceThrottleRate + turnRotateToAngleRate;
     double rightStickValue = distanceThrottleRate - turnRotateToAngleRate;
-    if (!m_turnController.atGoal()) {
+    if (!m_distanceController.atGoal() || !m_turnController.atGoal()) {
       this.tankDrive(leftStickValue, rightStickValue);
     }
   }
