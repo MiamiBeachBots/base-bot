@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
 
 /** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends CommandBase {
@@ -60,17 +59,9 @@ public class AimCommand extends CommandBase {
     // will not work if cam is defined incorrectly, but will not tell you
     if (CamResult.hasTargets()) {
       targetDetected.setString("true");
-      double distanceFromTarget =
-          PhotonUtils.calculateDistanceToTargetMeters(
-                  CAMERA_HEIGHT_METERS,
-                  TARGET_HEIGHT_METERS,
-                  CAMERA_PITCH_RADIANS,
-                  Units.degreesToRadians(CamResult.getBestTarget().getPitch()))
-              - GOAL_RANGE_METERS;
-      // turn and move towards target.
-      m_driveSubsystem.driveAndTurn(
-          m_gyroSubsystem.getYaw(), CamResult.getBestTarget().getPitch(), distanceFromTarget);
-      // we reset both PID's everytime as the target could change / move.
+      // use gyro PID with angle, very easy
+      m_driveSubsystem.turnToAngle(m_gyroSubsystem.getYaw(), CamResult.getBestTarget().getPitch());
+      // we reset the angle everytime as the target could change / move.
       m_driveSubsystem.turnResetPID();
       m_driveSubsystem.distanceResetPID();
     } else {
