@@ -47,6 +47,7 @@ public class GyroSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
+    SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
   }
 
   @Override

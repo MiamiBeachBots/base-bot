@@ -192,6 +192,10 @@ public class DriveSubsystem extends SubsystemBase {
     distanceControllerEnabled = false;
   }
 
+  public void distanceSetGoal(double targetDistance) {
+    m_distanceController.setGoal(AverageDistance() + targetDistance);
+  }
+
   private void calculateDistanceRate(double targetDistance) {
     if (!distanceControllerEnabled) {
       m_distanceController.reset(AverageDistance());
@@ -231,6 +235,10 @@ public class DriveSubsystem extends SubsystemBase {
     turnControllerEnabled = false;
   }
 
+  public void turnSetGoal(double targetAngleDegrees) {
+    m_turnController.setGoal(targetAngleDegrees);
+  }
+
   private void calcuateAngleRate(double gyroYawAngle, double TargetAngleDegrees) {
     if (!turnControllerEnabled) {
       m_turnController.reset(gyroYawAngle);
@@ -248,7 +256,7 @@ public class DriveSubsystem extends SubsystemBase {
      */
     this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
     double leftStickValue = turnRotateToAngleRate;
-    double rightStickValue = turnRotateToAngleRate;
+    double rightStickValue = -turnRotateToAngleRate;
     if (!m_turnController.atGoal()) {
       this.tankDrive(leftStickValue, rightStickValue);
     }
