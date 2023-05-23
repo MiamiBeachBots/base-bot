@@ -56,8 +56,8 @@ public class AimCommand extends CommandBase {
     // will not work if cam is defined incorrectly, but will not tell you
     if (CamResult.hasTargets()) {
       SmartDashboard.putBoolean("CameraTargetDetected", true);
-      SmartDashboard.putNumber("CameraTargetPitch", CamResult.getBestTarget().getPitch());
-      double angleGoal = m_gyroSubsystem.getYaw() + CamResult.getBestTarget().getPitch();
+      double angleGoal = m_gyroSubsystem.getYaw() + CamResult.getBestTarget().getYaw();
+      SmartDashboard.putNumber("CameraTargetPitch", angleGoal);
       double distanceFromTarget =
           PhotonUtils.calculateDistanceToTargetMeters(
                   CAMERA_HEIGHT_METERS,
@@ -68,11 +68,12 @@ public class AimCommand extends CommandBase {
       // turn and move towards target.
       m_driveSubsystem.driveAndTurn(m_gyroSubsystem.getYaw(), angleGoal, distanceFromTarget);
       // we reset the angle everytime as the target could change / move.
-      // m_driveSubsystem.turnSetGoal(angleGoal);
+      m_driveSubsystem.turnSetGoal(angleGoal);
       m_driveSubsystem.distanceSetGoal(distanceFromTarget);
     } else {
       SmartDashboard.putBoolean("CameraTargetDetected", false);
       SmartDashboard.putNumber("CameraTargetPitch", 0.0);
+      m_driveSubsystem.tankDrive(0, 0);
     }
   }
 
