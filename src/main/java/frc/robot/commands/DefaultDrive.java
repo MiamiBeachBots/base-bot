@@ -10,24 +10,21 @@ import java.util.function.DoubleSupplier;
 /** The default drive command that uses the drive subsystem. */
 public class DefaultDrive extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
-  private final DoubleSupplier m_joy_x; // this gives us the x axis for current controller
-  private final DoubleSupplier m_joy_y; // this gives us the y axis for current controller
+  private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
+  private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
 
   /**
    * Creates a new DefaultDrive command.
    *
    * @param d_subsystem The drive subsystem used by this command.
-   * @param joystick_throttle_func A function that returns the value of the x axis / throttle axis
-   *     for the joystick.
-   * @param joystick_y_func A function that returns the value of the Y axis for the joystick.
+   * @param xbox_left_y A function that returns the value of the left y axis for the joystick.
+   * @param xbox_right_y A function that returns the value of the right Y axis for the joystick.
    */
   public DefaultDrive(
-      DriveSubsystem d_subsystem,
-      DoubleSupplier joystick_throttle_func,
-      DoubleSupplier joystick_y_func) {
+      DriveSubsystem d_subsystem, DoubleSupplier xbox_left_y, DoubleSupplier xbox_right_y) {
     m_driveSubsystem = d_subsystem;
-    m_joy_x = joystick_throttle_func;
-    m_joy_y = joystick_y_func;
+    m_left_y = xbox_left_y;
+    m_right_y = xbox_right_y;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(d_subsystem);
   }
@@ -40,8 +37,10 @@ public class DefaultDrive extends CommandBase {
   @Override
   public void execute() {
     // we include a limit on the drivers speed for safety.
+    // Additonally the axis's on the
     this.m_driveSubsystem.tankDrive(
-        Constants.MAX_SPEED * m_joy_x.getAsDouble(), Constants.MAX_SPEED * m_joy_y.getAsDouble());
+        Constants.MAX_SPEED * m_left_y.getAsDouble(),
+        Constants.MAX_SPEED * m_right_y.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.

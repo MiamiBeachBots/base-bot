@@ -4,7 +4,9 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** This Subsystem is what translates the output of the Gyro sensor to standard units. */
@@ -16,11 +18,12 @@ public class GyroSubsystem extends SubsystemBase {
     m_Gyro = new AHRS(SPI.Port.kMXP);
   }
 
-  @Override
-  public void periodic() {}
-
   public void calibrate() {
     m_Gyro.calibrate();
+  }
+
+  public Rotation2d getRotation2d() {
+    return m_Gyro.getRotation2d();
   }
 
   // for balance correction
@@ -37,8 +40,14 @@ public class GyroSubsystem extends SubsystemBase {
     return m_Gyro.getYaw();
   }
 
-  public void zeroYaw() {
-    m_Gyro.zeroYaw();
+  public void reset() {
+    m_Gyro.reset();
+  }
+
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
+    SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
   }
 
   @Override

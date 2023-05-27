@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
@@ -24,7 +25,6 @@ import java.nio.file.Path;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-// TODO: Add gyro.
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
@@ -44,6 +44,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    PathPlannerServer.startServer(5811); // 5811 = port number. adjust this according to your needs
 
     camera1 = CameraServer.startAutomaticCapture(0);
     camera2 = CameraServer.startAutomaticCapture(1);

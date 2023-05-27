@@ -4,12 +4,14 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 /** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends CommandBase {
@@ -17,7 +19,15 @@ public class AimCommand extends CommandBase {
   private final GyroSubsystem m_gyroSubsystem;
   private final PhotonCamera m_camera;
   private final String CAMERANAME = "OV5647";
-  private final NetworkTableEntry targetDetected;
+  // Constants such as camera and target height stored. Change per robot and goal!
+  final double CAMERA_HEIGHT_METERS = Units.inchesToMeters(24);
+  final double TARGET_HEIGHT_METERS = Units.feetToMeters(0.5);
+
+  // Angle between horizontal and the camera.
+  final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0);
+
+  // How far from the target we want to be
+  final double GOAL_RANGE_METERS = Units.feetToMeters(3);
   /**
    * Creates a new AimCommand.
    *
@@ -31,9 +41,6 @@ public class AimCommand extends CommandBase {
     // Change this to match the name of your camera
     m_camera = new PhotonCamera(CAMERANAME);
 
-    // init networktables
-    targetDetected = NetworkTableInstance.getDefault().getTable("").getEntry("targetDetected");
-
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(d_subsystem, g_subsystem);
   }
@@ -45,24 +52,36 @@ public class AimCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var artemCAMRESULT = m_camera.getLatestResult();
+    PhotonPipelineResult CamResult = m_camera.getLatestResult();
     // will not work if cam is defined incorrectly, but will not tell you
-    if (artemCAMRESULT.hasTargets()) {
-      targetDetected.setString("true");
-      // use gyro PID with angle, very easy
-      m_driveSubsystem.turnToAngle(
-          m_gyroSubsystem.getYaw(), artemCAMRESULT.getBestTarget().getPitch());
+    if (CamResult.hasTargets()) {
+      SmartDashboard.putBoolean("CameraTargetDetected", true);
+      double angleGoal = m_gyroSubsystem.getYaw() + CamResult.getBestTarget().getYaw();
+      SmartDashboard.putNumber("CameraTargetPitch", angleGoal);
+      double distanceFromTarget =
+          PhotonUtils.calculateDistanceToTargetMeters(
+                  CAMERA_HEIGHT_METERS,
+                  TARGET_HEIGHT_METERS,
+                  CAMERA_PITCH_RADIANS,
+                  Units.degreesToRadians(CamResult.getBestTarget().getPitch()))
+              - GOAL_RANGE_METERS;
+      // turn and move towards target.
+      m_driveSubsystem.driveAndTurn(m_gyroSubsystem.getYaw(), angleGoal, distanceFromTarget);
       // we reset the angle everytime as the target could change / move.
-      m_driveSubsystem.turnResetPID();
+      m_driveSubsystem.turnSetGoal(angleGoal);
+      m_driveSubsystem.distanceSetGoal(distanceFromTarget);
     } else {
-      targetDetected.setString("false");
+      SmartDashboard.putBoolean("CameraTargetDetected", false);
+      SmartDashboard.putNumber("CameraTargetPitch", 0.0);
+      m_driveSubsystem.tankDrive(0, 0);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.turnResetPID(); // we make sure to clear the PID angle
+    m_driveSubsystem.turnResetPID(); // we clear the PID turn controller.
+    m_driveSubsystem.distanceResetPID(); // we clear the distance PID contoller too.
   }
 
   // Returns true when the command should end.

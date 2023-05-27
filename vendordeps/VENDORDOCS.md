@@ -5,4 +5,11 @@
 
 * REVLib.json (Spark Max) [Docs](https://docs.revrobotics.com/sparkmax/), [API Docs](https://codedocs.revrobotics.com/java/com/revrobotics/package-summary.html)
 
-* NavX.json (gyro) [Docs](https://pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java/) [API Docs](https://www.kauailabs.com/public_files/navx-mxp/apidocs/java/)
+## Gyro Library
+* NavX.json (NAVx Gyro Library) [Docs](https://pdocs.kauailabs.com/navx-mxp/software/roborio-libraries/java/) [API Docs](https://www.kauailabs.com/public_files/navx-mxp/apidocs/java/)
+
+## Vision Library
+* photonlib.json (PhotonVision) [Docs](https://docs.photonvision.org/en/latest/)
+
+## Path Planning Library
+* PathPlannerLib.json (PathPlanner) [Docs](https://github.com/mjansen4857/pathplanner/wiki) [API Docs](https://github.com/mjansen4857/pathplanner/wiki/PathPlannerLib:-Java-Usage)
