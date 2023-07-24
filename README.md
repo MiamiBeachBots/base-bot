@@ -11,10 +11,11 @@ TODO
 TODO
 ## TODO
 
-- [ ] Finish Gyro
-- [ ]  Pathweaver/trajectory planning
-- [ ] Network Tables
-- [ ]  Py Coprocessor
-- [ ]  Smart Dashboard
+- [x] Finish Gyro
+- [x] Pathweaver/trajectory planning
+- [x] Network Tables
+- [x] Py Coprocessor
+- [x] Basic Dashboard
+- [ ] Fancy Dashboard
 - [ ] Finish the readme
-- [x]  CAN support
+- [x] CAN support
