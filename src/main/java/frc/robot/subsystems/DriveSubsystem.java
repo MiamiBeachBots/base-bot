@@ -5,13 +5,16 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 // import motor & frc dependencies
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,8 +25,8 @@ import frc.robot.DriveConstants;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
-  // Gyro Subsystem
-  private final GyroSubsystem m_gyroSubsystem;
+  // Gyro
+  private final AHRS m_Gyro;
 
   // motors
   private final WPI_VictorSPX m_backLeft;
@@ -101,8 +104,9 @@ public class DriveSubsystem extends SubsystemBase {
               MaxBalanceRateDegPerS, MaxBalanceAccelerationDegPerSSquared));
 
   /** Creates a new DriveSubsystem. */
-  public DriveSubsystem(final GyroSubsystem g_subsystem) {
-    m_gyroSubsystem = g_subsystem;
+  public DriveSubsystem() {
+    // Init gyro
+    m_Gyro = new AHRS(SPI.Port.kMXP);
     // init motors
     // rio means built into the roboRIO
     m_backLeft = new WPI_VictorSPX(CANConstants.MOTORBACKLEFTID);
@@ -131,14 +135,12 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderLeft.setMinRate(0.1); // min rate to be determined moving
     m_encoderRight.setMinRate(0.1); // min rate to be determined moving
     resetEncoders();
-    m_gyroSubsystem.reset();
+    m_Gyro.reset();
 
     // configure Odemetry
     m_driveOdometry =
         new DifferentialDriveOdometry(
-            m_gyroSubsystem.getRotation2d(),
-            m_encoderLeft.getDistance(),
-            m_encoderRight.getDistance());
+            m_Gyro.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
 
     // config turn pid controller.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
@@ -323,14 +325,37 @@ public class DriveSubsystem extends SubsystemBase {
   public void resetPose(Pose2d pose) {
     resetEncoders();
     m_driveOdometry.resetPosition(
-        m_gyroSubsystem.getRotation2d(),
-        m_encoderLeft.getDistance(),
-        m_encoderRight.getDistance(),
-        pose);
+        m_Gyro.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance(), pose);
   }
 
   public void stop() {
     this.tankDrive(0, 0);
+  }
+
+  public void calibrate() {
+    m_Gyro.calibrate();
+  }
+
+  public Rotation2d getRotation2d() {
+    return m_Gyro.getRotation2d();
+  }
+
+  // for balance correction
+  public double getPitch() {
+    return m_Gyro.getPitch(); // get pitch in degrees
+  }
+
+  // for PID control (turn by degrees)
+  public double getAccumYaw() {
+    return m_Gyro.getAngle(); // get angle in degrees
+  }
+
+  public double getYaw() {
+    return m_Gyro.getYaw();
+  }
+
+  public void reset() {
+    m_Gyro.reset();
   }
 
   @Override
@@ -344,9 +369,11 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Current Robot Location Y axis", getPose().getY());
     SmartDashboard.putNumber("Current Robot Rotation", getPose().getRotation().getDegrees());
     SmartDashboard.putNumber("Average Distance Traveled", AverageDistance());
+    SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
+    SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
     // Update the odometry in the periodic block
     m_driveOdometry.update(
-        m_gyroSubsystem.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+        m_Gyro.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
   }
 
   @Override

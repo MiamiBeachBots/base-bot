@@ -26,7 +26,6 @@ import frc.robot.commands.arm.ArmDownCommand;
 import frc.robot.commands.arm.ArmUpCommand;
 import frc.robot.commands.arm.ClawCommand;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 import frc.robot.subsystems.arm.ClawSubsystem;
 import frc.robot.subsystems.arm.ElevatorSubsystem;
@@ -52,23 +51,20 @@ public class RobotContainer {
   private final UltrasonicSubsystem m_ultrasonic1 =
       new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
-  private final GyroSubsystem m_gyroSubsystem = new GyroSubsystem();
-  private final DriveSubsystem m_driveSubsystem = new DriveSubsystem(m_gyroSubsystem);
+  private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
   private final ClawSubsystem m_clawSubsystem = new ClawSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_gyroSubsystem);
-  private final BalanceCommand m_balanceCommand =
-      new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);
+  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem);
+  private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
   private final PlaceCommand m_placeCommand =
       new PlaceCommand(m_clawSubsystem, m_elevatorSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
-      new StraightCommand(
-          m_driveSubsystem, m_gyroSubsystem, this::getControllerLeftY, this::getControllerRightY);
+      new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem, m_flightStick::getY);
   private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_elevatorSubsystem);
   private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_elevatorSubsystem);
