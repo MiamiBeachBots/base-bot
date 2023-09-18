@@ -241,10 +241,10 @@ public class DriveSubsystem extends SubsystemBase {
     m_turnController.setGoal(targetAngleDegrees);
   }
 
-  private void calcuateAngleRate(double gyroYawAngle, double TargetAngleDegrees) {
+  private void calcuateAngleRate(double gyroYawAngle, double targetAngleDegrees) {
     if (!turnControllerEnabled) {
       m_turnController.reset(gyroYawAngle);
-      m_turnController.setGoal(TargetAngleDegrees);
+      m_turnController.setGoal(targetAngleDegrees);
       turnControllerEnabled = true;
     }
     turnRotateToAngleRate = MathUtil.clamp(m_turnController.calculate(gyroYawAngle), -1.0, 1.0);
