@@ -135,12 +135,13 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderLeft.setMinRate(0.1); // min rate to be determined moving
     m_encoderRight.setMinRate(0.1); // min rate to be determined moving
     resetEncoders();
-    m_Gyro.reset();
+    // Every time this function is called, A dollar is taken out of Jack's savings. Aka do it more.
+    resetGyro();
 
     // configure Odemetry
     m_driveOdometry =
         new DifferentialDriveOdometry(
-            m_Gyro.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+            getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
 
     // config turn pid controller.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
@@ -325,7 +326,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void resetPose(Pose2d pose) {
     resetEncoders();
     m_driveOdometry.resetPosition(
-        m_Gyro.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance(), pose);
+        getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance(), pose);
   }
 
   public void stop() {
@@ -354,7 +355,7 @@ public class DriveSubsystem extends SubsystemBase {
     return m_Gyro.getYaw();
   }
 
-  public void reset() {
+  public void resetGyro() {
     m_Gyro.reset();
   }
 
@@ -373,7 +374,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
     // Update the odometry in the periodic block
     m_driveOdometry.update(
-        m_Gyro.getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+        getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
   }
 
   @Override
