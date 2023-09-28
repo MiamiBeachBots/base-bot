@@ -6,36 +6,29 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.GyroSubsystem;
 import java.util.function.DoubleSupplier;
 
 /** An example command that uses an example subsystem. */
 public class StraightCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
-  private final GyroSubsystem m_gyroSubsystem;
   private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
   private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
   /**
    * Creates a new StraightCommand.
    *
    * @param d_subsystem The drive subsystem used by this command.
-   * @param g_subsystem The gyro subsystem used by this command.
    * @param xbox_left_y A function that returns the value of the left y axis for the joystick.
    * @param xbox_right_y A function that returns the value of the right Y axis for the joystick.
    */
   public StraightCommand(
-      DriveSubsystem d_subsystem,
-      GyroSubsystem g_subsystem,
-      DoubleSupplier xbox_left_y,
-      DoubleSupplier xbox_right_y) {
+      DriveSubsystem d_subsystem, DoubleSupplier xbox_left_y, DoubleSupplier xbox_right_y) {
     m_driveSubsystem = d_subsystem;
-    m_gyroSubsystem = g_subsystem;
     m_left_y = xbox_left_y;
     m_right_y = xbox_right_y;
 
     // Change this to match the name of your camera
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(d_subsystem, g_subsystem);
+    addRequirements(d_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -48,8 +41,8 @@ public class StraightCommand extends CommandBase {
   @Override
   public void execute() {
     m_driveSubsystem.driveStraight(
-        m_gyroSubsystem.getYaw(),
-        m_gyroSubsystem.getAccumYaw(),
+        m_driveSubsystem.getYaw(),
+        m_driveSubsystem.getAccumYaw(),
         (m_left_y.getAsDouble() + m_right_y.getAsDouble()) / 2);
   }
 
