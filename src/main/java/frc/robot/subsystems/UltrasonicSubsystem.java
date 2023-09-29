@@ -31,7 +31,7 @@ public class UltrasonicSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
+    // SmartDashboard.putNumber("Ultrasonic Sensor Distance", getRangeInches(ultrasonic1));
     // Calculate what percentage of 5 Volts we are actually at
     voltageScaleFactor = 5 / RobotController.getVoltage5V();
   }

@@ -107,10 +107,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-    // DO ultrasonid
-    // SmartDashboard.putNumber("Auto Sensor", getRangeInches(ultrasonic1));
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {
@@ -139,16 +136,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    // System.out.println(
-    // "Ultrasonic Distance In Inches: " + m_robotContainer.getUltrasonic1().DistanceIn());
-    // TODO: add dashboard stuff
-    // SmartDashboard.putNumber("Ultrasonic Sensor Distance", getRangeInches(ultrasonic1));
-    // SmartDashboard.putNumber("Ultrasonic Top Sensor Distance", getRangeInches(ultrasonic2));
-    // SmartDashboard.putNumber("Throttle", m_robotContainer.getStick().getThrottle());
-    // SmartDashboard.putNumber("Gyro Rate", m_robotContainer.getGyro().getRate());
-    // SmartDashboard.putNumber("Gyro angle", m_robotContainer.getGyro().getAngle());
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {
