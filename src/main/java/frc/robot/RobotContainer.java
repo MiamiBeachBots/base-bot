@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.RamseteAutoBuilder;
@@ -14,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -198,10 +198,15 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    /*
     pathGroup =
         PathPlanner.loadPathGroup(
             autoDashboardChooser.getSelected(), DriveConstants.autoPathConstraints);
     // Generate the auto command from the auto builder using the routine selected in the dashboard.
     return autoBuilder.fullAuto(pathGroup);
+    */
+    // drive forward for 3 seconds.
+    return new SequentialCommandGroup(
+        new DefaultDrive(m_driveSubsystem, () -> 0.33, () -> 0.33).withTimeout(3));
   }
 }
