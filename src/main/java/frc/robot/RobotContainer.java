@@ -13,11 +13,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
+import frc.robot.commands.AutonomousCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.PlaceCommand;
@@ -68,6 +68,7 @@ public class RobotContainer {
   private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem, m_flightStick::getY);
   private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_elevatorSubsystem);
   private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_elevatorSubsystem);
+  private final AutonomousCommand m_autonomousCommand = new AutonomousCommand(m_driveSubsystem);
   // misc init
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
@@ -206,7 +207,6 @@ public class RobotContainer {
     return autoBuilder.fullAuto(pathGroup);
     */
     // drive forward for 3 seconds.
-    return new SequentialCommandGroup(
-        new DefaultDrive(m_driveSubsystem, () -> 0.33, () -> 0.33).withTimeout(3));
+    return m_autonomousCommand;
   }
 }
