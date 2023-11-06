@@ -218,6 +218,21 @@ public class DriveSubsystem extends SubsystemBase {
     }
   }
 
+  public void turnToAngle(double gyroYawAngle, double TargetAngleDegrees) {
+    /*
+     * When this function is activated, execute another command to rotate to target angle. Since a Tank drive
+     * system cannot move forward simultaneously while rotating, all joystick input
+     * is ignored until this button is released.
+     */
+    this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
+    double leftStickValue = turnRotateToAngleRate;
+    double rightStickValue = -turnRotateToAngleRate;
+    if (!m_turnController.atGoal()) {
+      this.tankDrive(leftStickValue, rightStickValue);
+    }
+  }
+
+
   public void driveAndTurn(double gyroYawAngle, double TargetAngleDegrees, double targetDistance) {
     /*
     This lets you set a gyro angle and a distance you need to travel.
@@ -251,19 +266,6 @@ public class DriveSubsystem extends SubsystemBase {
     turnRotateToAngleRate = MathUtil.clamp(m_turnController.calculate(gyroYawAngle), -1.0, 1.0);
   }
 
-  public void turnToAngle(double gyroYawAngle, double TargetAngleDegrees) {
-    /*
-     * When this function is activated, execute another command to rotate to target angle. Since a Tank drive
-     * system cannot move forward simultaneously while rotating, all joystick input
-     * is ignored until this button is released.
-     */
-    this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
-    double leftStickValue = turnRotateToAngleRate;
-    double rightStickValue = -turnRotateToAngleRate;
-    if (!m_turnController.atGoal()) {
-      this.tankDrive(leftStickValue, rightStickValue);
-    }
-  }
 
   // magnitude = (joystickL + joystickR) / 2;
   public void driveStraight(

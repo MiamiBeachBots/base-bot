@@ -62,7 +62,9 @@ public class AimCommand extends CommandBase {
                   Units.degreesToRadians(CamResult.getBestTarget().getPitch()))
               - GOAL_RANGE_METERS;
       // turn and move towards target.
-      m_driveSubsystem.driveAndTurn(m_driveSubsystem.getYaw(), angleGoal, distanceFromTarget);
+      //m_driveSubsystem.driveAndTurn(m_driveSubsystem.getYaw(), angleGoal, distanceFromTarget);
+      m_driveSubsystem.turnToAngle(m_driveSubsystem.getYaw(), angleGoal);
+      m_driveSubsystem.driveToDistance(distanceFromTarget);
       // we reset the angle everytime as the target could change / move.
       m_driveSubsystem.turnSetGoal(angleGoal);
       m_driveSubsystem.distanceSetGoal(distanceFromTarget);
