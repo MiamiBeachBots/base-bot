@@ -19,9 +19,6 @@ public final class Constants {
     public static final int MOTORBACKRIGHTID = 12;
     public static final int MOTORFRONTLEFTID = 13;
     public static final int MOTORBACKLEFTID = 14;
-    /// Arm movement motors
-    public static final int ARMELEVATORMOTORID = 22;
-    public static final int ARMCLAWMOTORID = 23;
   }
 
   public static final double MAX_SPEED = 0.8;
@@ -30,11 +27,12 @@ public final class Constants {
   public static final int CONTROLLERUSBINDEX = 0;
   public static final int FLIGHTSTICKUSBINDEX = 1;
 
+  // Game Controller Buttons
+  // Now In RobotContainer as Native Triggers.
+
   // Joystick buttons
   public static final int AIMBUTTON = 12;
-  public static final int CLAWBUTTON = 1;
-  public static final int ARMDOWNBUTTON = 3;
-  public static final int ARMUPBUTTON = 4;
+
   // Analog Ports
   /// Ultrasonic Sensors and ports.
   public static final int ULTRASONIC1PORT = 0;
@@ -45,7 +43,4 @@ public final class Constants {
   public static final int DRIVEENCODERLEFTB = 1;
   public static final int DRIVEENCODERRIGHTA = 2;
   public static final int DRIVEENCODERRIGHTB = 3;
-  /// Limit Switches
-  public static final int LSWITCHCLAWOPEN = 4;
-  public static final int LSWITCHCLAWCLOSE = 5;
 }
