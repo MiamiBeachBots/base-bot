@@ -27,8 +27,8 @@ public final class Constants {
       public static final double turn_P = 0.1;
       public static final double turn_I = 0.00;
       public static final double turn_D = 0.00;
-      public static final double MaxTurnRateDegPerS = 100;
-      public static final double MaxTurnAccelerationDegPerSSquared = 300;
+      public static final double MaxTurnRateDegPerS = 1; // also one for testing NOT DONE
+      public static final double MaxTurnAccelerationDegPerSSquared = 1; // this is one for testing NOT DONE
       public static final double TurnToleranceDeg = 3; // max diff in degrees
       public static final double TurnRateToleranceDegPerS = 10; // degrees per second
     }
