@@ -20,15 +20,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
-import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.StraightCommand;
-import frc.robot.commands.arm.ArmDownCommand;
-import frc.robot.commands.arm.ArmUpCommand;
-import frc.robot.commands.arm.ClawCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
-import frc.robot.subsystems.arm.ClawSubsystem;
-import frc.robot.subsystems.arm.ElevatorSubsystem;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,30 +46,20 @@ public class RobotContainer {
       new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
-  private final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
-  private final ClawSubsystem m_clawSubsystem = new ClawSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
   private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem);
   private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
-  private final PlaceCommand m_placeCommand =
-      new PlaceCommand(m_clawSubsystem, m_elevatorSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
       new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  private final ClawCommand m_clawCommand = new ClawCommand(m_clawSubsystem, m_flightStick::getY);
-  private final ArmUpCommand m_armUpCommand = new ArmUpCommand(m_elevatorSubsystem);
-  private final ArmDownCommand m_armDownCommand = new ArmDownCommand(m_elevatorSubsystem);
   // misc init
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
   private Trigger m_straightButton;
   private JoystickButton m_aimButton;
-  private JoystickButton m_clawButton;
-  private JoystickButton m_armUpButton;
-  private JoystickButton m_armDownButton;
   // Init For Autonomous
   private RamseteAutoBuilder autoBuilder;
   private final HashMap<String, Command> autonomousEventMap = new HashMap<String, Command>();
@@ -91,8 +75,6 @@ public class RobotContainer {
 
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
-    // set claw default command
-    m_clawSubsystem.setDefaultCommand(m_clawCommand);
   }
 
   /**
@@ -107,17 +89,11 @@ public class RobotContainer {
     m_balanceButton = m_controller1.rightBumper();
     m_straightButton = m_controller1.rightTrigger();
     // Joystick buttons
-    m_clawButton = new JoystickButton(m_flightStick, Constants.CLAWBUTTON);
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
-    m_armDownButton = new JoystickButton(m_flightStick, Constants.ARMDOWNBUTTON);
-    m_armUpButton = new JoystickButton(m_flightStick, Constants.ARMUPBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_aimButton.whileTrue(m_aimCommand);
-    m_clawButton.toggleOnTrue(m_clawCommand).toggleOnFalse(m_clawCommand);
-    m_armDownButton.whileTrue(m_armDownCommand);
-    m_armUpButton.whileTrue(m_armUpCommand);
 
     m_controller1.a().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     m_controller1.b().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
@@ -134,7 +110,6 @@ public class RobotContainer {
     // ex:
     // autonomousEventMap.put("A", new PathFollowingCommand(m_driveSubsystem, pathGroup.get(0)));
     autonomousEventMap.put("BalanceRobot", m_balanceCommand);
-    autonomousEventMap.put("PlaceCube", m_placeCommand);
 
     // Create the AutoBuilder. This only needs to be created once when robot code starts, not every
     // time you want to create an auto command.
