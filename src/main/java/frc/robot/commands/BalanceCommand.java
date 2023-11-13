@@ -6,20 +6,24 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.GyroSubsystem;
 
 /** A Balancing command that uses the gyro subsystem. */
 public class BalanceCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
+  private final GyroSubsystem m_gyroSubsystem;
 
   /**
    * Creates a new BalanceCommand.
    *
-   * @param d_subsystem The drive subsystem used by this command.
+   * @param d_driveSubsystem The drive subsystem used by this command.
+   * @param d_gyroSubsystem The gyro subsystem used by this command.
    */
-  public BalanceCommand(DriveSubsystem d_subsystem) {
-    m_driveSubsystem = d_subsystem;
+  public BalanceCommand(DriveSubsystem d_driveSubsystem, GyroSubsystem d_gyroSubsystem) {
+    m_driveSubsystem = d_driveSubsystem;
+    m_gyroSubsystem = d_gyroSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_driveSubsystem);
+    addRequirements(m_driveSubsystem, m_gyroSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -31,7 +35,7 @@ public class BalanceCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveSubsystem.balanceCorrection(m_driveSubsystem.getPitch());
+    m_driveSubsystem.balanceCorrection(m_gyroSubsystem.getPitch());
   }
 
   // Called once the command ends or is interrupted.

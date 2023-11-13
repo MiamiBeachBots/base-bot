@@ -5,16 +5,13 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 // import motor & frc dependencies
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,7 +23,6 @@ import frc.robot.DriveConstants;
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
   // Gyro
-  private final AHRS m_Gyro;
 
   // motors
   private final WPI_VictorSPX m_backLeft;
@@ -86,8 +82,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
-    // Init gyro
-    m_Gyro = new AHRS(SPI.Port.kMXP);
+
     // init motors
     // rio means built into the roboRIO
     m_backLeft = new WPI_VictorSPX(CANConstants.MOTORBACKLEFTID);
@@ -117,12 +112,13 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderRight.setMinRate(0.1); // min rate to be determined moving
     resetEncoders();
     // Every time this function is called, A dollar is taken out of Jack's savings. Aka do it more.
-    resetGyro();
 
     // configure Odemetry
     m_driveOdometry =
         new DifferentialDriveOdometry(
-            getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+            frc.robot.subsystems.GyroSubsystem.Rotation2d,
+            m_encoderLeft.getDistance(),
+            m_encoderRight.getDistance());
 
     // config turn pid controller.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
@@ -312,55 +308,31 @@ public class DriveSubsystem extends SubsystemBase {
   public void resetPose(Pose2d pose) {
     resetEncoders();
     m_driveOdometry.resetPosition(
-        getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance(), pose);
+        frc.robot.subsystems.GyroSubsystem.Rotation2d,
+        m_encoderLeft.getDistance(),
+        m_encoderRight.getDistance(),
+        pose);
   }
 
   public void stop() {
     this.tankDrive(0, 0);
   }
 
-  public void calibrate() {
-    m_Gyro.calibrate();
-  }
-
-  public Rotation2d getRotation2d() {
-    return m_Gyro.getRotation2d();
-  }
-
-  // for balance correction
-  public double getPitch() {
-    return m_Gyro.getPitch(); // get pitch in degrees
-  }
-
-  // for PID control (turn by degrees)
-  public double getAccumYaw() {
-    return m_Gyro.getAngle(); // get angle in degrees
-  }
-
-  public double getYaw() {
-    return m_Gyro.getYaw();
-  }
-
-  public void resetGyro() {
-    m_Gyro.reset();
-  }
-
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // Update the odometry in the periodic block
     SmartDashboard.putNumber("Left Encoder Speed (M/s)", this.m_encoderLeft.getRate());
     SmartDashboard.putNumber("Right Encoder Speed (M/s)", this.m_encoderRight.getRate());
-    SmartDashboard.putNumber("Distance L", this.m_encoderLeft.getDistance());
+    SmartDashboard.putNumber("Distance L", m_encoderLeft.getDistance());
     SmartDashboard.putNumber("Distance R", this.m_encoderRight.getDistance());
     SmartDashboard.putNumber("Current Robot Location X axis", getPose().getX());
     SmartDashboard.putNumber("Current Robot Location Y axis", getPose().getY());
     SmartDashboard.putNumber("Current Robot Rotation", getPose().getRotation().getDegrees());
     SmartDashboard.putNumber("Average Distance Traveled", AverageDistance());
-    SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
-    SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
-    // Update the odometry in the periodic block
     m_driveOdometry.update(
-        getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+        frc.robot.subsystems.GyroSubsystem.Rotation2d,
+        m_encoderLeft.getDistance(),
+        m_encoderRight.getDistance());
   }
 
   @Override

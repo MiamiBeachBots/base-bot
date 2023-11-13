@@ -22,6 +22,7 @@ import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.StraightCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 import java.util.HashMap;
 import java.util.List;
@@ -45,16 +46,20 @@ public class RobotContainer {
   private final UltrasonicSubsystem m_ultrasonic1 =
       new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
+  private final GyroSubsystem m_gyroSubsystem = new GyroSubsystem();
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem);
-  private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
+  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_gyroSubsystem);
+  private final BalanceCommand m_balanceCommand =
+      new BalanceCommand(m_driveSubsystem, m_gyroSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
-      new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
+      new StraightCommand(
+          m_driveSubsystem, m_gyroSubsystem, this::getControllerLeftY, this::getControllerRightY);
   // misc init
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;

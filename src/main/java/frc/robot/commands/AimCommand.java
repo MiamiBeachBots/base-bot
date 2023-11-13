@@ -8,6 +8,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.GyroSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -15,6 +16,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 /** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
+  private final GyroSubsystem m_gyroSubsystem;
   private final PhotonCamera m_camera;
   private final String CAMERANAME = "OV5647";
   // Constants such as camera and target height stored. Change per robot and goal!
@@ -29,16 +31,18 @@ public class AimCommand extends CommandBase {
   /**
    * Creates a new AimCommand.
    *
-   * @param d_subsystem The drive subsystem used by this command.
+   * @param d_driveSubsystem The drive subsystem used by this command.
+   * @param d_gyroSubsystem The gyro subsystem used by this command.
    */
-  public AimCommand(DriveSubsystem d_subsystem) {
-    m_driveSubsystem = d_subsystem;
+  public AimCommand(DriveSubsystem d_driveSubsystem, GyroSubsystem d_gyroSubsystem) {
+    m_driveSubsystem = d_driveSubsystem;
+    m_gyroSubsystem = d_gyroSubsystem;
 
     // Change this to match the name of your camera
     m_camera = new PhotonCamera(CAMERANAME);
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(d_subsystem);
+    addRequirements(d_driveSubsystem, d_gyroSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -52,7 +56,7 @@ public class AimCommand extends CommandBase {
     // will not work if cam is defined incorrectly, but will not tell you
     if (CamResult.hasTargets()) {
       SmartDashboard.putBoolean("CameraTargetDetected", true);
-      double angleGoal = m_driveSubsystem.getYaw() + CamResult.getBestTarget().getYaw();
+      double angleGoal = m_gyroSubsystem.getYaw() + CamResult.getBestTarget().getYaw();
       SmartDashboard.putNumber("CameraTargetPitch", angleGoal);
       double distanceFromTarget =
           PhotonUtils.calculateDistanceToTargetMeters(
@@ -62,7 +66,7 @@ public class AimCommand extends CommandBase {
                   Units.degreesToRadians(CamResult.getBestTarget().getPitch()))
               - GOAL_RANGE_METERS;
       // turn and move towards target.
-      m_driveSubsystem.driveAndTurn(m_driveSubsystem.getYaw(), angleGoal, distanceFromTarget);
+      m_driveSubsystem.driveAndTurn(m_gyroSubsystem.getYaw(), angleGoal, distanceFromTarget);
       // we reset the angle everytime as the target could change / move.
       m_driveSubsystem.turnSetGoal(angleGoal);
       m_driveSubsystem.distanceSetGoal(distanceFromTarget);
