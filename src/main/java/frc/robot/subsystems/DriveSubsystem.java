@@ -46,62 +46,43 @@ public class DriveSubsystem extends SubsystemBase {
   // Odometry class for tracking robot pose (position on field)
   private final DifferentialDriveOdometry m_driveOdometry;
 
-  // Angle PID / RotateToAngle
-  static final double turn_P = 0.1;
-  static final double turn_I = 0.00;
-  static final double turn_D = 0.00;
-  static final double MaxTurnRateDegPerS = 100;
-  static final double MaxTurnAccelerationDegPerSSquared = 300;
-  static final double TurnToleranceDeg = 3; // max diff in degrees
-  static final double TurnRateToleranceDegPerS = 10; // degrees per second
-  // false when inactive, true when active / a target is set.
   private boolean turnControllerEnabled = false;
   private double turnRotateToAngleRate; // This value will be updated by the PID Controller
   // pid controller for "RotateToAngle"
   private final ProfiledPIDController m_turnController =
       new ProfiledPIDController(
-          turn_P,
-          turn_I,
-          turn_D,
-          new TrapezoidProfile.Constraints(MaxTurnRateDegPerS, MaxTurnAccelerationDegPerSSquared));
+          frc.robot.PIDConstants.turnPID.turn_P,
+          frc.robot.PIDConstants.turnPID.turn_I,
+          frc.robot.PIDConstants.turnPID.turn_D,
+          new TrapezoidProfile.Constraints(
+              frc.robot.PIDConstants.turnPID.MaxTurnRateDegPerS,
+              frc.robot.PIDConstants.turnPID.MaxTurnAccelerationDegPerSSquared));
 
-  // Distance PID / MoveDistance
-  static final double distance_P = 0.1;
-  static final double distance_I = 0.00;
-  static final double distance_D = 0.00;
-  static final double distanceMaxSpeed = 1; // m/s
-  static final double distanceMaxAcceleration = 2; // m/s^2
-  static final double DistanceTolerance = 0.01; // max diff in meters
-  static final double DistanceSpeedTolerance = 0.1; // ignore if velocity is below. (m)
   // false when inactive, true when active / a target is set.
   private boolean distanceControllerEnabled = false;
   private double distanceThrottleRate; // This value will be updated by the PID Controller
   // pid controller for "MoveDistance"
   private final ProfiledPIDController m_distanceController =
       new ProfiledPIDController(
-          distance_P,
-          distance_I,
-          distance_D,
-          new TrapezoidProfile.Constraints(distanceMaxSpeed, distanceMaxAcceleration));
+          frc.robot.PIDConstants.distancePID.distance_P,
+          frc.robot.PIDConstants.distancePID.distance_I,
+          frc.robot.PIDConstants.distancePID.distance_D,
+          new TrapezoidProfile.Constraints(
+              frc.robot.PIDConstants.distancePID.distanceMaxSpeed,
+              frc.robot.PIDConstants.distancePID.distanceMaxAcceleration));
 
-  // Balance PID / AutoBalance
-  static final double balance_P = 0.0625; // 1/16
-  static final double balance_I = 0.00;
-  static final double balance_D = 0.00;
-  static final double MaxBalanceRateDegPerS = 10;
-  static final double MaxBalanceAccelerationDegPerSSquared = 20;
-  static final double BalanceToleranceDeg = 2; // max diff in degrees
   // false when inactive, true when active / a target is set.
   private boolean balanceControllerEnabled = false;
   private double balanceThrottleRate; // This value will be updated by the PID Controller
   // pid controller for balanceCorrection
   private final ProfiledPIDController m_balanceController =
       new ProfiledPIDController(
-          balance_P,
-          balance_I,
-          balance_D,
+          frc.robot.PIDConstants.balancePID.balance_P,
+          frc.robot.PIDConstants.balancePID.balance_I,
+          frc.robot.PIDConstants.balancePID.balance_D,
           new TrapezoidProfile.Constraints(
-              MaxBalanceRateDegPerS, MaxBalanceAccelerationDegPerSSquared));
+              frc.robot.PIDConstants.balancePID.MaxBalanceRateDegPerS,
+              frc.robot.PIDConstants.balancePID.MaxBalanceAccelerationDegPerSSquared));
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -145,12 +126,17 @@ public class DriveSubsystem extends SubsystemBase {
 
     // config turn pid controller.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
-    m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
+    m_turnController.setTolerance(
+        frc.robot.PIDConstants.turnPID.TurnToleranceDeg,
+        frc.robot.PIDConstants.turnPID.TurnRateToleranceDegPerS);
     // config distance pid controller
-    m_distanceController.setTolerance(DistanceTolerance, DistanceSpeedTolerance);
+    m_distanceController.setTolerance(
+        frc.robot.PIDConstants.distancePID.DistanceTolerance,
+        frc.robot.PIDConstants.distancePID.DistanceSpeedTolerance);
     // this is the target pitch/ tilt error.
     m_balanceController.setGoal(0);
-    m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
+    m_balanceController.setTolerance(
+        frc.robot.PIDConstants.balancePID.BalanceToleranceDeg); // max error in degrees
   }
 
   /**
