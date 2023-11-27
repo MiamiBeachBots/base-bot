@@ -21,7 +21,7 @@ public final class Constants {
     public static final int MOTORBACKLEFTID = 14;
   }
 
-  public static final double MAX_SPEED = 0.8;
+  public static final double MAX_SPEED = 0.5;
 
   // USB Devices
   public static final int CONTROLLERUSBINDEX = 0;
