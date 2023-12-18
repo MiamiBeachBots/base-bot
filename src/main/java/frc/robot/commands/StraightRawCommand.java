@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
@@ -41,7 +40,10 @@ public class StraightRawCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveSubsystem.tankDrive((m_left_y.getAsDouble(), m_right_y.getAsDouble())/2,(m_left_y.getAsDouble(), m_right_y.getAsDouble())/2);
+    m_driveSubsystem.driveStraight(
+        m_driveSubsystem.getYaw(),
+        m_driveSubsystem.getAccumYaw(),
+        (m_left_y.getAsDouble() + m_right_y.getAsDouble()) / 2);
   }
 
   // Called once the command ends or is interrupted.
