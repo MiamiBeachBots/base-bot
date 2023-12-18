@@ -25,6 +25,8 @@ import frc.robot.DriveConstants;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
+  // Jerk Limiter
+
   // Gyro
   private final AHRS m_Gyro;
 
@@ -33,9 +35,11 @@ public class DriveSubsystem extends SubsystemBase {
   private final WPI_VictorSPX m_frontLeft;
   private final WPI_VictorSPX m_backRight;
   private final WPI_VictorSPX m_frontRight;
+
   // Motor Controllers
   private final MotorControllerGroup m_motorsLeft;
   private final MotorControllerGroup m_motorsRight;
+
   // Main drive function
   private final DifferentialDrive m_ddrive;
 

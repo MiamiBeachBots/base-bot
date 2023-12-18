@@ -20,7 +20,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
-import frc.robot.commands.StraightCommand;
+import frc.robot.commands.DriftCommand;
+import frc.robot.commands.RawDrive;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 import java.util.HashMap;
@@ -53,12 +54,15 @@ public class RobotContainer {
   private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  private final StraightCommand m_straightCommand =
-      new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
+  private final RawDrive m_RawDriveCommand =
+      new RawDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   // misc init
+  private final DriftCommand m_driftCommand =
+      new DriftCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
-  private Trigger m_straightButton;
+  private Trigger m_rawDriveButton;
+  private Trigger m_driftButton;
   private JoystickButton m_aimButton;
   // Init For Autonomous
   private RamseteAutoBuilder autoBuilder;
@@ -87,13 +91,15 @@ public class RobotContainer {
     // Controller buttons
     m_switchCameraButton = m_controller1.x();
     m_balanceButton = m_controller1.rightBumper();
-    m_straightButton = m_controller1.rightTrigger();
+    m_rawDriveButton = m_controller1.rightTrigger();
+    m_driftButton = m_controller1.leftTrigger();
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
-    m_straightButton.whileTrue(m_straightCommand);
+    m_rawDriveButton.whileTrue(m_RawDriveCommand);
     m_aimButton.whileTrue(m_aimCommand);
+    m_driftButton.whileTrue(m_driftCommand);
 
     m_controller1.a().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     m_controller1.b().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));

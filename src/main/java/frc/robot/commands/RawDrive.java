@@ -5,11 +5,12 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
 /** An example command that uses an example subsystem. */
-public class StraightCommand extends CommandBase {
+public class RawDrive extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
   private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
   private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
@@ -20,7 +21,7 @@ public class StraightCommand extends CommandBase {
    * @param xbox_left_y A function that returns the value of the left y axis for the joystick.
    * @param xbox_right_y A function that returns the value of the right Y axis for the joystick.
    */
-  public StraightCommand(
+  public RawDrive(
       DriveSubsystem d_subsystem, DoubleSupplier xbox_left_y, DoubleSupplier xbox_right_y) {
     m_driveSubsystem = d_subsystem;
     m_left_y = xbox_left_y;
@@ -40,10 +41,10 @@ public class StraightCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveSubsystem.driveStraight(
-        m_driveSubsystem.getYaw(),
-        m_driveSubsystem.getAccumYaw(),
-        (m_left_y.getAsDouble() + m_right_y.getAsDouble()) / 2);
+    m_driveSubsystem.tankDrive(
+        m_left_y.getAsDouble() * Constants.MAX_SPEED,
+        m_right_y.getAsDouble() * Constants.MAX_SPEED);
+    ;
   }
 
   // Called once the command ends or is interrupted.
