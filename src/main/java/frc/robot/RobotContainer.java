@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -20,6 +24,7 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.StraightCommand;
+import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 
@@ -43,20 +48,25 @@ public class RobotContainer {
       new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+  private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem);
+  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_cameraSubsystem);
   private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
       new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  // misc init
+  private Command m_driveToSpeaker;
+  // Init Buttons
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
   private Trigger m_straightButton;
+  private Trigger m_brakeButton;
+  private Trigger m_coastButton;
   private JoystickButton m_aimButton;
+  private Trigger m_driveToSpeakerButton;
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
@@ -67,6 +77,8 @@ public class RobotContainer {
     configureButtonBindings();
     // Initialize the autonomous command
     initializeAutonomous();
+    // Setup On the Fly Path Planning
+    configureTeleopPaths();
 
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
@@ -81,17 +93,21 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Controller buttons
     m_switchCameraButton = m_controller1.x();
+    m_brakeButton = m_controller1.a();
+    m_coastButton = m_controller1.b();
     m_balanceButton = m_controller1.rightBumper();
     m_straightButton = m_controller1.rightTrigger();
+    m_driveToSpeakerButton = m_controller1.y();
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_aimButton.whileTrue(m_aimCommand);
+    m_driveToSpeakerButton.whileTrue(m_driveToSpeaker);
 
-    m_controller1.a().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
-    m_controller1.b().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
+    m_brakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
+    m_coastButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
   }
 
   private void initializeAutonomous() {
@@ -129,6 +145,16 @@ public class RobotContainer {
     //         true, // change for either team
     //         m_driveSubsystem //  Requirements of the commands (should be the drive subsystem)
     //         );
+  }
+
+  private void configureTeleopPaths() {
+    // Limits for all Paths
+    PathConstraints constraints =
+        new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+    PathPlannerPath speakerPath = PathPlannerPath.fromPathFile("TeleopSpeakerPath");
+
+    m_driveToSpeaker = AutoBuilder.pathfindThenFollowPath(speakerPath, constraints);
   }
 
   public double getControllerRightY() {

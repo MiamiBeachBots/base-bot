@@ -9,10 +9,10 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
@@ -43,7 +43,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final Encoder m_encoderRight;
 
   // Odometry class for tracking robot pose (position on field)
-  private final DifferentialDriveOdometry m_driveOdometry;
+  private final DifferentialDrivePoseEstimator m_driveOdometry;
 
   // Angle PID / RotateToAngle
   static final double turn_P = 0.1;
@@ -143,8 +143,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     // configure Odemetry
     m_driveOdometry =
-        new DifferentialDriveOdometry(
-            getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+        new DifferentialDrivePoseEstimator(
+            DriveConstants.kDriveKinematics,
+            getRotation2d(),
+            m_encoderLeft.getDistance(),
+            m_encoderRight.getDistance(),
+            new Pose2d());
 
     // config turn pid controller.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
@@ -321,7 +325,11 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return m_driveOdometry.getPoseMeters();
+    return m_driveOdometry.getEstimatedPosition();
+  }
+
+  public void updateVisionPose(Pose2d visionRobotPose, double timestamp) {
+    m_driveOdometry.addVisionMeasurement(visionRobotPose, timestamp);
   }
 
   public void resetEncoders() {
