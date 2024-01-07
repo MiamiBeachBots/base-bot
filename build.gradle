@@ -1,11 +1,14 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2023.4.3"
-    id 'com.diffplug.spotless' version '6.12.0'
+    id "edu.wpi.first.GradleRIO" version "2024.1.1"
+    id 'com.diffplug.spotless' version '6.20.0'
+    id "com.peterabeles.gversion" version "1.10"
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
@@ -44,7 +47,7 @@ def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
-def includeDesktopSupport = true  // groovylint-disable-line
+def includeDesktopSupport = true
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
@@ -66,9 +69,8 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
@@ -84,7 +86,12 @@ wpi.sim.addDriverstation()
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
@@ -103,7 +110,7 @@ spotless {
     java {
         target fileTree('.') {
             include '**/*.java'
-            exclude '**/build/**', '**/build-*/**'
+            exclude '**/build/**', '**/build-*/**', '**/BuildConstants.java'
         }
         toggleOffOn()
         googleJavaFormat()
@@ -142,45 +149,13 @@ spotless {
     }
 }
 
-// Git Tasks
-tasks.register("writeBranchName") {
-    // Define an output stream to write to instead of terminal
-    def stdout = new ByteArrayOutputStream()
-
-    // Execute the git command
-    exec {
-        commandLine "git", "rev-parse", "--abbrev-ref", "HEAD"
-        // Write to the output stream instead of terminal
-        standardOutput = stdout
-    }
-
-    // Parse the output into a string
-    def branch = stdout.toString().trim()
-
-    // Create a new file
-    new File(
-            // Join project directory and deploy directory
-            projectDir.toString() + "/src/main/deploy",
-            // File name to write to
-            "branch.txt"
-            ).text = branch // Set the contents of the file to the variable branch
+// Git Task
+project.compileJava.dependsOn(createVersionFile)
+gversion {
+    srcDir       = "src/main/java/"
+    classPackage = "frc.robot"
+    className    = "BuildConstants"
+    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
+    timeZone     = "America/New_York" // Use preferred time zone
+    indent       = "  "
 }
-
-tasks.register("writeCommitHash") {
-    def stdout = new ByteArrayOutputStream()
-
-    exec {
-        commandLine "git", "rev-parse", "--short", "HEAD"
-        standardOutput = stdout
-    }
-
-    def commitHash = stdout.toString().trim()
-
-    new File(
-            projectDir.toString() + "/src/main/deploy",
-            "commit.txt"
-            ).text = commitHash
-}
-// Make deploy depend on these tasks
-deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeBranchName)
-deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeCommitHash)

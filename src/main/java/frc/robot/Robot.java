@@ -4,20 +4,15 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
 // import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -44,7 +39,6 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    PathPlannerServer.startServer(5811); // 5811 = port number. adjust this according to your needs
 
     camera1 = CameraServer.startAutomaticCapture(0);
     camera2 = CameraServer.startAutomaticCapture(1);
@@ -53,22 +47,21 @@ public class Robot extends TimedRobot {
     // camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     // camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-    // this is to put git info in the dashboard & Logs
-    String deployDir = Filesystem.getDeployDirectory().getPath();
-    String branchName = "unknown";
-    String commitHash = "unknown";
-    try {
-      branchName = Files.readString(Path.of(deployDir, "branch.txt"));
-      commitHash = Files.readString(Path.of(deployDir, "commit.txt"));
+    // this is to put git info in the dashboard & Logs, uses new 2024 BuildConstants.java
+    String branchName = BuildConstants.GIT_BRANCH;
+    String commitHash = BuildConstants.GIT_SHA;
+    String commitTime = BuildConstants.GIT_DATE;
+    String buildTime = BuildConstants.BUILD_DATE;
 
-    } catch (IOException e) {
-      e.printStackTrace();
-      System.out.println("Parsing Git metadata Files Failed");
-    }
     System.out.println("Branch: " + branchName);
     System.out.println("Commit: " + commitHash);
+    System.out.println("Commit Time: " + commitTime);
+    System.out.println("Build Time: " + buildTime);
+
     SmartDashboard.putString("Branch", branchName);
     SmartDashboard.putString("Commit", commitHash);
+    SmartDashboard.putString("CommitTime", commitTime);
+    SmartDashboard.putString("BuildTime", buildTime);
   }
 
   /**
