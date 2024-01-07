@@ -4,12 +4,11 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.RamseteAutoBuilder;
-import edu.wpi.first.math.controller.RamseteController;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,8 +22,6 @@ import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.StraightCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -61,10 +58,8 @@ public class RobotContainer {
   private Trigger m_straightButton;
   private JoystickButton m_aimButton;
   // Init For Autonomous
-  private RamseteAutoBuilder autoBuilder;
-  private final HashMap<String, Command> autonomousEventMap = new HashMap<String, Command>();
+  // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
-  private List<PathPlannerTrajectory> pathGroup;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -106,35 +101,34 @@ public class RobotContainer {
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
     SmartDashboard.putData(autoDashboardChooser);
 
-    // Events
+    // Named Commands
     // ex:
-    // autonomousEventMap.put("A", new PathFollowingCommand(m_driveSubsystem, pathGroup.get(0)));
-    autonomousEventMap.put("BalanceRobot", m_balanceCommand);
+    // NamedCommands.registerCommand("A", new PathFollowingCommand(m_driveSubsystem,
+    // pathGroup.get(0)));
+    NamedCommands.registerCommand("BalanceRobot", m_balanceCommand);
 
-    // Create the AutoBuilder. This only needs to be created once when robot code starts, not every
-    // time you want to create an auto command.
-    // Use blue side of field when designing!
-    autoBuilder =
-        new RamseteAutoBuilder(
-            m_driveSubsystem::getPose, // Pose2d supplier
-            m_driveSubsystem
-                ::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
-            new RamseteController(
-                DriveConstants.kRamseteB, DriveConstants.kRamseteZeta), // RamseteController
-            DriveConstants.kDriveKinematics, // DifferentialDriveKinematics
-            DriveConstants
-                .FeedForward, // A feedforward value to apply to the drive subsystem's controllers
-            m_driveSubsystem
-                ::getWheelSpeeds, // A method for getting the current wheel speeds of the drive
-            new PIDConstants(
-                DriveConstants.kPDriveVel, 0, 0), // A PID controller for wheel velocity control
-            m_driveSubsystem
-                ::tankDriveVolts, // A consumer that takes left and right wheel voltages and sets
-            // them to the drive subsystem's controllers
-            autonomousEventMap,
-            true, // change for either team
-            m_driveSubsystem //  Requirements of the commands (should be the drive subsystem)
-            );
+    // autoBuilder =
+    //     new RamseteAutoBuilder(
+    //         m_driveSubsystem::getPose, // Pose2d supplier
+    //         m_driveSubsystem
+    //             ::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
+    //         new RamseteController(
+    //             DriveConstants.kRamseteB, DriveConstants.kRamseteZeta), // RamseteController
+    //         DriveConstants.kDriveKinematics, // DifferentialDriveKinematics
+    //         DriveConstants
+    //             .FeedForward, // A feedforward value to apply to the drive subsystem's
+    // controllers
+    //         m_driveSubsystem::getWheelSpeeds, // A method for getting the current wheel speeds of
+    // the drive
+    //         new PIDConstants(
+    //             DriveConstants.kPDriveVel, 0, 0), // A PID controller for wheel velocity control
+    //         m_driveSubsystem
+    //             ::tankDriveVolts, // A consumer that takes left and right wheel voltages and sets
+    //         // them to the drive subsystem's controllers
+    //         autonomousEventMap,
+    //         true, // change for either team
+    //         m_driveSubsystem //  Requirements of the commands (should be the drive subsystem)
+    //         );
   }
 
   public double getControllerRightY() {
@@ -149,14 +143,17 @@ public class RobotContainer {
   public DefaultDrive getDefaultDrive() {
     return m_defaultDrive;
   }
+
   // for autonomous
   public UltrasonicSubsystem getUltrasonic1() {
     return m_ultrasonic1;
   }
+
   // to swap camera type.
   public Trigger getCameraButton() {
     return m_switchCameraButton;
   }
+
   // for future SmartDashboard uses.
   public CommandXboxController getController1() {
     return this.m_controller1;
@@ -173,10 +170,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    pathGroup =
-        PathPlanner.loadPathGroup(
-            autoDashboardChooser.getSelected(), DriveConstants.autoPathConstraints);
-    // Generate the auto command from the auto builder using the routine selected in the dashboard.
-    return autoBuilder.fullAuto(pathGroup);
+    // get the name of the auto from network tables, as the rest is preconfigured by the drive
+    // subsystem.
+    String autoName = autoDashboardChooser.getSelected();
+    return new PathPlannerAuto(autoName);
   }
 }
