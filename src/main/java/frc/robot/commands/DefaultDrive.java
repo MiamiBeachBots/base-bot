@@ -2,13 +2,13 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
 /** The default drive command that uses the drive subsystem. */
-public class DefaultDrive extends CommandBase {
+public class DefaultDrive extends Command {
   private final DriveSubsystem m_driveSubsystem;
   private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
   private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
