@@ -9,7 +9,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
 /** An example command that uses an example subsystem. */
-public class DriftCommand extends CommandBase {
+public class BreakCommand extends CommandBase {
   private final DriveSubsystem m_driveSubsystem;
   private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
   private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
@@ -20,7 +20,7 @@ public class DriftCommand extends CommandBase {
    * @param xbox_left_y A function that returns the value of the left y axis for the joystick.
    * @param xbox_right_y A function that returns the value of the right Y axis for the joystick.
    */
-  public DriftCommand(
+  public BreakCommand(
       DriveSubsystem d_subsystem, DoubleSupplier xbox_left_y, DoubleSupplier xbox_right_y) {
     m_driveSubsystem = d_subsystem;
     m_left_y = xbox_left_y;
@@ -40,14 +40,13 @@ public class DriftCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveSubsystem.tankDrive(m_left_y.getAsDouble(), m_right_y.getAsDouble());
+    m_driveSubsystem.tankDrive(0.7, 0.7);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     m_driveSubsystem.turnResetPID(); // we make sure to clear the PID angle
-    System.out.println("Ending 'StraightCommand.");
   }
 
   // Returns true when the command should end.

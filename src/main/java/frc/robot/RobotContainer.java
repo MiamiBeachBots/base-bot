@@ -19,9 +19,11 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
+import frc.robot.commands.BreakCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DriftCommand;
 import frc.robot.commands.RawDrive;
+import frc.robot.commands.StraightRawCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 import java.util.HashMap;
@@ -59,10 +61,16 @@ public class RobotContainer {
   // misc init
   private final DriftCommand m_driftCommand =
       new DriftCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
+  private final StraightRawCommand m_straightRawCommand =
+      new StraightRawCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
+  private final BreakCommand m_breakCommand =
+      new BreakCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
   private Trigger m_rawDriveButton;
   private Trigger m_driftButton;
+  private Trigger m_straightRawButton;
+  private Trigger m_breakButton;
   private JoystickButton m_aimButton;
   // Init For Autonomous
   private RamseteAutoBuilder autoBuilder;
@@ -93,6 +101,8 @@ public class RobotContainer {
     m_balanceButton = m_controller1.rightBumper();
     m_rawDriveButton = m_controller1.rightTrigger();
     m_driftButton = m_controller1.leftTrigger();
+    m_straightRawButton = m_controller1.rightBumper();
+    m_breakButton = m_controller1.leftBumper();
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     // commands
@@ -100,6 +110,8 @@ public class RobotContainer {
     m_rawDriveButton.whileTrue(m_RawDriveCommand);
     m_aimButton.whileTrue(m_aimCommand);
     m_driftButton.whileTrue(m_driftCommand);
+    m_straightRawButton.whileTrue(m_straightRawCommand);
+    m_breakButton.whileTrue(m_breakCommand);
 
     m_controller1.a().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     m_controller1.b().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
