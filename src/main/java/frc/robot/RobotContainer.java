@@ -73,12 +73,12 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the button bindings
-    configureButtonBindings();
     // Initialize the autonomous command
     initializeAutonomous();
     // Setup On the Fly Path Planning
     configureTeleopPaths();
+    // Configure the button bindings
+    configureButtonBindings();
 
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
