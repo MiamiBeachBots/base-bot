@@ -20,10 +20,10 @@ public final class Constants {
     public static final int MOTORFRONTLEFTID = 13;
     public static final int MOTORBACKLEFTID = 14;
     /// Arm Motors
-    public static final int MOTORARMID = 21;
+    public static final int MOTORARMMAINID = 21;
+    public static final int MOTORARMSECONDARYID = 22;
     /// Shooter Motors
-    public static final int MOTORSHOOTERLEFTID = 31;
-    public static final int MOTORSHOOTERRIGHTID = 32;
+    public static final int MOTORSHOOTERID = 31;
   }
 
   public static final double MAX_SPEED = 0.8;
