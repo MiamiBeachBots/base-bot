@@ -21,11 +21,16 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
+import frc.robot.commands.ArmCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.StraightCommand;
+import frc.robot.commands.UltrasonicShooterCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 
 /**
@@ -35,6 +40,9 @@ import frc.robot.subsystems.UltrasonicSubsystem;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  // These states are used to pass data between commands.
+  private final ShooterState m_shooterState = new ShooterState();
+
   // Init joysticks
   private final CommandXboxController m_controller1 =
       new CommandXboxController(Constants.CONTROLLERUSBINDEX);
@@ -44,11 +52,13 @@ public class RobotContainer {
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   // Init Gyro & ultrasonic
-  private final UltrasonicSubsystem m_ultrasonic1 =
-      new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
+  private final UltrasonicSubsystem m_ultrasonicShooterSubsystem =
+      new UltrasonicSubsystem(Constants.ULTRASONICSHOOTERPORT);
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
+  private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
+  private final ShooterSubsystem m_shooterSubsytem = new ShooterSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -58,6 +68,11 @@ public class RobotContainer {
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
       new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
+  private final UltrasonicShooterCommand m_ultrasonicShooterCommand =
+      new UltrasonicShooterCommand(m_ultrasonicShooterSubsystem, m_shooterState);
+  private final ArmCommand m_armCommand =
+      new ArmCommand(m_armSubsystem, m_shooterState, this::GetFlightStickY);
+  private final ShooterCommand m_shooterCommand = new ShooterCommand(m_shooterSubsytem);
   private Command m_driveToSpeaker;
   // Init Buttons
   private Trigger m_switchCameraButton;
@@ -66,6 +81,7 @@ public class RobotContainer {
   private Trigger m_brakeButton;
   private Trigger m_coastButton;
   private JoystickButton m_aimButton;
+  private JoystickButton m_fireButton;
   private Trigger m_driveToSpeakerButton;
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
@@ -82,6 +98,10 @@ public class RobotContainer {
 
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
+    // set default command for shooter ultrasonic sensor
+    m_ultrasonicShooterSubsystem.setDefaultCommand(m_ultrasonicShooterCommand);
+    // set default command for arm
+    m_armSubsystem.setDefaultCommand(m_armCommand);
   }
 
   /**
@@ -100,10 +120,12 @@ public class RobotContainer {
     m_driveToSpeakerButton = m_controller1.y();
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
+    m_fireButton = new JoystickButton(m_flightStick, Constants.FIREBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_aimButton.whileTrue(m_aimCommand);
+    m_fireButton.whileTrue(m_shooterCommand);
     m_driveToSpeakerButton.whileTrue(m_driveToSpeaker);
 
     m_brakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
@@ -165,14 +187,13 @@ public class RobotContainer {
     return -m_controller1.getLeftY();
   }
 
-  // for autonomous
-  public DefaultDrive getDefaultDrive() {
-    return m_defaultDrive;
+  public double GetFlightStickY() {
+    return m_flightStick.getY();
   }
 
   // for autonomous
-  public UltrasonicSubsystem getUltrasonic1() {
-    return m_ultrasonic1;
+  public DefaultDrive getDefaultDrive() {
+    return m_defaultDrive;
   }
 
   // to swap camera type.

@@ -19,6 +19,11 @@ public final class Constants {
     public static final int MOTORBACKRIGHTID = 12;
     public static final int MOTORFRONTLEFTID = 13;
     public static final int MOTORBACKLEFTID = 14;
+    /// Arm Motors
+    public static final int MOTORARMID = 21;
+    /// Shooter Motors
+    public static final int MOTORSHOOTERLEFTID = 31;
+    public static final int MOTORSHOOTERRIGHTID = 32;
   }
 
   public static final double MAX_SPEED = 0.8;
@@ -32,10 +37,11 @@ public final class Constants {
 
   // Joystick buttons
   public static final int AIMBUTTON = 12;
+  public static final int FIREBUTTON = 0;
 
   // Analog Ports
   /// Ultrasonic Sensors and ports.
-  public static final int ULTRASONIC1PORT = 0;
+  public static final int ULTRASONICSHOOTERPORT = 0;
 
   // Digital Ports
   /// Encoder Ports
