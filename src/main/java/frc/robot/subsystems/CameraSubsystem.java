@@ -25,9 +25,22 @@ public class CameraSubsystem extends SubsystemBase {
   private final String frontCameraName = "OV5647";
   private final PhotonCamera frontCamera;
   public PhotonPipelineResult frontCameraResult;
+  // Physical location of camera relative to center
+  private final double CameraLocationXMeters = 0.5;
+  private final double CameraLocationYMeters = 0.0;
+  private final double CameraLocationZMeters = 0.5;
+  // angle of camera / orientation
+
   // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+  private final double CameraRollRadians = Units.degreesToRadians(0.5);
+  private final double CameraPitchRadians = Units.degreesToRadians(0.0);
+  private final double CameraYawRadians = Units.degreesToRadians(0.5);
+
   private final Transform3d frontCameraLocation =
-      new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+      new Transform3d(
+          new Translation3d(CameraLocationXMeters, CameraLocationYMeters, CameraLocationZMeters),
+          new Rotation3d(CameraRollRadians, CameraPitchRadians, CameraYawRadians));
+
   private final PhotonPoseEstimator frontCameraPoseEstimator;
   // Constants such as camera and target height stored. Change per robot and goal!
   public final double frontCameraHeightMeters = Units.inchesToMeters(24);

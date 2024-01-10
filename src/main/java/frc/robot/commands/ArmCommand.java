@@ -43,7 +43,7 @@ public class ArmCommand extends Command {
 
     } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
       m_ArmSubsystem.lowerArm();
-      m_shooterState.lowered();
+      m_shooterState.setLowered();
     }
   }
 

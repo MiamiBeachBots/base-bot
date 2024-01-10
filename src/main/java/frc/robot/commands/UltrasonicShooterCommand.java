@@ -36,9 +36,9 @@ public class UltrasonicShooterCommand extends Command {
   public void execute() {
     double distance = m_ultrasonicSubsystem.DistanceCM();
     if (distance <= 30) {
-      m_shooterState.loaded();
+      m_shooterState.setLoaded();
     } else {
-      m_shooterState.fired();
+      m_shooterState.setFired();
     }
   }
 

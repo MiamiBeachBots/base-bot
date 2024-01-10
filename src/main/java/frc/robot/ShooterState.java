@@ -10,16 +10,16 @@ public class ShooterState {
 
   public ShooterState() {}
 
-  public void loaded() {
+  public void setLoaded() {
     isLoaded = true;
   }
 
-  public void fired() {
+  public void setFired() {
     isLoaded = false;
     isLowered = false;
   }
 
-  public void lowered() {
+  public void setLowered() {
     isLowered = true;
   }
 }

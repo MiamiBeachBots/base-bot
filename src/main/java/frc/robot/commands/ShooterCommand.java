@@ -10,7 +10,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 /** A Shooter Command that uses an example subsystem. */
 public class ShooterCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ShooterSubsystem m_ShooterSubsystem;
+  private final ShooterSubsystem m_shooterSubsystem;
 
   /**
    * Creates a new ShooterCommand.
@@ -18,7 +18,7 @@ public class ShooterCommand extends Command {
    * @param subsystem The subsystem used by this command.
    */
   public ShooterCommand(ShooterSubsystem s_subsystem) {
-    m_ShooterSubsystem = s_subsystem;
+    m_shooterSubsystem = s_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(s_subsystem);
   }

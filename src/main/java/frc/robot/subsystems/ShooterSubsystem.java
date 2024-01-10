@@ -15,7 +15,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private final CANSparkMax m_ShooterMotorMain;
   private final SparkPIDController m_ShooterMainPIDController;
   private RelativeEncoder m_ShooterMainEncoder;
-  public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
+  private final double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {

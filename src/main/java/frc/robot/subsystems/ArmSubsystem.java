@@ -15,7 +15,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax m_armMotorMain, m_armMotorSecondary;
   private final SparkPIDController m_armMainPIDController;
   private RelativeEncoder m_MainEncoder;
-  public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, kLoweredArmPosition;
+  private final double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, kLoweredArmPosition;
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
