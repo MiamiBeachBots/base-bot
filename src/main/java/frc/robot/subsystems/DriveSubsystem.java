@@ -2,11 +2,13 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 // import motor & frc dependencies
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
@@ -16,13 +18,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
 
@@ -32,16 +32,25 @@ public class DriveSubsystem extends SubsystemBase {
   private final AHRS m_Gyro;
 
   // motors
-  private final WPI_VictorSPX m_backLeft; // Main / Master Motor for Left
-  private final WPI_VictorSPX m_frontLeft; // Slave Motor for Left (Follow Master)
-  private final WPI_VictorSPX m_backRight; // Main / Master Motor for Right
-  private final WPI_VictorSPX m_frontRight; // Slave Motor for Right (Follow Master)
+  private final CANSparkMax m_backLeft; // Main / Master Motor for Left
+  private final CANSparkMax m_frontLeft; // Slave Motor for Left (Follow Master)
+  private final CANSparkMax m_backRight; // Main / Master Motor for Right
+  private final CANSparkMax m_frontRight; // Slave Motor for Right (Follow Master)
   // Main drive function
   private final DifferentialDrive m_ddrive;
 
   // Encoders
-  private final Encoder m_encoderLeft;
-  private final Encoder m_encoderRight;
+  private final RelativeEncoder m_encoderBackLeft;
+  private final RelativeEncoder m_encoderFrontLeft;
+  private final RelativeEncoder m_encoderBackRight;
+  private final RelativeEncoder m_encoderFrontRight;
+
+  // Motor PID Controllers
+  private final SparkPIDController m_backLeftPIDController;
+  private final SparkPIDController m_backRightPIDController;
+
+  // ex:
+  // https://github.com/REVrobotics/SPARK-MAX-Examples/blob/master/Java/Read%20Encoder%20Values/src/main/java/frc/robot/Robot.java
 
   // Odometry class for tracking robot pose (position on field)
   private final DifferentialDrivePoseEstimator m_driveOdometry;
@@ -112,10 +121,11 @@ public class DriveSubsystem extends SubsystemBase {
     m_Gyro = new AHRS(SPI.Port.kMXP);
     // init motors
     // rio means built into the roboRIO
-    m_backLeft = new WPI_VictorSPX(CANConstants.MOTORBACKLEFTID);
-    m_frontLeft = new WPI_VictorSPX(CANConstants.MOTORFRONTLEFTID);
-    m_frontRight = new WPI_VictorSPX(CANConstants.MOTORFRONTRIGHTID);
-    m_backRight = new WPI_VictorSPX(CANConstants.MOTORBACKRIGHTID);
+    m_backLeft = new CANSparkMax(CANConstants.MOTORBACKLEFTID, CANSparkMax.MotorType.kBrushless);
+    m_frontLeft = new CANSparkMax(CANConstants.MOTORFRONTLEFTID, CANSparkMax.MotorType.kBrushless);
+    m_frontRight =
+        new CANSparkMax(CANConstants.MOTORFRONTRIGHTID, CANSparkMax.MotorType.kBrushless);
+    m_backRight = new CANSparkMax(CANConstants.MOTORBACKRIGHTID, CANSparkMax.MotorType.kBrushless);
 
     // setup main and secondary motors
     m_frontLeft.follow(m_backLeft); // set front left to follow back left
@@ -127,28 +137,54 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive = new DifferentialDrive(m_backLeft, m_backRight);
 
     // init Encoders
-    m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
-    m_encoderRight = new Encoder(Constants.DRIVEENCODERRIGHTA, Constants.DRIVEENCODERRIGHTB);
-    m_encoderRight.setReverseDirection(true); // invert left to match drive
+    m_encoderBackLeft = m_backLeft.getEncoder();
+    m_encoderFrontLeft = m_frontLeft.getEncoder();
+    m_encoderBackRight = m_backRight.getEncoder();
+    m_encoderFrontRight = m_frontRight.getEncoder();
+    m_encoderBackLeft.setInverted(true); // invert left to match drive
+    m_encoderFrontLeft.setInverted(true); // invert left to match drive
+
+    // init PID Controllers
+    m_backLeftPIDController = m_backLeft.getPIDController();
+    m_backRightPIDController = m_backRight.getPIDController();
 
     // configure encoders
-    m_encoderLeft.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
-    m_encoderRight.setDistancePerPulse(DriveConstants.DISTANCE_PER_PULSE); // distance in meters
-    m_encoderLeft.setSamplesToAverage(5);
-    m_encoderRight.setSamplesToAverage(5);
-    m_encoderLeft.setMinRate(0.1); // min rate to be determined moving
-    m_encoderRight.setMinRate(0.1); // min rate to be determined moving
+    // RPM TO m/s
+    m_encoderBackLeft.setVelocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
+    m_encoderBackRight.setVelocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
+    m_encoderFrontLeft.setVelocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
+    m_encoderFrontRight.setVelocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
+    // rotations to meters
+    m_encoderBackLeft.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
+    m_encoderBackRight.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
+    m_encoderFrontLeft.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
+    m_encoderFrontRight.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
     resetEncoders();
     // Every time this function is called, A dollar is taken out of Jack's savings. Aka do it more.
     resetGyro();
+
+    // setup PID controllers
+    // setup feed forward
+    m_backLeftPIDController.setP(DriveConstants.kPDriveVel);
+    m_backRightPIDController.setP(DriveConstants.kPDriveVel);
+    m_backLeftPIDController.setI(DriveConstants.kIDriveVel);
+    m_backRightPIDController.setI(DriveConstants.kIDriveVel);
+    m_backLeftPIDController.setD(DriveConstants.kDDriveVel);
+    m_backRightPIDController.setD(DriveConstants.kDDriveVel);
+    m_backLeftPIDController.setIZone(DriveConstants.kIzDriveVel);
+    m_backRightPIDController.setIZone(DriveConstants.kIzDriveVel);
+    m_backLeftPIDController.setFF(DriveConstants.kDriveFeedForward);
+    m_backRightPIDController.setFF(DriveConstants.kDriveFeedForward);
+    // m_backLeftPIDController.setOutputRange(kMinOutput, kMaxOutput);
+    // m_backRightPIDController.setOutputRange(kMinOutput, kMaxOutput);
 
     // configure Odemetry
     m_driveOdometry =
         new DifferentialDrivePoseEstimator(
             DriveConstants.kDriveKinematics,
             getRotation2d(),
-            m_encoderLeft.getDistance(),
-            m_encoderRight.getDistance(),
+            getPositionLeft(),
+            getPositionRight(),
             new Pose2d());
 
     // config turn pid controller.
@@ -182,6 +218,22 @@ public class DriveSubsystem extends SubsystemBase {
         );
 
     SmartDashboard.putData("Field", field); // add field to dashboard
+  }
+
+  public double getVelocityLeft() {
+    return (m_encoderBackLeft.getVelocity() + m_encoderFrontLeft.getVelocity()) / 2;
+  }
+
+  public double getVelocityRight() {
+    return (m_encoderBackRight.getVelocity() + m_encoderFrontRight.getVelocity()) / 2;
+  }
+
+  public double getPositionLeft() {
+    return (m_encoderBackLeft.getPosition() + m_encoderFrontLeft.getPosition()) / 2;
+  }
+
+  public double getPositionRight() {
+    return (m_encoderBackRight.getPosition() + m_encoderFrontRight.getPosition()) / 2;
   }
 
   // default tank drive function
@@ -309,7 +361,7 @@ public class DriveSubsystem extends SubsystemBase {
    * This function can return our robots DiffernentialDriveWheelSpeeds, which is the speed of each side of the robot.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(m_encoderLeft.getRate(), m_encoderRight.getRate());
+    return new DifferentialDriveWheelSpeeds(getVelocityLeft(), getVelocityRight());
   }
 
   /*
@@ -331,9 +383,12 @@ public class DriveSubsystem extends SubsystemBase {
    * This function can set our robots DifferentialDriveWheelSpeeds, which is the speed of each side of the robot.
    */
   public void setWheelVelocities(DifferentialDriveWheelSpeeds speeds) {
-    // TODO: Implement, this makes everything more accurate and allows auto to work.
-    // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/ramsete.html#ramsete-in-the-command-based-framework
-    // we should use in controller velocity PID
+    // get left and right speeds in m/s
+    double leftSpeed = speeds.leftMetersPerSecond;
+    double rightSpeed = speeds.rightMetersPerSecond;
+    // set to position of motors
+    m_backLeftPIDController.setReference(leftSpeed, CANSparkBase.ControlType.kVelocity);
+    m_backRightPIDController.setReference(rightSpeed, CANSparkBase.ControlType.kVelocity);
   }
 
   public Pose2d getPose() {
@@ -345,26 +400,28 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetEncoders() {
-    m_encoderLeft.reset();
-    m_encoderRight.reset();
+    m_encoderBackLeft.setPosition(0);
+    m_encoderFrontLeft.setPosition(0);
+    m_encoderBackRight.setPosition(0);
+    m_encoderFrontRight.setPosition(0);
   }
 
   public double AverageDistance() {
-    return (m_encoderLeft.getDistance() + m_encoderRight.getDistance()) / 2;
+    return (getPositionLeft() + getPositionRight()) / 2;
   }
 
   public void SetBrakemode() {
-    m_backLeft.setNeutralMode(NeutralMode.Brake);
-    m_backRight.setNeutralMode(NeutralMode.Brake);
-    m_frontLeft.setNeutralMode(NeutralMode.Brake);
-    m_frontRight.setNeutralMode(NeutralMode.Brake);
+    m_backLeft.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_backRight.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_frontLeft.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_frontRight.setIdleMode(CANSparkMax.IdleMode.kBrake);
   }
 
   public void SetCoastmode() {
-    m_backLeft.setNeutralMode(NeutralMode.Coast);
-    m_backRight.setNeutralMode(NeutralMode.Coast);
-    m_frontLeft.setNeutralMode(NeutralMode.Coast);
-    m_frontRight.setNeutralMode(NeutralMode.Coast);
+    m_backLeft.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_backRight.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_frontLeft.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_frontRight.setIdleMode(CANSparkMax.IdleMode.kCoast);
   }
 
   /**
@@ -374,8 +431,7 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void resetPose(Pose2d pose) {
     resetEncoders();
-    m_driveOdometry.resetPosition(
-        getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance(), pose);
+    m_driveOdometry.resetPosition(getRotation2d(), getPositionLeft(), getPositionRight(), pose);
   }
 
   public void stop() {
@@ -407,10 +463,10 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Left Encoder Speed (M/s)", this.m_encoderLeft.getRate());
-    SmartDashboard.putNumber("Right Encoder Speed (M/s)", this.m_encoderRight.getRate());
-    SmartDashboard.putNumber("Distance L", this.m_encoderLeft.getDistance());
-    SmartDashboard.putNumber("Distance R", this.m_encoderRight.getDistance());
+    SmartDashboard.putNumber("Left Encoder Speed (M/s)", this.getVelocityLeft());
+    SmartDashboard.putNumber("Right Encoder Speed (M/s)", this.getVelocityRight());
+    SmartDashboard.putNumber("Distance L", this.getPositionLeft());
+    SmartDashboard.putNumber("Distance R", this.getPositionRight());
     SmartDashboard.putNumber("Current Robot Location X axis", getPose().getX());
     SmartDashboard.putNumber("Current Robot Location Y axis", getPose().getY());
     SmartDashboard.putNumber("Current Robot Rotation", getPose().getRotation().getDegrees());
@@ -419,8 +475,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
     SmartDashboard.putBoolean("Gyro Calibrating", m_Gyro.isCalibrating());
     // Update the odometry in the periodic block
-    m_driveOdometry.update(
-        getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+    m_driveOdometry.update(getRotation2d(), getPositionLeft(), getPositionRight());
     field.setRobotPose(getPose());
   }
 

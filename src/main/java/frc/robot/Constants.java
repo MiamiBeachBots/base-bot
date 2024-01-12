@@ -44,9 +44,4 @@ public final class Constants {
   public static final int ULTRASONICSHOOTERPORT = 0;
 
   // Digital Ports
-  /// Encoder Ports
-  public static final int DRIVEENCODERLEFTA = 0;
-  public static final int DRIVEENCODERLEFTB = 1;
-  public static final int DRIVEENCODERRIGHTA = 2;
-  public static final int DRIVEENCODERRIGHTB = 3;
 }
