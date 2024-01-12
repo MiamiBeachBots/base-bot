@@ -5,22 +5,22 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
-/** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
+/** A Shooter Command that uses an example subsystem. */
+public class ShooterCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ExampleSubsystem m_subsystem;
+  private final ShooterSubsystem m_shooterSubsystem;
 
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new ShooterCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ExampleCommand(ExampleSubsystem subsystem) {
-    m_subsystem = subsystem;
+  public ShooterCommand(ShooterSubsystem s_subsystem) {
+    m_shooterSubsystem = s_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
+    addRequirements(s_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -29,7 +29,10 @@ public class ExampleCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    // TODO: Implement ShooterCommand
+    System.out.println("ShooterCommand Activated");
+  }
 
   // Called once the command ends or is interrupted.
   @Override

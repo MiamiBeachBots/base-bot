@@ -1,6 +1,6 @@
 package frc.robot;
 
-import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -36,12 +36,6 @@ public final class DriveConstants {
   public static final double kTrackwidthMeters = 0.60048;
   public static final DifferentialDriveKinematics kDriveKinematics =
       new DifferentialDriveKinematics(kTrackwidthMeters);
-  // MAX Acceleration & Velocity
-  public static final double kMaxSpeed = 1; // MetersPerSecond
-  public static final double kMaxAcceleration = 5; // MetersPerSecondSquared
-  public static final PathConstraints autoPathConstraints =
-      new PathConstraints(kMaxSpeed, kMaxAcceleration);
-  // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
-  public static final double kRamseteB = 2;
-  public static final double kRamseteZeta = 0.7;
+  // Default path replanning config. See the API for the options
+  public static final ReplanningConfig autoReplanningConfig = new ReplanningConfig();
 }

@@ -5,22 +5,30 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.ShooterState;
+import frc.robot.subsystems.ArmSubsystem;
+import java.util.function.DoubleSupplier;
 
 /** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
+public class ArmCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ExampleSubsystem m_subsystem;
+  private final ArmSubsystem m_ArmSubsystem;
+
+  private final ShooterState m_shooterState;
+  private final DoubleSupplier m_yAxis;
+  private final double kMaxRotationsPerInput = 1000;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ExampleCommand(ExampleSubsystem subsystem) {
-    m_subsystem = subsystem;
+  public ArmCommand(ArmSubsystem a_subsystem, ShooterState shooterState, DoubleSupplier yAxis) {
+    m_ArmSubsystem = a_subsystem;
+    m_shooterState = shooterState;
+    m_yAxis = yAxis;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
+    addRequirements(m_ArmSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -29,7 +37,15 @@ public class ExampleCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    if (m_yAxis.getAsDouble() != 0.0) {
+      m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRotationsPerInput);
+
+    } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
+      m_ArmSubsystem.lowerArm();
+      m_shooterState.setLowered();
+    }
+  }
 
   // Called once the command ends or is interrupted.
   @Override

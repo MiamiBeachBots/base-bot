@@ -6,17 +6,20 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 // import motor & frc dependencies
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -29,13 +32,10 @@ public class DriveSubsystem extends SubsystemBase {
   private final AHRS m_Gyro;
 
   // motors
-  private final WPI_VictorSPX m_backLeft;
-  private final WPI_VictorSPX m_frontLeft;
-  private final WPI_VictorSPX m_backRight;
-  private final WPI_VictorSPX m_frontRight;
-  // Motor Controllers
-  private final MotorControllerGroup m_motorsLeft;
-  private final MotorControllerGroup m_motorsRight;
+  private final WPI_VictorSPX m_backLeft; // Main / Master Motor for Left
+  private final WPI_VictorSPX m_frontLeft; // Slave Motor for Left (Follow Master)
+  private final WPI_VictorSPX m_backRight; // Main / Master Motor for Right
+  private final WPI_VictorSPX m_frontRight; // Slave Motor for Right (Follow Master)
   // Main drive function
   private final DifferentialDrive m_ddrive;
 
@@ -44,7 +44,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final Encoder m_encoderRight;
 
   // Odometry class for tracking robot pose (position on field)
-  private final DifferentialDriveOdometry m_driveOdometry;
+  private final DifferentialDrivePoseEstimator m_driveOdometry;
 
   // Angle PID / RotateToAngle
   static final double turn_P = 0.1;
@@ -103,6 +103,9 @@ public class DriveSubsystem extends SubsystemBase {
           new TrapezoidProfile.Constraints(
               MaxBalanceRateDegPerS, MaxBalanceAccelerationDegPerSSquared));
 
+  // track robot field location for dashboard
+  private Field2d field = new Field2d();
+
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     // Init gyro
@@ -114,13 +117,14 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight = new WPI_VictorSPX(CANConstants.MOTORFRONTRIGHTID);
     m_backRight = new WPI_VictorSPX(CANConstants.MOTORBACKRIGHTID);
 
-    // init motor controller groups
-    m_motorsLeft = new MotorControllerGroup(m_backLeft, m_frontLeft);
-    m_motorsRight = new MotorControllerGroup(m_frontRight, m_backRight);
-    m_motorsRight.setInverted(true); // invert left side
+    // setup main and secondary motors
+    m_frontLeft.follow(m_backLeft); // set front left to follow back left
+    m_frontRight.follow(m_backRight); // set front right to follow back right
+
+    m_backRight.setInverted(true); // invert right side
 
     // init drive function
-    m_ddrive = new DifferentialDrive(m_motorsLeft, m_motorsRight);
+    m_ddrive = new DifferentialDrive(m_backLeft, m_backRight);
 
     // init Encoders
     m_encoderLeft = new Encoder(Constants.DRIVEENCODERLEFTA, Constants.DRIVEENCODERLEFTB);
@@ -140,8 +144,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     // configure Odemetry
     m_driveOdometry =
-        new DifferentialDriveOdometry(
-            getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+        new DifferentialDrivePoseEstimator(
+            DriveConstants.kDriveKinematics,
+            getRotation2d(),
+            m_encoderLeft.getDistance(),
+            m_encoderRight.getDistance(),
+            new Pose2d());
 
     // config turn pid controller.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
@@ -151,18 +159,29 @@ public class DriveSubsystem extends SubsystemBase {
     // this is the target pitch/ tilt error.
     m_balanceController.setGoal(0);
     m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
-  }
 
-  /**
-   * Controls the left and right sides of the drive directly with voltages.
-   *
-   * @param leftVolts the commanded left output
-   * @param rightVolts the commanded right output
-   */
-  public void tankDriveVolts(double leftVolts, double rightVolts) {
-    m_motorsLeft.setVoltage(leftVolts);
-    m_motorsRight.setVoltage(rightVolts);
-    m_ddrive.feed();
+    // Setup Base AutoBuilder (Autonomous)
+    AutoBuilder.configureRamsete(
+        this::getPose, // Pose2d supplier
+        this::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
+        this::getSpeeds, // A method for getting the chassis' current speed and direction
+        this::setSpeeds, // A consumer that takes the desired chassis speed and direction
+        DriveConstants.autoReplanningConfig,
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
+        );
+
+    SmartDashboard.putData("Field", field); // add field to dashboard
   }
 
   // default tank drive function
@@ -286,13 +305,43 @@ public class DriveSubsystem extends SubsystemBase {
     this.tankDrive(leftStickValue, rightStickValue);
   }
 
-  // for odemetry (path following)
+  /*
+   * This function can return our robots DiffernentialDriveWheelSpeeds, which is the speed of each side of the robot.
+   */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(m_encoderLeft.getRate(), m_encoderRight.getRate());
   }
 
+  /*
+   * This function can return our robots ChassisSpeeds, which is vx (m/s), vy (m/s), and omega (rad/s).
+   */
+  public ChassisSpeeds getSpeeds() {
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(getWheelSpeeds());
+  }
+
+  /*
+   * This function can set our robots ChassisSpeeds, which is vx (m/s), vy (m/s), and omega (rad/s).
+   * vy is always 0 as we are not strafing.
+   */
+  public void setSpeeds(ChassisSpeeds speeds) {
+    setWheelVelocities(DriveConstants.kDriveKinematics.toWheelSpeeds(speeds));
+  }
+
+  /*
+   * This function can set our robots DifferentialDriveWheelSpeeds, which is the speed of each side of the robot.
+   */
+  public void setWheelVelocities(DifferentialDriveWheelSpeeds speeds) {
+    // TODO: Implement, this makes everything more accurate and allows auto to work.
+    // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/ramsete.html#ramsete-in-the-command-based-framework
+    // we should use in controller velocity PID
+  }
+
   public Pose2d getPose() {
-    return m_driveOdometry.getPoseMeters();
+    return m_driveOdometry.getEstimatedPosition();
+  }
+
+  public void updateVisionPose(Pose2d visionRobotPose, double timestamp) {
+    m_driveOdometry.addVisionMeasurement(visionRobotPose, timestamp);
   }
 
   public void resetEncoders() {
@@ -333,10 +382,6 @@ public class DriveSubsystem extends SubsystemBase {
     this.tankDrive(0, 0);
   }
 
-  public void calibrate() {
-    m_Gyro.calibrate();
-  }
-
   public Rotation2d getRotation2d() {
     return m_Gyro.getRotation2d();
   }
@@ -372,9 +417,11 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Average Distance Traveled", AverageDistance());
     SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
     SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
+    SmartDashboard.putBoolean("Gyro Calibrating", m_Gyro.isCalibrating());
     // Update the odometry in the periodic block
     m_driveOdometry.update(
         getRotation2d(), m_encoderLeft.getDistance(), m_encoderRight.getDistance());
+    field.setRobotPose(getPose());
   }
 
   @Override

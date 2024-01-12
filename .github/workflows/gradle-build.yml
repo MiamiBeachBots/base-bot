@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
 
     # This grabs the WPILib docker container
-    container: wpilib/roborio-cross-ubuntu:2023-22.04
+    container: wpilib/roborio-cross-ubuntu:2024-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: gradle/gradle-build-action@v2 # enables fancy caching.
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: gradle/wrapper-validation-action@v1 # this validates the jar file
 
     # Declares the repository safe and not under dubious ownership.
@@ -44,13 +44,13 @@ jobs:
     runs-on: ubuntu-latest
 
     # This grabs the WPILib docker container
-    container: wpilib/roborio-cross-ubuntu:2023-22.04
+    container: wpilib/roborio-cross-ubuntu:2024-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: gradle/gradle-build-action@v2 # enables fancy caching.
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: gradle/wrapper-validation-action@v1 # this validates the jar file
 
     # Declares the repository safe and not under dubious ownership.
