@@ -74,25 +74,6 @@ public class DriveSubsystem extends SubsystemBase {
           turn_D,
           new TrapezoidProfile.Constraints(MaxTurnRateDegPerS, MaxTurnAccelerationDegPerSSquared));
 
-  // Distance PID / MoveDistance
-  static final double distance_P = 0.1;
-  static final double distance_I = 0.00;
-  static final double distance_D = 0.00;
-  static final double distanceMaxSpeed = 1; // m/s
-  static final double distanceMaxAcceleration = 2; // m/s^2
-  static final double DistanceTolerance = 0.01; // max diff in meters
-  static final double DistanceSpeedTolerance = 0.1; // ignore if velocity is below. (m)
-  // false when inactive, true when active / a target is set.
-  private boolean distanceControllerEnabled = false;
-  private double distanceThrottleRate; // This value will be updated by the PID Controller
-  // pid controller for "MoveDistance"
-  private final ProfiledPIDController m_distanceController =
-      new ProfiledPIDController(
-          distance_P,
-          distance_I,
-          distance_D,
-          new TrapezoidProfile.Constraints(distanceMaxSpeed, distanceMaxAcceleration));
-
   // Balance PID / AutoBalance
   static final double balance_P = 0.0625; // 1/16
   static final double balance_I = 0.00;
@@ -164,19 +145,57 @@ public class DriveSubsystem extends SubsystemBase {
     resetGyro();
 
     // setup PID controllers
-    // setup feed forward
-    m_backLeftPIDController.setP(DriveConstants.kPDriveVel);
-    m_backRightPIDController.setP(DriveConstants.kPDriveVel);
-    m_backLeftPIDController.setI(DriveConstants.kIDriveVel);
-    m_backRightPIDController.setI(DriveConstants.kIDriveVel);
-    m_backLeftPIDController.setD(DriveConstants.kDDriveVel);
-    m_backRightPIDController.setD(DriveConstants.kDDriveVel);
-    m_backLeftPIDController.setIZone(DriveConstants.kIzDriveVel);
-    m_backRightPIDController.setIZone(DriveConstants.kIzDriveVel);
-    m_backLeftPIDController.setFF(DriveConstants.kDriveFeedForward);
-    m_backRightPIDController.setFF(DriveConstants.kDriveFeedForward);
-    // m_backLeftPIDController.setOutputRange(kMinOutput, kMaxOutput);
-    // m_backRightPIDController.setOutputRange(kMinOutput, kMaxOutput);
+    // setup velocity PID controllers (used by auto)
+    m_backLeftPIDController.setP(
+        DriveConstants.kPDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setP(
+        DriveConstants.kPDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setI(
+        DriveConstants.kIDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setI(
+        DriveConstants.kIDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setD(
+        DriveConstants.kDDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setD(
+        DriveConstants.kDDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setIZone(
+        DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setIZone(
+        DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setFF(
+        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setFF(
+        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainVelocityPIDSlot);
+    // m_backLeftPIDController.setOutputRange(kMinOutput, kMaxOutputVel,
+    // DriveConstants.kDrivetrainVelocityPIDSlot);
+    // m_backRightPIDController.setOutputRange(kMinOutput, kMaxOutputVel,
+    // DriveConstants.kDrivetrainVelocityPIDSlot);
+
+    // setup position PID controllers (used when we manually path find)
+    m_backLeftPIDController.setP(
+        DriveConstants.kPDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setP(
+        DriveConstants.kPDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setI(
+        DriveConstants.kIDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setI(
+        DriveConstants.kIDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setD(
+        DriveConstants.kDDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setD(
+        DriveConstants.kDDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setIZone(
+        DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setIZone(
+        DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setFF(
+        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setFF(
+        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainPositionPIDSlot);
+    // m_backLeftPIDController.setOutputRange(kMinOutput, kMaxOutputPos,
+    // DriveConstants.kDrivetrainPositionPIDSlot);
+    // m_backRightPIDController.setOutputRange(kMinOutput, kMaxOutputPos,
+    // DriveConstants.kDrivetrainPositionPIDSlot);
 
     // configure Odemetry
     m_driveOdometry =
@@ -190,8 +209,6 @@ public class DriveSubsystem extends SubsystemBase {
     // config turn pid controller.
     m_turnController.enableContinuousInput(-180.0f, 180.0f);
     m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
-    // config distance pid controller
-    m_distanceController.setTolerance(DistanceTolerance, DistanceSpeedTolerance);
     // this is the target pitch/ tilt error.
     m_balanceController.setGoal(0);
     m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
@@ -220,22 +237,6 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Field", field); // add field to dashboard
   }
 
-  public double getVelocityLeft() {
-    return (m_encoderBackLeft.getVelocity() + m_encoderFrontLeft.getVelocity()) / 2;
-  }
-
-  public double getVelocityRight() {
-    return (m_encoderBackRight.getVelocity() + m_encoderFrontRight.getVelocity()) / 2;
-  }
-
-  public double getPositionLeft() {
-    return (m_encoderBackLeft.getPosition() + m_encoderFrontLeft.getPosition()) / 2;
-  }
-
-  public double getPositionRight() {
-    return (m_encoderBackRight.getPosition() + m_encoderFrontRight.getPosition()) / 2;
-  }
-
   // default tank drive function
   // **tank drive = specific control style where two parallel forces of motion are controlled to
   // create linear and rotational motion
@@ -261,31 +262,10 @@ public class DriveSubsystem extends SubsystemBase {
     }
   }
 
-  public void distanceResetPID() {
-    /** This should be run when stopping a pid command. */
-    distanceControllerEnabled = false;
-  }
-
-  public void distanceSetGoal(double targetDistance) {
-    m_distanceController.setGoal(AverageDistance() + targetDistance);
-  }
-
-  private void calculateDistanceRate(double targetDistance) {
-    if (!distanceControllerEnabled) {
-      m_distanceController.reset(AverageDistance());
-      m_distanceController.setGoal(AverageDistance() + targetDistance);
-      distanceControllerEnabled = true;
-    }
-    distanceThrottleRate =
-        MathUtil.clamp(m_distanceController.calculate(AverageDistance()), -1.0, 1.0);
-  }
-
-  public void driveToDistance(double targetDistance) {
-    this.calculateDistanceRate(targetDistance);
-    double leftStickValue = turnRotateToAngleRate;
-    double rightStickValue = turnRotateToAngleRate;
-    if (!m_distanceController.atGoal()) {
-      this.tankDrive(leftStickValue, rightStickValue);
+  public void driveToRelativePosition(double targetPosition) {
+    if (targetPosition < 0.1) { // less then 0.1 meters, do nothing, pervents feedback loop
+      double totalPosition = this.AverageDistance() + targetPosition;
+      this.driveToPosition(totalPosition);
     }
   }
 
@@ -295,11 +275,12 @@ public class DriveSubsystem extends SubsystemBase {
     this should not be used in auto mode.
      */
     this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
-    this.calculateDistanceRate(targetDistance);
-    double leftStickValue = distanceThrottleRate + turnRotateToAngleRate;
-    double rightStickValue = distanceThrottleRate - turnRotateToAngleRate;
-    if (!m_distanceController.atGoal() || !m_turnController.atGoal()) {
+    double leftStickValue = turnRotateToAngleRate;
+    double rightStickValue = turnRotateToAngleRate;
+    if (!m_turnController.atGoal()) {
       this.tankDrive(leftStickValue, rightStickValue);
+    } else {
+      this.driveToRelativePosition(targetDistance);
     }
   }
 
@@ -387,8 +368,19 @@ public class DriveSubsystem extends SubsystemBase {
     double leftSpeed = speeds.leftMetersPerSecond;
     double rightSpeed = speeds.rightMetersPerSecond;
     // set to position of motors
-    m_backLeftPIDController.setReference(leftSpeed, CANSparkBase.ControlType.kVelocity);
-    m_backRightPIDController.setReference(rightSpeed, CANSparkBase.ControlType.kVelocity);
+    m_backLeftPIDController.setReference(
+        leftSpeed, CANSparkBase.ControlType.kVelocity, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setReference(
+        rightSpeed, CANSparkBase.ControlType.kVelocity, DriveConstants.kDrivetrainVelocityPIDSlot);
+  }
+
+  // in meters, use averageDistance() to get average distance traveled, as an offset to set this
+  // function.
+  public void driveToPosition(double NewPosition) {
+    m_backLeftPIDController.setReference(
+        NewPosition, CANSparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setReference(
+        NewPosition, CANSparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
   }
 
   public Pose2d getPose() {
@@ -458,6 +450,22 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void resetGyro() {
     m_Gyro.reset();
+  }
+
+  public double getVelocityLeft() {
+    return (m_encoderBackLeft.getVelocity() + m_encoderFrontLeft.getVelocity()) / 2;
+  }
+
+  public double getVelocityRight() {
+    return (m_encoderBackRight.getVelocity() + m_encoderFrontRight.getVelocity()) / 2;
+  }
+
+  public double getPositionLeft() {
+    return (m_encoderBackLeft.getPosition() + m_encoderFrontLeft.getPosition()) / 2;
+  }
+
+  public double getPositionRight() {
+    return (m_encoderBackRight.getPosition() + m_encoderFrontRight.getPosition()) / 2;
   }
 
   @Override
