@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.ShooterState;
 import frc.robot.subsystems.ArmSubsystem;
@@ -16,7 +17,7 @@ public class ArmCommand extends Command {
 
   private final ShooterState m_shooterState;
   private final DoubleSupplier m_yAxis;
-  private final double kMaxRotationsPerInput = 1000;
+  private final double kMaxRadiansPerInput = Units.degreesToRadians(5);
 
   /**
    * Creates a new ExampleCommand.
@@ -39,7 +40,7 @@ public class ArmCommand extends Command {
   @Override
   public void execute() {
     if (m_yAxis.getAsDouble() != 0.0) {
-      m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRotationsPerInput);
+      m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
 
     } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
       m_ArmSubsystem.lowerArm();

@@ -16,15 +16,16 @@ public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax m_armMotorMain, m_armMotorSecondary;
   private final SparkPIDController m_armMainPIDController;
   private final RelativeEncoder m_MainEncoder, m_SecondaryEncoder;
-  private final double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, kLoweredArmPosition;
+  private final double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+  private final double kLoweredArmPositionRadians = Units.degreesToRadians(45);
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
-  private final double kWheelDiameter = Units.inchesToMeters(6); // meters
   private final double kGearRatio = 1; // TBD
-  // basically converted from rotations to to radians to then meters using the wheel diameter.
-  // the diameter is already *2 so we don't need to multiply by 2 again.
-  private final double kPositionConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio;
+  // basically converted from rotations to radians by multiplying by 2 pi, then adjusting for the
+  // gear ratio by dividing by the gear ratio.
+  // remember that 2pi radians in 360 degrees.
+  private final double kRadiansConversionRatio = (Math.PI * 2) / kGearRatio;
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
@@ -46,8 +47,8 @@ public class ArmSubsystem extends SubsystemBase {
     m_MainEncoder = m_armMotorMain.getEncoder();
     m_SecondaryEncoder = m_armMotorSecondary.getEncoder();
     // setup the encoders
-    m_MainEncoder.setPositionConversionFactor(kPositionConversionRatio);
-    m_SecondaryEncoder.setPositionConversionFactor(kPositionConversionRatio);
+    m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
+    m_SecondaryEncoder.setPositionConversionFactor(kRadiansConversionRatio);
     // PID coefficients
     kP = 0.1;
     kI = 1e-4;
@@ -56,7 +57,6 @@ public class ArmSubsystem extends SubsystemBase {
     kFF = 0;
     kMaxOutput = 1;
     kMinOutput = -1;
-    kLoweredArmPosition = 0;
 
     // set PID coefficients
     m_armMainPIDController.setP(kP);
@@ -73,25 +73,25 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   /*
-   * Move arm relative to current position
+   * Move arm a certain number of radians relative to current position
    */
-  public void MoveArmRelative(double rotations) {
-    rotations = rotations + getAverageEncoderPosition();
+  public void MoveArmRelative(double radians) {
+    radians = radians + getAverageEncoderPosition();
     // update the PID controller with current encoder position
-    MoveArmToPosition(rotations);
+    MoveArmToPosition(radians);
   }
 
   public void lowerArm() {
     // move to set lowered arm position
-    MoveArmToPosition(kLoweredArmPosition);
+    MoveArmToPosition(kLoweredArmPositionRadians);
   }
 
   /*
    * Move arm to global position
    */
-  public void MoveArmToPosition(double rotations) {
+  public void MoveArmToPosition(double radians) {
     // update the PID controller with current encoder position
-    m_armMainPIDController.setReference(rotations, CANSparkBase.ControlType.kPosition);
+    m_armMainPIDController.setReference(radians, CANSparkBase.ControlType.kPosition);
   }
 
   /*
@@ -102,8 +102,9 @@ public class ArmSubsystem extends SubsystemBase {
     MoveArmToPosition(getAverageEncoderPosition());
   }
 
-  public void zero() {
+  public void zeroEncoders() {
     m_MainEncoder.setPosition(0);
+    m_SecondaryEncoder.setPosition(0);
   }
 
   @Override
