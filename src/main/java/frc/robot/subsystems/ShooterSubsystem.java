@@ -83,7 +83,7 @@ public class ShooterSubsystem extends SubsystemBase {
   /*
    * Check if shooter is at a given Speed
    */
-  public Boolean isAtRPMTolerance(double speed) {
+  public Boolean isAtSpeedTolerance(double speed) {
     return (m_ShooterMainEncoder.getVelocity() > speed - 0.1
         && m_ShooterMainEncoder.getVelocity() < speed + 0.1);
   }
@@ -92,7 +92,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * Check if shooter is at max Speed
    */
   public Boolean isAtMaxSpeed() {
-    return isAtRPMTolerance(kMaxSpeed);
+    return isAtSpeedTolerance(kMaxSpeed);
   }
 
   @Override

@@ -30,8 +30,9 @@ public class ShooterCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO: Implement ShooterCommand
+    // TODO: Finish Implementing ShooterCommand
     System.out.println("ShooterCommand Activated");
+    m_shooterSubsystem.SpinShooterFull();
   }
 
   // Called once the command ends or is interrupted.
