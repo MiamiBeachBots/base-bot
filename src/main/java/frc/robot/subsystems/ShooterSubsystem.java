@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANConstants;
 
@@ -15,7 +16,15 @@ public class ShooterSubsystem extends SubsystemBase {
   private final CANSparkMax m_ShooterMotorMain;
   private final SparkPIDController m_ShooterMainPIDController;
   private RelativeEncoder m_ShooterMainEncoder;
-  private final double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
+  private final double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, kMaxSpeed;
+  // general drive constants
+  // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
+  // https://sciencing.com/convert-rpm-linear-speed-8232280.html
+  private final double kWheelDiameter = Units.inchesToMeters(6); // meters
+  private final double kGearRatio = 1; // TBD
+  // basically converted from rotations to to radians to then meters using the wheel diameter.
+  // the diameter is already *2 so we don't need to multiply by 2 again.
+  private final double kVelocityConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio / 60;
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
@@ -30,6 +39,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // allow us to read the encoder
     m_ShooterMainEncoder = m_ShooterMotorMain.getEncoder();
+    m_ShooterMainEncoder.setVelocityConversionFactor(kVelocityConversionRatio);
     // PID coefficients
     kP = 6e-5;
     kI = 0;
@@ -38,7 +48,7 @@ public class ShooterSubsystem extends SubsystemBase {
     kFF = 0.000015;
     kMaxOutput = 1;
     kMinOutput = -1;
-    maxRPM = 5700;
+    kMaxSpeed = 5;
 
     // set PID coefficients
     m_ShooterMainPIDController.setP(kP);
@@ -50,10 +60,10 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /*
-   * Spin shooter at a given RPM
+   * Spin shooter at a given Speed (M/S)
    */
-  public void SpinShooter(double RPM) {
-    m_ShooterMainPIDController.setReference(RPM, CANSparkBase.ControlType.kVelocity);
+  public void SpinShooter(double speed) {
+    m_ShooterMainPIDController.setReference(speed, CANSparkBase.ControlType.kVelocity);
   }
 
   /*
@@ -64,25 +74,25 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /*
-   * Spin Shooter at max RPM
+   * Spin Shooter at max Speed
    */
   public void SpinShooterFull() {
-    SpinShooter(maxRPM);
+    SpinShooter(kMaxSpeed);
   }
 
   /*
-   * Check if shooter is at a given RPM
+   * Check if shooter is at a given Speed
    */
-  public Boolean isAtRPMTolerance(double RPM) {
-    return (m_ShooterMainEncoder.getVelocity() > RPM - 100
-        && m_ShooterMainEncoder.getVelocity() < RPM + 100);
+  public Boolean isAtRPMTolerance(double speed) {
+    return (m_ShooterMainEncoder.getVelocity() > speed - 0.1
+        && m_ShooterMainEncoder.getVelocity() < speed + 0.1);
   }
 
   /*
-   * Check if shooter is at max RPM
+   * Check if shooter is at max Speed
    */
-  public Boolean isAtMaxRPM() {
-    return isAtRPMTolerance(maxRPM);
+  public Boolean isAtMaxSpeed() {
+    return isAtRPMTolerance(kMaxSpeed);
   }
 
   @Override
