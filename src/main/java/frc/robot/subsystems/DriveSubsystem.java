@@ -117,7 +117,8 @@ public class DriveSubsystem extends SubsystemBase {
     // init drive function
     m_ddrive = new DifferentialDrive(m_backLeft, m_backRight);
 
-    // init Encoders
+    // init Encoders, we use all 4 encoders even though only 2 are used in feedback to decrease
+    // error
     m_encoderBackLeft = m_backLeft.getEncoder();
     m_encoderFrontLeft = m_frontLeft.getEncoder();
     m_encoderBackRight = m_backRight.getEncoder();
@@ -145,57 +146,15 @@ public class DriveSubsystem extends SubsystemBase {
     resetGyro();
 
     // setup PID controllers
-    // setup velocity PID controllers (used by auto)
-    m_backLeftPIDController.setP(
-        DriveConstants.kPDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setP(
-        DriveConstants.kPDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setI(
-        DriveConstants.kIDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setI(
-        DriveConstants.kIDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setD(
-        DriveConstants.kDDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setD(
-        DriveConstants.kDDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setIZone(
-        DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setIZone(
-        DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setFF(
-        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setFF(
-        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainVelocityPIDSlot);
-    // m_backLeftPIDController.setOutputRange(kMinOutput, kMaxOutputVel,
-    // DriveConstants.kDrivetrainVelocityPIDSlot);
-    // m_backRightPIDController.setOutputRange(kMinOutput, kMaxOutputVel,
-    // DriveConstants.kDrivetrainVelocityPIDSlot);
+    configureMotorPIDControllers();
 
-    // setup position PID controllers (used when we manually path find)
-    m_backLeftPIDController.setP(
-        DriveConstants.kPDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setP(
-        DriveConstants.kPDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setI(
-        DriveConstants.kIDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setI(
-        DriveConstants.kIDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setD(
-        DriveConstants.kDDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setD(
-        DriveConstants.kDDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setIZone(
-        DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setIZone(
-        DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setFF(
-        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setFF(
-        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainPositionPIDSlot);
-    // m_backLeftPIDController.setOutputRange(kMinOutput, kMaxOutputPos,
-    // DriveConstants.kDrivetrainPositionPIDSlot);
-    // m_backRightPIDController.setOutputRange(kMinOutput, kMaxOutputPos,
-    // DriveConstants.kDrivetrainPositionPIDSlot);
+    // Configure RIO PID Controllers
+    // config turn pid controller.
+    m_turnController.enableContinuousInput(-180.0f, 180.0f);
+    m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
+    // this is the target pitch/ tilt error.
+    m_balanceController.setGoal(0);
+    m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
 
     // configure Odemetry
     m_driveOdometry =
@@ -205,13 +164,6 @@ public class DriveSubsystem extends SubsystemBase {
             getPositionLeft(),
             getPositionRight(),
             new Pose2d());
-
-    // config turn pid controller.
-    m_turnController.enableContinuousInput(-180.0f, 180.0f);
-    m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
-    // this is the target pitch/ tilt error.
-    m_balanceController.setGoal(0);
-    m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
 
     // Setup Base AutoBuilder (Autonomous)
     AutoBuilder.configureRamsete(
@@ -235,6 +187,68 @@ public class DriveSubsystem extends SubsystemBase {
         );
 
     SmartDashboard.putData("Field", field); // add field to dashboard
+  }
+
+  private void configureMotorPIDControllers() {
+    // setup velocity PID controllers (used by auto)
+    m_backLeftPIDController.setP(
+        DriveConstants.kPDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setP(
+        DriveConstants.kPDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setI(
+        DriveConstants.kIDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setI(
+        DriveConstants.kIDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setD(
+        DriveConstants.kDDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setD(
+        DriveConstants.kDDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setIZone(
+        DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setIZone(
+        DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setFF(
+        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setFF(
+        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backLeftPIDController.setOutputRange(
+        DriveConstants.kMinOutputDrive,
+        DriveConstants.kMaxOutputDrive,
+        DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightPIDController.setOutputRange(
+        DriveConstants.kMinOutputDrive,
+        DriveConstants.kMaxOutputDrive,
+        DriveConstants.kDrivetrainVelocityPIDSlot);
+
+    // setup position PID controllers (used when we manually path find)
+    m_backLeftPIDController.setP(
+        DriveConstants.kPDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setP(
+        DriveConstants.kPDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setI(
+        DriveConstants.kIDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setI(
+        DriveConstants.kIDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setD(
+        DriveConstants.kDDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setD(
+        DriveConstants.kDDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setIZone(
+        DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setIZone(
+        DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setFF(
+        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setFF(
+        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backLeftPIDController.setOutputRange(
+        DriveConstants.kMinOutputDrive,
+        DriveConstants.kMaxOutputDrive,
+        DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightPIDController.setOutputRange(
+        DriveConstants.kMinOutputDrive,
+        DriveConstants.kMaxOutputDrive,
+        DriveConstants.kDrivetrainPositionPIDSlot);
   }
 
   // default tank drive function

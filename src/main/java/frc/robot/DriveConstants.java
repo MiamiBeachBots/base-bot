@@ -32,6 +32,9 @@ public final class DriveConstants {
   // values for your robot.
   // Feed Forward Constants
   public static final double kDriveFeedForward = 0.0;
+  // Max speed Constants
+  public static final double kMaxOutputDrive = 1.0;
+  public static final double kMinOutputDrive = -1.0;
   // Feed Back / PID Constants
   public static final double kPDriveVel = 3.6293;
   public static final double kIDriveVel = 0.0;
