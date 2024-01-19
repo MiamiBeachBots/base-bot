@@ -36,14 +36,14 @@ public final class DriveConstants {
   public static final double kMaxOutputDrive = 1.0;
   public static final double kMinOutputDrive = -1.0;
   // Feed Back / PID Constants
-  public static final double kPDriveVel = 3.6293;
+  public static final double kPDriveVel = 0.00034388;
   public static final double kIDriveVel = 0.0;
   public static final double kDDriveVel = 0.0;
   public static final double kIzDriveVel = 0.0; // error before integral takes effect
 
-  public static final double kPDrivePos = 0.1;
+  public static final double kPDrivePos = 5.7745;
   public static final double kIDrivePos = 0.0;
-  public static final double kDDrivePos = 0.0;
+  public static final double kDDrivePos = 0.55289;
   public static final double kIzDrivePos = 0.0; // error before integral takes effect
   // Helper class that converts a chassis velocity (dx and dtheta components) to left and right
   // wheel velocities for a differential drive.
