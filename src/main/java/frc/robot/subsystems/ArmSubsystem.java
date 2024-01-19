@@ -21,9 +21,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
 
 public class ArmSubsystem extends SubsystemBase {
-  private final CANSparkMax m_armMotorMain, m_armMotorSecondary;
+  private final CANSparkMax m_armMotorMain;
   private final SparkPIDController m_armMainPIDController;
-  private final RelativeEncoder m_MainEncoder, m_SecondaryEncoder;
+  private final RelativeEncoder m_MainEncoder;
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   private final double kminArmAngle =
       Units.degreesToRadians(
@@ -61,24 +61,16 @@ public class ArmSubsystem extends SubsystemBase {
   public ArmSubsystem() {
     // create the arm motors
     m_armMotorMain = new CANSparkMax(CANConstants.MOTORARMMAINID, CANSparkMax.MotorType.kBrushless);
-    m_armMotorSecondary =
-        new CANSparkMax(CANConstants.MOTORARMSECONDARYID, CANSparkMax.MotorType.kBrushless);
 
     // set the idle mode to brake
     m_armMotorMain.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    m_armMotorSecondary.setIdleMode(CANSparkMax.IdleMode.kBrake);
-
-    // set the secondary motor to follow the main motor
-    m_armMotorSecondary.follow(m_armMotorMain);
 
     // connect to built in PID controller
     m_armMainPIDController = m_armMotorMain.getPIDController();
     // allow us to read the encoder
     m_MainEncoder = m_armMotorMain.getEncoder();
-    m_SecondaryEncoder = m_armMotorSecondary.getEncoder();
     // setup the encoders
     m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
-    m_SecondaryEncoder.setPositionConversionFactor(kRadiansConversionRatio);
     // PID coefficients
     kP = 0.1;
     kI = 1e-4;
@@ -118,7 +110,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   public double getAverageEncoderPosition() {
     // get the average encoder position
-    return (m_MainEncoder.getPosition() + m_SecondaryEncoder.getPosition()) / 2;
+    return (m_MainEncoder.getPosition());
   }
 
   /*
@@ -159,7 +151,6 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void zeroEncoders() {
     m_MainEncoder.setPosition(0);
-    m_SecondaryEncoder.setPosition(0);
   }
 
   @Override

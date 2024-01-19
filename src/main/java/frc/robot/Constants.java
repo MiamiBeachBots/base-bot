@@ -21,7 +21,6 @@ public final class Constants {
     public static final int MOTORBACKLEFTID = 11;
     /// Arm Motors
     public static final int MOTORARMMAINID = 21;
-    public static final int MOTORARMSECONDARYID = 22;
     /// Shooter Motors
     public static final int MOTORSHOOTERID = 31;
   }
