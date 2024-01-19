@@ -87,7 +87,7 @@ public class RobotContainer {
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
-  public boolean enableAutoProfiling = true;
+  public boolean enableAutoProfiling = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
