@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
@@ -28,12 +29,14 @@ public class ArmSubsystem extends SubsystemBase {
       Units.degreesToRadians(
           0); // this is needed for the feedforward control, basically min angle relative to flat on
   // floor.
+  private static double kDt = 0.02; // 20ms (update rate for wpilib)
   private final double ksArmVolts = 0.0;
   private final double kgArmGravityGain = 0.0;
   private final double kvArmVoltSecondsPerMeter = 0.0;
   private final double kaArmVoltSecondsSquaredPerMeter = 0.0;
   private final double kLoweredArmPositionRadians = Units.degreesToRadians(45);
-  private final double karmVelocity = 2; // m/s
+  private final double karmMaxVelocity = 2; // m/s
+  private final double karmMaxAcceleration = 1; // m/s^2
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
@@ -45,6 +48,11 @@ public class ArmSubsystem extends SubsystemBase {
   private final ArmFeedforward m_armFeedforward =
       new ArmFeedforward(
           ksArmVolts, kgArmGravityGain, kvArmVoltSecondsPerMeter, kaArmVoltSecondsSquaredPerMeter);
+  private final TrapezoidProfile m_armTrapezoidProfile =
+      new TrapezoidProfile(new TrapezoidProfile.Constraints(karmMaxVelocity, karmMaxAcceleration));
+  private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
+  private boolean m_stopped = true;
 
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
@@ -128,21 +136,25 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   /*
-   * Move arm to global position
+   * Move arm to global position (by updating goal)
    */
   public void MoveArmToPosition(double radians) {
-    // update the PID controller with current encoder position, while running through feedforward
-    m_armMainPIDController.setReference(
-        m_armFeedforward.calculate(radians + kminArmAngle, karmVelocity),
-        CANSparkBase.ControlType.kPosition);
+    m_stopped = false;
+    // update the motion profile with new goal
+    // add minimum starting angle to the target angle to get the real angle
+    double total_radians = radians + kminArmAngle;
+    m_goal = new TrapezoidProfile.State(total_radians, 0); // set the goal
   }
 
   /*
    * attempt to hold arm at current location
    */
   public void stop() {
-    // update the PID controller with current encoder position
-    MoveArmToPosition(getAverageEncoderPosition());
+    if (!m_stopped) {
+      // update the PID controller with current encoder position
+      MoveArmToPosition(getAverageEncoderPosition());
+      m_stopped = true;
+    }
   }
 
   public void zeroEncoders() {
@@ -153,6 +165,16 @@ public class ArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    // update the setpoint
+    m_setpoint = m_armTrapezoidProfile.calculate(kDt, m_setpoint, m_goal);
+
+    // Call the controller and feedforward with the target position and velocity
+    m_armMainPIDController.setReference(
+        m_setpoint.position,
+        CANSparkBase.ControlType.kPosition,
+        0,
+        m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
   }
 
   @Override
