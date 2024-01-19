@@ -411,18 +411,21 @@ public class DriveSubsystem extends SubsystemBase {
    * This function can set our robots DifferentialDriveWheelSpeeds, which is the speed of each side of the robot.
    */
   public void setWheelVelocities(DifferentialDriveWheelSpeeds speeds) {
-    // get left and right speeds in m/s
+    // get left and right speeds in m/s, and run through feedforward to get feedforward voltage
+    // offset
     double leftSpeed = speeds.leftMetersPerSecond;
     double rightSpeed = speeds.rightMetersPerSecond;
     // set to position of motors
     m_backLeftPIDController.setReference(
-        m_driveFeedForward.calculate(leftSpeed),
+        leftSpeed,
         CANSparkBase.ControlType.kVelocity,
-        DriveConstants.kDrivetrainVelocityPIDSlot);
+        DriveConstants.kDrivetrainVelocityPIDSlot,
+        m_driveFeedForward.calculate(leftSpeed));
     m_backRightPIDController.setReference(
-        m_driveFeedForward.calculate(rightSpeed),
+        rightSpeed,
         CANSparkBase.ControlType.kVelocity,
-        DriveConstants.kDrivetrainVelocityPIDSlot);
+        DriveConstants.kDrivetrainVelocityPIDSlot,
+        m_driveFeedForward.calculate(rightSpeed));
   }
 
   // in meters, use averageDistance() to get average distance traveled, as an offset to set this

@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
@@ -31,6 +32,15 @@ public class ShooterSubsystem extends SubsystemBase {
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
   private final double kVelocityConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio / 60;
+
+  // setup feedforward
+  private final double ksShooterVolts = 0.0;
+  private final double kvDriveVoltSecondsPerMeter = 0.0;
+  private final double kaDriveVoltSecondsSquaredPerMeter = 0.0;
+
+  SimpleMotorFeedforward m_shooterFeedForward =
+      new SimpleMotorFeedforward(
+          ksShooterVolts, kvDriveVoltSecondsPerMeter, kaDriveVoltSecondsSquaredPerMeter);
 
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
@@ -90,7 +100,8 @@ public class ShooterSubsystem extends SubsystemBase {
    * Spin shooter at a given Speed (M/S)
    */
   public void SpinShooter(double speed) {
-    m_ShooterMainPIDController.setReference(speed, CANSparkBase.ControlType.kVelocity);
+    m_ShooterMainPIDController.setReference(
+        speed, CANSparkBase.ControlType.kVelocity, 0, m_shooterFeedForward.calculate(speed));
   }
 
   /*
