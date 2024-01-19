@@ -31,7 +31,9 @@ public final class DriveConstants {
   // The Robot Characterization Toolsuite provides a convenient tool for obtaining these
   // values for your robot.
   // Feed Forward Constants
-  public static final double kDriveFeedForward = 0.0;
+  public static final double ksDriveVolts = 0.16213;
+  public static final double kvDriveVoltSecondsPerMeter = 2.2194;
+  public static final double kaDriveVoltSecondsSquaredPerMeter = 0.33599;
   // Max speed Constants
   public static final double kMaxOutputDrive = 1.0;
   public static final double kMinOutputDrive = -1.0;

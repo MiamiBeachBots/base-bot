@@ -4,19 +4,25 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   private final CANSparkMax m_ShooterMotorMain;
   private final SparkPIDController m_ShooterMainPIDController;
   private RelativeEncoder m_ShooterMainEncoder;
-  private final double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, kMaxSpeed;
+  private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput, kMaxSpeed;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
@@ -25,6 +31,9 @@ public class ShooterSubsystem extends SubsystemBase {
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
   private final double kVelocityConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio / 60;
+
+  // setup SysID for auto profiling
+  private final SysIdRoutine m_sysIdRoutine;
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
@@ -45,7 +54,6 @@ public class ShooterSubsystem extends SubsystemBase {
     kI = 0;
     kD = 0;
     kIz = 0;
-    kFF = 0.000015;
     kMaxOutput = 1;
     kMinOutput = -1;
     kMaxSpeed = 5;
@@ -55,8 +63,27 @@ public class ShooterSubsystem extends SubsystemBase {
     m_ShooterMainPIDController.setI(kI);
     m_ShooterMainPIDController.setD(kD);
     m_ShooterMainPIDController.setIZone(kIz);
-    m_ShooterMainPIDController.setFF(kFF);
     m_ShooterMainPIDController.setOutputRange(kMinOutput, kMaxOutput);
+    // setup SysID for auto profiling
+    m_sysIdRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> this.setVoltage(voltage),
+                null, // No log consumer, since data is recorded by URCL
+                this));
+  }
+
+  public void setVoltage(Measure<Voltage> voltage) {
+    m_ShooterMotorMain.setVoltage(voltage.in(Volts));
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
   }
 
   /*

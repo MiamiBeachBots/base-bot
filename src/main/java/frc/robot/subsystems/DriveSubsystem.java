@@ -13,6 +13,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -54,6 +55,13 @@ public class DriveSubsystem extends SubsystemBase {
   // Motor PID Controllers
   private final SparkPIDController m_backLeftPIDController;
   private final SparkPIDController m_backRightPIDController;
+
+  // motor feedforward
+  SimpleMotorFeedforward m_driveFeedForward =
+      new SimpleMotorFeedforward(
+          DriveConstants.ksDriveVolts,
+          DriveConstants.kvDriveVoltSecondsPerMeter,
+          DriveConstants.kaDriveVoltSecondsSquaredPerMeter);
 
   // ex:
   // https://github.com/REVrobotics/SPARK-MAX-Examples/blob/master/Java/Read%20Encoder%20Values/src/main/java/frc/robot/Robot.java
@@ -234,10 +242,6 @@ public class DriveSubsystem extends SubsystemBase {
         DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
     m_backRightPIDController.setIZone(
         DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setFF(
-        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setFF(
-        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainVelocityPIDSlot);
     m_backLeftPIDController.setOutputRange(
         DriveConstants.kMinOutputDrive,
         DriveConstants.kMaxOutputDrive,
@@ -264,10 +268,6 @@ public class DriveSubsystem extends SubsystemBase {
         DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
     m_backRightPIDController.setIZone(
         DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setFF(
-        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setFF(
-        DriveConstants.kDriveFeedForward, DriveConstants.kDrivetrainPositionPIDSlot);
     m_backLeftPIDController.setOutputRange(
         DriveConstants.kMinOutputDrive,
         DriveConstants.kMaxOutputDrive,
@@ -416,9 +416,13 @@ public class DriveSubsystem extends SubsystemBase {
     double rightSpeed = speeds.rightMetersPerSecond;
     // set to position of motors
     m_backLeftPIDController.setReference(
-        leftSpeed, CANSparkBase.ControlType.kVelocity, DriveConstants.kDrivetrainVelocityPIDSlot);
+        m_driveFeedForward.calculate(leftSpeed),
+        CANSparkBase.ControlType.kVelocity,
+        DriveConstants.kDrivetrainVelocityPIDSlot);
     m_backRightPIDController.setReference(
-        rightSpeed, CANSparkBase.ControlType.kVelocity, DriveConstants.kDrivetrainVelocityPIDSlot);
+        m_driveFeedForward.calculate(rightSpeed),
+        CANSparkBase.ControlType.kVelocity,
+        DriveConstants.kDrivetrainVelocityPIDSlot);
   }
 
   // in meters, use averageDistance() to get average distance traveled, as an offset to set this

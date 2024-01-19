@@ -4,20 +4,36 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
 
 public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax m_armMotorMain, m_armMotorSecondary;
   private final SparkPIDController m_armMainPIDController;
   private final RelativeEncoder m_MainEncoder, m_SecondaryEncoder;
-  private final double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+  private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
+  private final double kminArmAngle =
+      Units.degreesToRadians(
+          0); // this is needed for the feedforward control, basically min angle relative to flat on
+  // floor.
+  private final double ksArmVolts = 0.0;
+  private final double kgArmGravityGain = 0.0;
+  private final double kvArmVoltSecondsPerMeter = 0.0;
+  private final double kaArmVoltSecondsSquaredPerMeter = 0.0;
   private final double kLoweredArmPositionRadians = Units.degreesToRadians(45);
+  private final double karmVelocity = 2; // m/s
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
@@ -26,6 +42,12 @@ public class ArmSubsystem extends SubsystemBase {
   // gear ratio by dividing by the gear ratio.
   // remember that 2pi radians in 360 degrees.
   private final double kRadiansConversionRatio = (Math.PI * 2) / kGearRatio;
+  private final ArmFeedforward m_armFeedforward =
+      new ArmFeedforward(
+          ksArmVolts, kgArmGravityGain, kvArmVoltSecondsPerMeter, kaArmVoltSecondsSquaredPerMeter);
+
+  // setup SysID for auto profiling
+  private final SysIdRoutine m_sysIdRoutine;
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
@@ -54,7 +76,6 @@ public class ArmSubsystem extends SubsystemBase {
     kI = 1e-4;
     kD = 1;
     kIz = 0;
-    kFF = 0;
     kMaxOutput = 1;
     kMinOutput = -1;
 
@@ -63,8 +84,28 @@ public class ArmSubsystem extends SubsystemBase {
     m_armMainPIDController.setI(kI);
     m_armMainPIDController.setD(kD);
     m_armMainPIDController.setIZone(kIz);
-    m_armMainPIDController.setFF(kFF);
     m_armMainPIDController.setOutputRange(kMinOutput, kMaxOutput);
+
+    // setup SysID for auto profiling
+    m_sysIdRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> this.setVoltage(voltage),
+                null, // No log consumer, since data is recorded by URCL
+                this));
+  }
+
+  public void setVoltage(Measure<Voltage> voltage) {
+    m_armMotorMain.setVoltage(voltage.in(Volts));
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
   }
 
   public double getAverageEncoderPosition() {
@@ -90,8 +131,10 @@ public class ArmSubsystem extends SubsystemBase {
    * Move arm to global position
    */
   public void MoveArmToPosition(double radians) {
-    // update the PID controller with current encoder position
-    m_armMainPIDController.setReference(radians, CANSparkBase.ControlType.kPosition);
+    // update the PID controller with current encoder position, while running through feedforward
+    m_armMainPIDController.setReference(
+        m_armFeedforward.calculate(radians + kminArmAngle, karmVelocity),
+        CANSparkBase.ControlType.kPosition);
   }
 
   /*

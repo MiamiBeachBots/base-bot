@@ -100,7 +100,9 @@ public class RobotContainer {
     setupTriggers();
     // Bind the commands to the triggers
     if (enableAutoProfiling) {
-      bindProfileCommands();
+      bindDriveSysIDCommands();
+      // bindArmSysIDCommands();
+      // bindShooterSysIDCommands();
     } else {
       bindCommands();
     }
@@ -144,11 +146,31 @@ public class RobotContainer {
     m_coastButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
   }
 
-  private void bindProfileCommands() {
+  private void bindDriveSysIDCommands() {
     m_controller1.a().whileTrue(m_driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     m_controller1.b().whileTrue(m_driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     m_controller1.x().whileTrue(m_driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     m_controller1.y().whileTrue(m_driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
+  }
+
+  private void bindArmSysIDCommands() {
+    m_controller1.a().whileTrue(m_armSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_controller1.b().whileTrue(m_armSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_controller1.x().whileTrue(m_armSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_controller1.y().whileTrue(m_armSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
+  }
+
+  private void bindShooterSysIDCommands() {
+    m_controller1
+        .a()
+        .whileTrue(m_shooterSubsytem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_controller1
+        .b()
+        .whileTrue(m_shooterSubsytem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_controller1.x().whileTrue(m_shooterSubsytem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_controller1.y().whileTrue(m_shooterSubsytem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
   }
 
