@@ -4,6 +4,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.HelperFunctions;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
@@ -38,8 +39,8 @@ public class DefaultDrive extends Command {
   public void execute() {
     // we include a limit on the drivers speed for safety.
     // Additonally the axis's on the
-    if ((m_left_y.getAsDouble() >= 0.1 || m_left_y.getAsDouble() <= -0.1)
-        || (m_right_y.getAsDouble() >= 0.1 || m_right_y.getAsDouble() <= -0.1)) {
+    if (!HelperFunctions.inDeadzone(m_left_y.getAsDouble(), 0.1)
+        || !HelperFunctions.inDeadzone(m_right_y.getAsDouble(), 0.1)) {
       this.m_driveSubsystem.tankDrive(
           Constants.MAX_SPEED * m_left_y.getAsDouble(),
           Constants.MAX_SPEED * m_right_y.getAsDouble());
