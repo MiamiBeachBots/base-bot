@@ -3,6 +3,8 @@
 package frc.robot.subsystems;
 
 // import motor & frc dependencies
+import static edu.wpi.first.units.Units.Volts;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.revrobotics.CANSparkBase;
@@ -17,12 +19,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
 
@@ -59,8 +65,8 @@ public class DriveSubsystem extends SubsystemBase {
   static final double turn_P = 0.1;
   static final double turn_I = 0.00;
   static final double turn_D = 0.00;
-  static final double MaxTurnRateDegPerS = 100;
-  static final double MaxTurnAccelerationDegPerSSquared = 300;
+  static final double MaxTurnRateDegPerS = 20;
+  static final double MaxTurnAccelerationDegPerSSquared = 50;
   static final double TurnToleranceDeg = 3; // max diff in degrees
   static final double TurnRateToleranceDegPerS = 10; // degrees per second
   // false when inactive, true when active / a target is set.
@@ -95,6 +101,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   // track robot field location for dashboard
   private Field2d field = new Field2d();
+
+  // setup SysID for auto profiling
+  private final SysIdRoutine m_sysIdRoutine;
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -188,6 +197,23 @@ public class DriveSubsystem extends SubsystemBase {
         );
 
     SmartDashboard.putData("Field", field); // add field to dashboard
+
+    // setup SysID for auto profiling
+    m_sysIdRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> this.setVoltage(voltage, voltage),
+                null, // No log consumer, since data is recorded by URCL
+                this));
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
   }
 
   private void configureMotorPIDControllers() {
@@ -250,6 +276,12 @@ public class DriveSubsystem extends SubsystemBase {
         DriveConstants.kMinOutputDrive,
         DriveConstants.kMaxOutputDrive,
         DriveConstants.kDrivetrainPositionPIDSlot);
+  }
+
+  public void setVoltage(Measure<Voltage> rightVoltage, Measure<Voltage> leftVoltage) {
+    m_backLeft.setVoltage(leftVoltage.in(Volts));
+    m_backRight.setVoltage(rightVoltage.in(Volts));
+    m_ddrive.feed();
   }
 
   // default tank drive function

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.BalanceCommand;
@@ -86,6 +87,7 @@ public class RobotContainer {
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
+  public boolean enableAutoProfiling = true;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -94,7 +96,13 @@ public class RobotContainer {
     // Setup On the Fly Path Planning
     configureTeleopPaths();
     // Configure the button bindings
-    configureButtonBindings();
+    setupTriggers();
+    // Bind the commands to the triggers
+    if (enableAutoProfiling) {
+      bindProfileCommands();
+    } else {
+      bindCommands();
+    }
 
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
@@ -110,7 +118,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
+  private void setupTriggers() {
     // Controller buttons
     m_switchCameraButton = m_controller1.x();
     m_brakeButton = m_controller1.a();
@@ -121,6 +129,9 @@ public class RobotContainer {
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     m_fireButton = new JoystickButton(m_flightStick, Constants.FIREBUTTON);
+  }
+
+  private void bindCommands() {
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
@@ -130,6 +141,13 @@ public class RobotContainer {
 
     m_brakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     m_coastButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
+  }
+
+  private void bindProfileCommands() {
+    m_controller1.a().whileTrue(m_driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_controller1.b().whileTrue(m_driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_controller1.x().whileTrue(m_driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_controller1.y().whileTrue(m_driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   private void initializeAutonomous() {

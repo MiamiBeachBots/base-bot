@@ -7,12 +7,14 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.wpilibj.DataLogManager;
 // import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import org.littletonrobotics.urcl.URCL;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -62,6 +64,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putString("Commit", commitHash);
     SmartDashboard.putString("CommitTime", commitTime);
     SmartDashboard.putString("BuildTime", buildTime);
+
+    if (m_robotContainer.enableAutoProfiling) {
+      DataLogManager.start();
+      URCL.start();
+    }
   }
 
   /**
@@ -78,6 +85,9 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    if (m_robotContainer.enableAutoProfiling) {
+      System.out.println("WARNING, AUTO PROFILE IS ENABLED!");
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
