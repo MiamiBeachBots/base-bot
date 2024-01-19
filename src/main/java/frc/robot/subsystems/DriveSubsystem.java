@@ -108,11 +108,13 @@ public class DriveSubsystem extends SubsystemBase {
         new CANSparkMax(CANConstants.MOTORFRONTRIGHTID, CANSparkMax.MotorType.kBrushless);
     m_backRight = new CANSparkMax(CANConstants.MOTORBACKRIGHTID, CANSparkMax.MotorType.kBrushless);
 
+    // invert right side
+    m_backRight.setInverted(true);
+    m_frontRight.setInverted(true);
+
     // setup main and secondary motors
     m_frontLeft.follow(m_backLeft); // set front left to follow back left
     m_frontRight.follow(m_backRight); // set front right to follow back right
-
-    m_backRight.setInverted(true); // invert right side
 
     // init drive function
     m_ddrive = new DifferentialDrive(m_backLeft, m_backRight);
@@ -123,8 +125,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderFrontLeft = m_frontLeft.getEncoder();
     m_encoderBackRight = m_backRight.getEncoder();
     m_encoderFrontRight = m_frontRight.getEncoder();
-    m_encoderBackLeft.setInverted(true); // invert left to match drive
-    m_encoderFrontLeft.setInverted(true); // invert left to match drive
+    // Encoders inverted with motors
 
     // init PID Controllers
     m_backLeftPIDController = m_backLeft.getPIDController();

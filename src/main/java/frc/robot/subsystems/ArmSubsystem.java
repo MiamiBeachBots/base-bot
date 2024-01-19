@@ -32,7 +32,7 @@ public class ArmSubsystem extends SubsystemBase {
     // create the arm motors
     m_armMotorMain = new CANSparkMax(CANConstants.MOTORARMMAINID, CANSparkMax.MotorType.kBrushless);
     m_armMotorSecondary =
-        new CANSparkMax(CANConstants.MOTORARMMAINID, CANSparkMax.MotorType.kBrushless);
+        new CANSparkMax(CANConstants.MOTORARMSECONDARYID, CANSparkMax.MotorType.kBrushless);
 
     // set the idle mode to brake
     m_armMotorMain.setIdleMode(CANSparkMax.IdleMode.kBrake);
