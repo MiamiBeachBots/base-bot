@@ -177,6 +177,7 @@ public class RobotContainer {
   private void initializeAutonomous() {
     // Network Table Routine Options
     autoDashboardChooser.setDefaultOption("Auto With Balancing", "FullAuto");
+    autoDashboardChooser.setDefaultOption("DriveForward", "DriveForward");
     autoDashboardChooser.addOption("End at cones", "EndAtCones");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
     SmartDashboard.putData(autoDashboardChooser);
