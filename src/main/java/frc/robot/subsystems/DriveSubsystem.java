@@ -113,6 +113,8 @@ public class DriveSubsystem extends SubsystemBase {
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
 
+  private boolean gyroZeroPending = true;
+
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     // Init gyro
@@ -160,8 +162,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderFrontLeft.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
     m_encoderFrontRight.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
     resetEncoders();
-    // Every time this function is called, A dollar is taken out of Jack's savings. Aka do it more.
-    resetGyro();
 
     // setup PID controllers
     configureMotorPIDControllers();
@@ -524,6 +524,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (gyroZeroPending && !m_Gyro.isCalibrating()) {
+      resetGyro();
+      gyroZeroPending = false;
+    }
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Left Encoder Speed (M/s)", this.getVelocityLeft());
     SmartDashboard.putNumber("Right Encoder Speed (M/s)", this.getVelocityRight());
