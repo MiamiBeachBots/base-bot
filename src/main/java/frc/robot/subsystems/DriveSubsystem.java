@@ -316,7 +316,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
   }
 
-
   // these next 4 functions are for turning a set radius while using the gyro.
   public void turnResetPID() {
     /** This should be run when stopping a pid command. */

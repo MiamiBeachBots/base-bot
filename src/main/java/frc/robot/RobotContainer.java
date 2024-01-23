@@ -187,7 +187,8 @@ public class RobotContainer {
     // NamedCommands.registerCommand("A", new PathFollowingCommand(m_driveSubsystem,
     // pathGroup.get(0)));
     NamedCommands.registerCommand("BalanceRobot", m_balanceCommand);
-    NamedCommands.registerCommand("BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
+    NamedCommands.registerCommand(
+        "BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
 
     // autoBuilder =
     //     new RamseteAutoBuilder(
