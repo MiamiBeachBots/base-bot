@@ -316,20 +316,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
   }
 
-  public void driveAndTurn(double gyroYawAngle, double TargetAngleDegrees, double targetDistance) {
-    /*
-    This lets you set a gyro angle and a distance you need to travel.
-    this should not be used in auto mode.
-     */
-    this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
-    double leftStickValue = turnRotateToAngleRate;
-    double rightStickValue = turnRotateToAngleRate;
-    if (!m_turnController.atGoal()) {
-      this.tankDrive(leftStickValue, rightStickValue);
-    } else {
-      this.driveToRelativePosition(targetDistance);
-    }
-  }
 
   // these next 4 functions are for turning a set radius while using the gyro.
   public void turnResetPID() {
@@ -529,13 +515,11 @@ public class DriveSubsystem extends SubsystemBase {
       gyroZeroPending = false;
     }
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Left Encoder Speed (M/s)", this.getVelocityLeft());
-    SmartDashboard.putNumber("Right Encoder Speed (M/s)", this.getVelocityRight());
+    DifferentialDriveWheelSpeeds wheelSpeeds = this.getWheelSpeeds();
+    SmartDashboard.putNumber("Left Encoder Speed (M/s)", wheelSpeeds.leftMetersPerSecond);
+    SmartDashboard.putNumber("Right Encoder Speed (M/s)", wheelSpeeds.rightMetersPerSecond);
     SmartDashboard.putNumber("Distance L", this.getPositionLeft());
     SmartDashboard.putNumber("Distance R", this.getPositionRight());
-    SmartDashboard.putNumber("Current Robot Location X axis", getPose().getX());
-    SmartDashboard.putNumber("Current Robot Location Y axis", getPose().getY());
-    SmartDashboard.putNumber("Current Robot Rotation", getPose().getRotation().getDegrees());
     SmartDashboard.putNumber("Average Distance Traveled", AverageDistance());
     SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
     SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
