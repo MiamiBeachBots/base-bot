@@ -30,6 +30,8 @@ public final class Constants {
   // USB Devices
   public static final int CONTROLLERUSBINDEX = 0;
   public static final int FLIGHTSTICKUSBINDEX = 1;
+  // On-Controller joystick deadzone
+  public static final double CONTROLLERDEADZONE = 0.1;
 
   // Game Controller Buttons
   // Now In RobotContainer as Native Triggers.

@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.HelperFunctions;
 import frc.robot.ShooterState;
 import frc.robot.subsystems.ArmSubsystem;
@@ -40,7 +41,7 @@ public class ArmCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), 0.1)) {
+    if (!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE)) {
       m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
 
     } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
