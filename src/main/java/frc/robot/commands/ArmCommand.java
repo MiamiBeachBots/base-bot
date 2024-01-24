@@ -10,7 +10,6 @@ import frc.robot.Constants;
 import frc.robot.ShooterState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.utils.HelperFunctions;
-
 import java.util.function.DoubleSupplier;
 
 /** An example command that uses an example subsystem. */
