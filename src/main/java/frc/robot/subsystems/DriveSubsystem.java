@@ -415,7 +415,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   // in meters, use averageDistance() to get average distance traveled, as an offset to set this
   // function.
-  public void driveToPosition(double NewPosition) {
+  public void driveToPosition(final double NewPosition) {
     m_backLeftPIDController.setReference(
         NewPosition, CANSparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
     m_backRightPIDController.setReference(
