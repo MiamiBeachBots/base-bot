@@ -32,6 +32,7 @@ import frc.robot.commands.UltrasonicShooterCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LifterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 
@@ -61,6 +62,7 @@ public class RobotContainer {
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
   private final ShooterSubsystem m_shooterSubsytem = new ShooterSubsystem();
+  private final LifterSubsystem m_lifterSubsystem = new LifterSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
