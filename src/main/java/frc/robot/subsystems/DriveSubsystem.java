@@ -56,6 +56,9 @@ public class DriveSubsystem extends SubsystemBase {
   private final SparkPIDController m_backLeftPIDController;
   private final SparkPIDController m_backRightPIDController;
 
+  // Current Idle mode
+  private boolean isBrakeMode;
+
   // motor feedforward
   SimpleMotorFeedforward m_driveFeedForward =
       new SimpleMotorFeedforward(
@@ -446,6 +449,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_backRight.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_frontLeft.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_frontRight.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    isBrakeMode = true;
   }
 
   public void SetCoastmode() {
@@ -453,6 +457,15 @@ public class DriveSubsystem extends SubsystemBase {
     m_backRight.setIdleMode(CANSparkMax.IdleMode.kCoast);
     m_frontLeft.setIdleMode(CANSparkMax.IdleMode.kCoast);
     m_frontRight.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    isBrakeMode = false;
+  }
+
+  public void SwitchBrakemode() {
+    if (this.isBrakeMode) {
+      this.SetCoastmode();
+    } else {
+      this.SetBrakemode();
+    }
   }
 
   /**

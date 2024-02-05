@@ -26,6 +26,8 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.LifterDownCommand;
+import frc.robot.commands.LifterUpCommand;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.StraightCommand;
 import frc.robot.commands.UltrasonicShooterCommand;
@@ -77,13 +79,16 @@ public class RobotContainer {
   private final ArmCommand m_armCommand =
       new ArmCommand(m_armSubsystem, m_shooterState, this::GetFlightStickY);
   private final ShooterCommand m_shooterCommand = new ShooterCommand(m_shooterSubsytem);
+  private final LifterUpCommand m_lifterUpCommand = new LifterUpCommand(m_lifterSubsystem);
+  private final LifterDownCommand m_lifterDownCommand = new LifterDownCommand(m_lifterSubsystem);
+
   private Command m_driveToSpeaker;
   // Init Buttons
-  private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
   private Trigger m_straightButton;
-  private Trigger m_brakeButton;
-  private Trigger m_coastButton;
+  private Trigger m_toggleBrakeButton;
+  private Trigger m_lifterUpButton;
+  private Trigger m_lifterDownButton;
   private JoystickButton m_aimButton;
   private JoystickButton m_fireButton;
   private Trigger m_driveToSpeakerButton;
@@ -125,12 +130,13 @@ public class RobotContainer {
    */
   private void setupTriggers() {
     // Controller buttons
-    m_switchCameraButton = m_controller1.x();
-    m_brakeButton = m_controller1.a();
-    m_coastButton = m_controller1.b();
+    m_toggleBrakeButton = m_controller1.x();
+    m_lifterUpButton = m_controller1.a();
+    m_lifterDownButton = m_controller1.b();
     m_balanceButton = m_controller1.rightBumper();
     m_straightButton = m_controller1.rightTrigger();
     m_driveToSpeakerButton = m_controller1.y();
+
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     m_fireButton = new JoystickButton(m_flightStick, Constants.FIREBUTTON);
@@ -143,9 +149,9 @@ public class RobotContainer {
     m_aimButton.whileTrue(m_aimCommand);
     m_fireButton.whileTrue(m_shooterCommand);
     m_driveToSpeakerButton.whileTrue(m_driveToSpeaker);
-
-    m_brakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
-    m_coastButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
+    m_lifterUpButton.whileTrue(m_lifterUpCommand);
+    m_lifterDownButton.whileTrue(m_lifterDownCommand);
+    m_toggleBrakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SwitchBrakemode()));
   }
 
   private void bindDriveSysIDCommands() {
@@ -241,11 +247,6 @@ public class RobotContainer {
   // for autonomous
   public DefaultDrive getDefaultDrive() {
     return m_defaultDrive;
-  }
-
-  // to swap camera type.
-  public Trigger getCameraButton() {
-    return m_switchCameraButton;
   }
 
   // for future SmartDashboard uses.

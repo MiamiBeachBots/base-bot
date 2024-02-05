@@ -11,7 +11,6 @@ import frc.robot.Constants.CANConstants;
 public class LifterSubsystem extends SubsystemBase {
   private final CANSparkMax m_left; // Motor for Left
   private final CANSparkMax m_right; // Motor for right
-  private final double speed = 0.5;
 
   /** Creates a new LifterSubsystem. */
   public LifterSubsystem() {
@@ -19,19 +18,19 @@ public class LifterSubsystem extends SubsystemBase {
     m_right = new CANSparkMax(CANConstants.MOTORLIFTERRIGHTID, CANSparkMax.MotorType.kBrushless);
   }
 
-  public void leftUp() {
+  public void leftUp(double speed) {
     m_left.set(speed);
   }
 
-  public void leftDown() {
+  public void leftDown(double speed) {
     m_left.set(-speed);
   }
 
-  public void rightUp() {
+  public void rightUp(double speed) {
     m_right.set(speed);
   }
 
-  public void rightDown() {
+  public void rightDown(double speed) {
     m_right.set(-speed);
   }
 

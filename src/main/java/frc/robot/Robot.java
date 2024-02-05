@@ -4,16 +4,11 @@
 
 package frc.robot;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.wpilibj.DataLogManager;
 // import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.littletonrobotics.urcl.URCL;
 
 /**
@@ -27,11 +22,6 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private UsbCamera camera1;
-  private UsbCamera camera2;
-  private VideoSink mainCameraServer;
-  private int cameraCounter = 2;
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -42,28 +32,9 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    camera1 = CameraServer.startAutomaticCapture(0);
-    camera2 = CameraServer.startAutomaticCapture(1);
-    mainCameraServer = CameraServer.getServer();
     // Tell both cameras to always stream.
     // camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     // camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-
-    // this is to put git info in the dashboard & Logs, uses new 2024 BuildConstants.java
-    String branchName = BuildConstants.GIT_BRANCH;
-    String commitHash = BuildConstants.GIT_SHA;
-    String commitTime = BuildConstants.GIT_DATE;
-    String buildTime = BuildConstants.BUILD_DATE;
-
-    System.out.println("Branch: " + branchName);
-    System.out.println("Commit: " + commitHash);
-    System.out.println("Commit Time: " + commitTime);
-    System.out.println("Build Time: " + buildTime);
-
-    SmartDashboard.putString("Branch", branchName);
-    SmartDashboard.putString("Commit", commitHash);
-    SmartDashboard.putString("CommitTime", commitTime);
-    SmartDashboard.putString("BuildTime", buildTime);
 
     if (m_robotContainer.enableAutoProfiling) {
       DataLogManager.start();
@@ -121,20 +92,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer
-        .getCameraButton()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  cameraCounter++;
-                  if (cameraCounter % 2 == 0) {
-                    System.out.println("Setting Camera 2");
-                    mainCameraServer.setSource(camera2);
-                  } else {
-                    System.out.println("Setting Camera 1");
-                    mainCameraServer.setSource(camera1);
-                  }
-                }));
   }
 
   /** This function is called periodically during operator control. */
