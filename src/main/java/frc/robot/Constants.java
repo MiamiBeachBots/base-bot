@@ -15,22 +15,27 @@ public final class Constants {
   public static final class CANConstants {
     // CAN Bus Devices
     /// Drive Train Motors
-    public static final int MOTORFRONTRIGHTID = 11;
-    public static final int MOTORBACKRIGHTID = 12;
-    public static final int MOTORFRONTLEFTID = 13;
-    public static final int MOTORBACKLEFTID = 14;
+    public static final int MOTORFRONTRIGHTID = 14;
+    public static final int MOTORBACKRIGHTID = 13;
+    public static final int MOTORFRONTLEFTID = 12;
+    public static final int MOTORBACKLEFTID = 11;
     /// Arm Motors
     public static final int MOTORARMMAINID = 21;
-    public static final int MOTORARMSECONDARYID = 22;
     /// Shooter Motors
     public static final int MOTORSHOOTERID = 31;
+    /// Lifter Motors
+    public static final int MOTORLIFTERLEFTID = 41;
+    public static final int MOTORLIFTERRIGHTID = 42;
   }
 
   public static final double MAX_SPEED = 0.8;
+  public static final double LIFTERSPEED = 0.5;
 
   // USB Devices
   public static final int CONTROLLERUSBINDEX = 0;
   public static final int FLIGHTSTICKUSBINDEX = 1;
+  // On-Controller joystick deadzone
+  public static final double CONTROLLERDEADZONE = 0.1;
 
   // Game Controller Buttons
   // Now In RobotContainer as Native Triggers.
@@ -44,9 +49,4 @@ public final class Constants {
   public static final int ULTRASONICSHOOTERPORT = 0;
 
   // Digital Ports
-  /// Encoder Ports
-  public static final int DRIVEENCODERLEFTA = 0;
-  public static final int DRIVEENCODERLEFTB = 1;
-  public static final int DRIVEENCODERRIGHTA = 2;
-  public static final int DRIVEENCODERRIGHTB = 3;
 }

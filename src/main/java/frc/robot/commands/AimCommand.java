@@ -53,10 +53,9 @@ public class AimCommand extends Command {
                   Units.degreesToRadians(CamResult.getBestTarget().getPitch()))
               - m_cameraSubsystem.frontCameraGoalRangeMeters;
       // turn and move towards target.
-      m_driveSubsystem.driveAndTurn(m_driveSubsystem.getYaw(), angleGoal, distanceFromTarget);
+      // m_driveSubsystem.driveAndTurn(m_driveSubsystem.getYaw(), angleGoal, distanceFromTarget);
       // we reset the angle everytime as the target could change / move.
       m_driveSubsystem.turnSetGoal(angleGoal);
-      m_driveSubsystem.distanceSetGoal(distanceFromTarget);
     } else {
       SmartDashboard.putBoolean("CameraTargetDetected", false);
       SmartDashboard.putNumber("CameraTargetPitch", 0.0);
@@ -68,7 +67,7 @@ public class AimCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     m_driveSubsystem.turnResetPID(); // we clear the PID turn controller.
-    m_driveSubsystem.distanceResetPID(); // we clear the distance PID contoller too.
+    m_driveSubsystem.stop(); // end execution of on board PID.
   }
 
   // Returns true when the command should end.

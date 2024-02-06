@@ -5,22 +5,25 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.Constants;
+import frc.robot.subsystems.LifterSubsystem;
 
-/** A Shooter Command that uses an example subsystem. */
-public class ShooterCommand extends Command {
+/** Lifter Command using the Lifter Subsystem. */
+public class LifterDownCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ShooterSubsystem m_shooterSubsystem;
+  private final LifterSubsystem m_lifterSubsystem;
+
+  private final double speed = Constants.LIFTERSPEED;
 
   /**
-   * Creates a new ShooterCommand.
+   * Creates a new LifterDownCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ShooterCommand(ShooterSubsystem s_subsystem) {
-    m_shooterSubsystem = s_subsystem;
+  public LifterDownCommand(LifterSubsystem l_subsystem) {
+    m_lifterSubsystem = l_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(s_subsystem);
+    addRequirements(l_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -30,14 +33,15 @@ public class ShooterCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO: Finish Implementing ShooterCommand
-    System.out.println("ShooterCommand Activated");
-    m_shooterSubsystem.SpinShooterFull();
+    m_lifterSubsystem.leftDown(speed);
+    m_lifterSubsystem.rightDown(speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_lifterSubsystem.stop();
+  }
 
   // Returns true when the command should end.
   @Override

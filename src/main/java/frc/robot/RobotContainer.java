@@ -10,6 +10,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -20,16 +21,20 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.LifterDownCommand;
+import frc.robot.commands.LifterUpCommand;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.StraightCommand;
 import frc.robot.commands.UltrasonicShooterCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LifterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 
@@ -59,6 +64,7 @@ public class RobotContainer {
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
   private final ShooterSubsystem m_shooterSubsytem = new ShooterSubsystem();
+  private final LifterSubsystem m_lifterSubsystem = new LifterSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -73,19 +79,23 @@ public class RobotContainer {
   private final ArmCommand m_armCommand =
       new ArmCommand(m_armSubsystem, m_shooterState, this::GetFlightStickY);
   private final ShooterCommand m_shooterCommand = new ShooterCommand(m_shooterSubsytem);
+  private final LifterUpCommand m_lifterUpCommand = new LifterUpCommand(m_lifterSubsystem);
+  private final LifterDownCommand m_lifterDownCommand = new LifterDownCommand(m_lifterSubsystem);
+
   private Command m_driveToSpeaker;
   // Init Buttons
-  private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
   private Trigger m_straightButton;
-  private Trigger m_brakeButton;
-  private Trigger m_coastButton;
+  private Trigger m_toggleBrakeButton;
+  private Trigger m_lifterUpButton;
+  private Trigger m_lifterDownButton;
   private JoystickButton m_aimButton;
   private JoystickButton m_fireButton;
   private Trigger m_driveToSpeakerButton;
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
+  public final boolean enableAutoProfiling = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -94,7 +104,15 @@ public class RobotContainer {
     // Setup On the Fly Path Planning
     configureTeleopPaths();
     // Configure the button bindings
-    configureButtonBindings();
+    setupTriggers();
+    // Bind the commands to the triggers
+    if (enableAutoProfiling) {
+      bindDriveSysIDCommands();
+      // bindArmSysIDCommands();
+      // bindShooterSysIDCommands();
+    } else {
+      bindCommands();
+    }
 
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
@@ -110,31 +128,64 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
+  private void setupTriggers() {
     // Controller buttons
-    m_switchCameraButton = m_controller1.x();
-    m_brakeButton = m_controller1.a();
-    m_coastButton = m_controller1.b();
+    m_toggleBrakeButton = m_controller1.x();
+    m_lifterUpButton = m_controller1.a();
+    m_lifterDownButton = m_controller1.b();
     m_balanceButton = m_controller1.rightBumper();
     m_straightButton = m_controller1.rightTrigger();
     m_driveToSpeakerButton = m_controller1.y();
+
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     m_fireButton = new JoystickButton(m_flightStick, Constants.FIREBUTTON);
+  }
+
+  private void bindCommands() {
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_aimButton.whileTrue(m_aimCommand);
     m_fireButton.whileTrue(m_shooterCommand);
     m_driveToSpeakerButton.whileTrue(m_driveToSpeaker);
+    m_lifterUpButton.whileTrue(m_lifterUpCommand);
+    m_lifterDownButton.whileTrue(m_lifterDownCommand);
+    m_toggleBrakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SwitchBrakemode()));
+  }
 
-    m_brakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
-    m_coastButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
+  private void bindDriveSysIDCommands() {
+    m_controller1.a().whileTrue(m_driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_controller1.b().whileTrue(m_driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_controller1.x().whileTrue(m_driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_controller1.y().whileTrue(m_driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
+  }
+
+  private void bindArmSysIDCommands() {
+    m_controller1.a().whileTrue(m_armSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_controller1.b().whileTrue(m_armSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_controller1.x().whileTrue(m_armSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_controller1.y().whileTrue(m_armSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
+  }
+
+  private void bindShooterSysIDCommands() {
+    m_controller1
+        .a()
+        .whileTrue(m_shooterSubsytem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_controller1
+        .b()
+        .whileTrue(m_shooterSubsytem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_controller1.x().whileTrue(m_shooterSubsytem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_controller1.y().whileTrue(m_shooterSubsytem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
   }
 
   private void initializeAutonomous() {
     // Network Table Routine Options
     autoDashboardChooser.setDefaultOption("Auto With Balancing", "FullAuto");
+    autoDashboardChooser.setDefaultOption("DriveForward", "DriveForward");
     autoDashboardChooser.addOption("End at cones", "EndAtCones");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
     SmartDashboard.putData(autoDashboardChooser);
@@ -144,6 +195,8 @@ public class RobotContainer {
     // NamedCommands.registerCommand("A", new PathFollowingCommand(m_driveSubsystem,
     // pathGroup.get(0)));
     NamedCommands.registerCommand("BalanceRobot", m_balanceCommand);
+    NamedCommands.registerCommand(
+        "BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
 
     // autoBuilder =
     //     new RamseteAutoBuilder(
@@ -194,11 +247,6 @@ public class RobotContainer {
   // for autonomous
   public DefaultDrive getDefaultDrive() {
     return m_defaultDrive;
-  }
-
-  // to swap camera type.
-  public Trigger getCameraButton() {
-    return m_switchCameraButton;
   }
 
   // for future SmartDashboard uses.

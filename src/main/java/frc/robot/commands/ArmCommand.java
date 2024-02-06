@@ -4,9 +4,12 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.ShooterState;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.utils.HelperFunctions;
 import java.util.function.DoubleSupplier;
 
 /** An example command that uses an example subsystem. */
@@ -16,7 +19,7 @@ public class ArmCommand extends Command {
 
   private final ShooterState m_shooterState;
   private final DoubleSupplier m_yAxis;
-  private final double kMaxRotationsPerInput = 1000;
+  private final double kMaxRadiansPerInput = Units.degreesToRadians(5);
 
   /**
    * Creates a new ExampleCommand.
@@ -38,12 +41,14 @@ public class ArmCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_yAxis.getAsDouble() != 0.0) {
-      m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRotationsPerInput);
+    if (!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE)) {
+      m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
 
     } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
       m_ArmSubsystem.lowerArm();
       m_shooterState.setLowered();
+    } else {
+      m_ArmSubsystem.stop();
     }
   }
 
