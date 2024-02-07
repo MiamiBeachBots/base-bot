@@ -25,16 +25,19 @@ public class ArmSubsystem extends SubsystemBase {
   private final SparkPIDController m_armMainPIDController;
   private final RelativeEncoder m_MainEncoder;
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
-  private final double kminArmAngle =
-      Units.degreesToRadians(
-          0); // this is needed for the feedforward control, basically min angle relative to flat on
-  // floor.
   private static double kDt = 0.02; // 20ms (update rate for wpilib)
   private final double ksArmVolts = 0.0;
   private final double kgArmGravityGain = 0.0;
   private final double kvArmVoltSecondsPerMeter = 0.0;
   private final double kaArmVoltSecondsSquaredPerMeter = 0.0;
-  private final double kLoweredArmPositionRadians = Units.degreesToRadians(45);
+  private final double kMinArmAngleRadians = Units.degreesToRadians(0);
+  private final double kMaxArmAngleRadians = Units.degreesToRadians(150);
+  private final double kArmLoadAngleRadians =
+      Units.degreesToRadians(45); // angle to be when recieving ring
+  private final double kArmSpeakerAngleRadians =
+      Units.degreesToRadians(50); // angle to be when shooting into speaker
+  private final double kArmAmpAngleRadians =
+      Units.degreesToRadians(45); // angle to be when shooting into amp
   private final double karmMaxVelocity = 2; // m/s
   private final double karmMaxAcceleration = 1; // m/s^2
   // general drive constants
@@ -124,7 +127,24 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void lowerArm() {
     // move to set lowered arm position
-    MoveArmToPosition(kLoweredArmPositionRadians);
+    MoveArmToPosition(kMinArmAngleRadians);
+  }
+
+  public void rasieArm() {
+    // move to set raised arm position
+    MoveArmToPosition(kMaxArmAngleRadians);
+  }
+
+  public void moveArmToLoad() {
+    MoveArmToPosition(kArmLoadAngleRadians);
+  }
+
+  public void moveArmToAmp() {
+    MoveArmToPosition(kArmAmpAngleRadians);
+  }
+
+  public void moveArmToSpeaker() {
+    MoveArmToPosition(kArmSpeakerAngleRadians);
   }
 
   /*
@@ -134,8 +154,9 @@ public class ArmSubsystem extends SubsystemBase {
     m_stopped = false;
     // update the motion profile with new goal
     // add minimum starting angle to the target angle to get the real angle
-    double total_radians = radians + kminArmAngle;
-    m_goal = new TrapezoidProfile.State(total_radians, 0); // set the goal
+    double final_radians = Math.max(radians, kMinArmAngleRadians);
+    final_radians = Math.min(final_radians, kMaxArmAngleRadians);
+    m_goal = new TrapezoidProfile.State(radians, 0); // set the goal
   }
 
   /*
