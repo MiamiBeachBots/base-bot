@@ -89,9 +89,16 @@ public class RobotContainer {
   private Trigger m_toggleBrakeButton;
   private Trigger m_lifterUpButton;
   private Trigger m_lifterDownButton;
-  private JoystickButton m_aimButton;
-  private JoystickButton m_fireButton;
   private Trigger m_driveToSpeakerButton;
+  //joystick buttons
+  private JoystickButton m_aimButton;
+  private JoystickButton m_armSpeakerButton;
+  private JoystickButton m_armAmpButton;
+  private JoystickButton m_armLoadButton;
+  private JoystickButton m_armLowerButton;
+  private JoystickButton m_armRaiseButton;
+  private JoystickButton m_enableAxisButton;
+  private JoystickButton m_shooterTrigger;
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
@@ -139,7 +146,18 @@ public class RobotContainer {
 
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
-    m_fireButton = new JoystickButton(m_flightStick, Constants.FIREBUTTON);
+    // arm raise buttons
+    m_armLoadButton = new JoystickButton(m_flightStick, Constants.ARMLOADBUTTON);
+    m_armSpeakerButton = new JoystickButton(m_flightStick, Constants.ARMSPEAKERBUTTON);
+    m_armAmpButton = new JoystickButton(m_flightStick, Constants.ARMAMPBUTTON);
+    m_armLowerButton = new JoystickButton(m_flightStick, Constants.ARMLOWERBUTTON);
+    m_armRaiseButton = new JoystickButton(m_flightStick, Constants.ARMRAISEBUTTON);
+    m_enableAxisButton = new JoystickButton(m_flightStick, Constants.ENABLEAXISBUTTON);
+    // load and shoot buttons
+    m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
+
+
+    
   }
 
   private void bindCommands() {

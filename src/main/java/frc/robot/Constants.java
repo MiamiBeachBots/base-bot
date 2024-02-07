@@ -42,7 +42,7 @@ public final class Constants {
 
   // Joystick buttons
   public static final int AIMBUTTON = 12;
-  public static final int FIREBUTTON = 0;
+  public static final int TRIGGER = 0;
 
   // Analog Ports
   /// Ultrasonic Sensors and ports.
