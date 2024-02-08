@@ -43,10 +43,20 @@ public final class Constants {
   // Joystick buttons
   public static final int AIMBUTTON = 12;
   public static final int TRIGGER = 0;
+  public static final int ENABLEAXISBUTTON = 10;
+  public static final int ARMSPEAKERBUTTON = 4;
+  public static final int ARMAMPBUTTON = 3;
+  public static final int ARMLOADBUTTON = 6;
 
   // Analog Ports
   /// Ultrasonic Sensors and ports.
   public static final int ULTRASONICSHOOTERPORT = 0;
 
   // Digital Ports
+
+  // Shooter Speeds (M/s)
+  public static final double SHOOTERSOURCE = -5.0;
+  public static final double SHOOTERAMP = 3.0;
+  public static final double SHOOTERSPEAKER = 5.0;
+  public static final double SHOOTERDEFAULT = 5.0;
 }

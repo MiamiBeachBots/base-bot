@@ -20,6 +20,7 @@ public class ArmCommand extends Command {
   private final ShooterState m_shooterState;
   private final DoubleSupplier m_yAxis;
   private final double kMaxRadiansPerInput = Units.degreesToRadians(5);
+  private final int lastMode = 0;
 
   /**
    * Creates a new ExampleCommand.
@@ -41,14 +42,38 @@ public class ArmCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE)) {
-      m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
+    if (!m_shooterState.shooting) {
+      if (!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE)
+          && m_shooterState.axisEnabled) {
+        m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
 
-    } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
-      m_ArmSubsystem.lowerArm();
-      m_shooterState.setLowered();
-    } else {
-      m_ArmSubsystem.stop();
+      } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
+        m_ArmSubsystem.lowerArm();
+        m_shooterState.setLowered();
+      } else if (!m_shooterState.isLoaded & !m_shooterState.isLowered) {
+        m_ArmSubsystem.lowerArm();
+      } else if (lastMode != m_shooterState.mode) {
+        followState();
+      } else {
+        m_ArmSubsystem.stop();
+      }
+    }
+  }
+
+  private void followState() {
+    switch (m_shooterState.mode) {
+      case ShooterState.ShooterMode.SOURCE:
+        m_ArmSubsystem.moveArmToLoad();
+        break;
+      case ShooterState.ShooterMode.AMP:
+        m_ArmSubsystem.moveArmToAmp();
+        break;
+      case ShooterState.ShooterMode.SPEAKER:
+        m_ArmSubsystem.moveArmToSpeaker();
+        break;
+      default:
+        m_ArmSubsystem.lowerArm();
+        break;
     }
   }
 

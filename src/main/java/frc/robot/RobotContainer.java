@@ -78,7 +78,8 @@ public class RobotContainer {
       new UltrasonicShooterCommand(m_ultrasonicShooterSubsystem, m_shooterState);
   private final ArmCommand m_armCommand =
       new ArmCommand(m_armSubsystem, m_shooterState, this::GetFlightStickY);
-  private final ShooterCommand m_shooterCommand = new ShooterCommand(m_shooterSubsytem);
+  private final ShooterCommand m_shooterCommand =
+      new ShooterCommand(m_shooterSubsytem, m_shooterState);
   private final LifterUpCommand m_lifterUpCommand = new LifterUpCommand(m_lifterSubsystem);
   private final LifterDownCommand m_lifterDownCommand = new LifterDownCommand(m_lifterSubsystem);
 
@@ -90,13 +91,11 @@ public class RobotContainer {
   private Trigger m_lifterUpButton;
   private Trigger m_lifterDownButton;
   private Trigger m_driveToSpeakerButton;
-  //joystick buttons
+  // joystick buttons
   private JoystickButton m_aimButton;
-  private JoystickButton m_armSpeakerButton;
-  private JoystickButton m_armAmpButton;
-  private JoystickButton m_armLoadButton;
-  private JoystickButton m_armLowerButton;
-  private JoystickButton m_armRaiseButton;
+  private JoystickButton m_armRaiseToSpeakerButton;
+  private JoystickButton m_armRaiseToAmpButton;
+  private JoystickButton m_armWheelLoadButton;
   private JoystickButton m_enableAxisButton;
   private JoystickButton m_shooterTrigger;
   // Init For Autonomous
@@ -147,17 +146,12 @@ public class RobotContainer {
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     // arm raise buttons
-    m_armLoadButton = new JoystickButton(m_flightStick, Constants.ARMLOADBUTTON);
-    m_armSpeakerButton = new JoystickButton(m_flightStick, Constants.ARMSPEAKERBUTTON);
-    m_armAmpButton = new JoystickButton(m_flightStick, Constants.ARMAMPBUTTON);
-    m_armLowerButton = new JoystickButton(m_flightStick, Constants.ARMLOWERBUTTON);
-    m_armRaiseButton = new JoystickButton(m_flightStick, Constants.ARMRAISEBUTTON);
+    m_armWheelLoadButton = new JoystickButton(m_flightStick, Constants.ARMLOADBUTTON);
+    m_armRaiseToSpeakerButton = new JoystickButton(m_flightStick, Constants.ARMSPEAKERBUTTON);
+    m_armRaiseToAmpButton = new JoystickButton(m_flightStick, Constants.ARMAMPBUTTON);
     m_enableAxisButton = new JoystickButton(m_flightStick, Constants.ENABLEAXISBUTTON);
     // load and shoot buttons
     m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
-
-
-    
   }
 
   private void bindCommands() {
@@ -165,11 +159,19 @@ public class RobotContainer {
     m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_aimButton.whileTrue(m_aimCommand);
-    m_fireButton.whileTrue(m_shooterCommand);
     m_driveToSpeakerButton.whileTrue(m_driveToSpeaker);
     m_lifterUpButton.whileTrue(m_lifterUpCommand);
     m_lifterDownButton.whileTrue(m_lifterDownCommand);
     m_toggleBrakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SwitchBrakemode()));
+    // shooter + arm commands
+    m_shooterTrigger.whileTrue(m_shooterCommand);
+    m_armRaiseToSpeakerButton.whileTrue(
+        new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.SPEAKER)));
+    m_armRaiseToAmpButton.whileTrue(
+        new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.AMP)));
+    m_armWheelLoadButton.whileTrue(
+        new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.SOURCE)));
+    m_enableAxisButton.whileTrue(new InstantCommand(() -> m_shooterState.toggleAxis()));
   }
 
   private void bindDriveSysIDCommands() {
