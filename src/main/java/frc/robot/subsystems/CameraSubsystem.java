@@ -22,7 +22,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 public class CameraSubsystem extends SubsystemBase {
   private final DriveSubsystem m_driveSubsystem;
   public final AprilTagFieldLayout aprilTagFieldLayout;
-  private final String frontCameraName = "OV5647";
+  private final String frontCameraName = "cam";
   private final PhotonCamera frontCamera;
   public PhotonPipelineResult frontCameraResult;
   // Physical location of camera relative to center
