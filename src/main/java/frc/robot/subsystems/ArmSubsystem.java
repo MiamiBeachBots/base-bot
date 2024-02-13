@@ -43,7 +43,7 @@ public class ArmSubsystem extends SubsystemBase {
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
-  private final double kGearRatio = 1; // TBD
+  private final double kGearRatio = 48; // TBD, 48:1 / kGearRatio:1
   // basically converted from rotations to radians by multiplying by 2 pi, then adjusting for the
   // gear ratio by dividing by the gear ratio.
   // remember that 2pi radians in 360 degrees.
