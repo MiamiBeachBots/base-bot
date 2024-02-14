@@ -19,8 +19,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
+import frc.robot.ShooterState;
 
 public class ArmSubsystem extends SubsystemBase {
+  private final ShooterState m_shooterState;
   private final CANSparkMax m_armMotorMain;
   private final SparkPIDController m_armMainPIDController;
   private final RelativeEncoder m_MainEncoder;
@@ -61,7 +63,8 @@ public class ArmSubsystem extends SubsystemBase {
   private final SysIdRoutine m_sysIdRoutine;
 
   /** Creates a new ArmSubsystem. */
-  public ArmSubsystem() {
+  public ArmSubsystem(ShooterState shooterState) {
+    m_shooterState = shooterState;
     // create the arm motors
     m_armMotorMain = new CANSparkMax(CANConstants.MOTORARMMAINID, CANSparkMax.MotorType.kBrushless);
 
@@ -75,9 +78,9 @@ public class ArmSubsystem extends SubsystemBase {
     // setup the encoders
     m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
     // PID coefficients
-    kP = 0.1;
-    kI = 1e-4;
-    kD = 1;
+    kP = 0.0625;
+    kI = 0;
+    kD = 0;
     kIz = 0;
     kMaxOutput = 1;
     kMinOutput = -1;
@@ -88,6 +91,7 @@ public class ArmSubsystem extends SubsystemBase {
     m_armMainPIDController.setD(kD);
     m_armMainPIDController.setIZone(kIz);
     m_armMainPIDController.setOutputRange(kMinOutput, kMaxOutput);
+    m_armMotorMain.burnFlash();
 
     // setup SysID for auto profiling
     m_sysIdRoutine =
@@ -187,6 +191,7 @@ public class ArmSubsystem extends SubsystemBase {
         CANSparkBase.ControlType.kPosition,
         0,
         m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
+    m_shooterState.updateDash();
   }
 
   @Override

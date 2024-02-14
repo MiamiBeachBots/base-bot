@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /*
  * ShooterState.java
  * Tracks the status of a ring loaded in the shooter
@@ -55,5 +57,13 @@ public class ShooterState {
       default:
         return Constants.SHOOTERDEFAULT;
     }
+  }
+
+  public void updateDash() {
+    SmartDashboard.putBoolean("Manual Arm Mode Enabled", axisEnabled);
+    SmartDashboard.putNumber("Arm Mode", mode);
+    SmartDashboard.putBoolean("Loaded", isLoaded);
+    SmartDashboard.putBoolean("Lowered", isLowered);
+    SmartDashboard.putBoolean("Arm Shooting", shooting);
   }
 }

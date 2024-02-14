@@ -41,17 +41,13 @@ public final class Constants {
   // Now In RobotContainer as Native Triggers.
 
   // Joystick buttons
-  public static final int TRIGGER = 1;  
-  public static final int ARMAMPBUTTON = 3; 
+  public static final int TRIGGER = 1;
+  public static final int ARMAMPBUTTON = 3;
   public static final int ARMSPEAKERBUTTON = 4;
   public static final int ARMDEFAULTBUTTON = 5;
   public static final int ARMLOADBUTTON = 6;
-   public static final int ENABLEAXISBUTTON = 10;
+  public static final int ENABLEAXISBUTTON = 10;
   public static final int AIMBUTTON = 12;
-  
-  
-
-
 
   // Analog Ports
   /// Ultrasonic Sensors and ports.

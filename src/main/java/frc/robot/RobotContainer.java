@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.simulation.JoystickSim;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -63,7 +62,7 @@ public class RobotContainer {
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
-  private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
+  private final ArmSubsystem m_armSubsystem = new ArmSubsystem(m_shooterState);
   private final ShooterSubsystem m_shooterSubsytem = new ShooterSubsystem();
   private final LifterSubsystem m_lifterSubsystem = new LifterSubsystem();
   // The robots commands are defined here..
@@ -153,7 +152,7 @@ public class RobotContainer {
     m_armRaiseToAmpButton = new JoystickButton(m_flightStick, Constants.ARMAMPBUTTON);
     m_enableAxisButton = new JoystickButton(m_flightStick, Constants.ENABLEAXISBUTTON);
     m_armDefault = new JoystickButton(m_flightStick, Constants.ARMDEFAULTBUTTON);
-    
+
     // load and shoot buttons
     m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
   }
