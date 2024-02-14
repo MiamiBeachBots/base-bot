@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.simulation.JoystickSim;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -98,6 +99,7 @@ public class RobotContainer {
   private JoystickButton m_armWheelLoadButton;
   private JoystickButton m_enableAxisButton;
   private JoystickButton m_shooterTrigger;
+  private JoystickButton m_armDefault;
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
@@ -150,6 +152,8 @@ public class RobotContainer {
     m_armRaiseToSpeakerButton = new JoystickButton(m_flightStick, Constants.ARMSPEAKERBUTTON);
     m_armRaiseToAmpButton = new JoystickButton(m_flightStick, Constants.ARMAMPBUTTON);
     m_enableAxisButton = new JoystickButton(m_flightStick, Constants.ENABLEAXISBUTTON);
+    m_armDefault = new JoystickButton(m_flightStick, Constants.ARMDEFAULTBUTTON);
+    
     // load and shoot buttons
     m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
   }
