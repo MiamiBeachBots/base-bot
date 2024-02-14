@@ -78,7 +78,7 @@ public class ArmSubsystem extends SubsystemBase {
     // setup the encoders
     m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
     // PID coefficients
-    kP = 0.0625;
+    kP = 0.9;
     kI = 0;
     kD = 0;
     kIz = 0;
