@@ -114,8 +114,8 @@ public class RobotContainer {
     setupTriggers();
     // Bind the commands to the triggers
     if (enableAutoProfiling) {
-      bindDriveSysIDCommands();
-      // bindArmSysIDCommands();
+      // bindDriveSysIDCommands();
+      bindArmSysIDCommands();
       // bindShooterSysIDCommands();
     } else {
       bindCommands();
