@@ -21,6 +21,7 @@ import frc.robot.Constants.CANConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   private final CANSparkMax m_ShooterMotorMain;
+  private final CANSparkMax m_ShooterMotorSecondary;
   private final SparkPIDController m_ShooterMainPIDController;
   private RelativeEncoder m_ShooterMainEncoder;
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput, kMaxSpeed;
@@ -28,7 +29,7 @@ public class ShooterSubsystem extends SubsystemBase {
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
   private final double kWheelDiameter = Units.inchesToMeters(6); // meters
-  private final double kGearRatio = 1; // TBD
+  private final double kGearRatio = 4; // TBD
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
   private final double kVelocityConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio / 60;
@@ -49,9 +50,12 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem() {
     // create the shooter motors
     m_ShooterMotorMain =
-        new CANSparkMax(CANConstants.MOTORSHOOTERID, CANSparkMax.MotorType.kBrushless);
+        new CANSparkMax(CANConstants.MOTORSHOOTERLEFTID, CANSparkMax.MotorType.kBrushless);
+    m_ShooterMotorSecondary = new CANSparkMax(CANConstants.MOTORSHOOTERRIGHTID, CANSparkMax.MotorType.kBrushless);
     // set the idle mode to coast
-    m_ShooterMotorMain.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_ShooterMotorMain.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_ShooterMotorSecondary.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_ShooterMotorSecondary.follow(m_ShooterMotorMain, true);
 
     // connect to built in PID controller
     m_ShooterMainPIDController = m_ShooterMotorMain.getPIDController();
@@ -82,6 +86,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 (voltage) -> this.setVoltage(voltage),
                 null, // No log consumer, since data is recorded by URCL
                 this));
+    m_ShooterMotorMain.burnFlash();
+    m_ShooterMotorSecondary.burnFlash();
   }
 
   public void setVoltage(Measure<Voltage> voltage) {

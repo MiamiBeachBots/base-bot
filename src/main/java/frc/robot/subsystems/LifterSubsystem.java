@@ -16,6 +16,10 @@ public class LifterSubsystem extends SubsystemBase {
   public LifterSubsystem() {
     m_left = new CANSparkMax(CANConstants.MOTORLIFTERLEFTID, CANSparkMax.MotorType.kBrushless);
     m_right = new CANSparkMax(CANConstants.MOTORLIFTERRIGHTID, CANSparkMax.MotorType.kBrushless);
+    m_left.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_right.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_left.burnFlash();
+    m_right.burnFlash();
   }
 
   public void leftUp(double speed) {
