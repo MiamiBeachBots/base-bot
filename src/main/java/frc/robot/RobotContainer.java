@@ -98,7 +98,7 @@ public class RobotContainer {
   private JoystickButton m_armWheelLoadButton;
   private JoystickButton m_enableAxisButton;
   private JoystickButton m_shooterTrigger;
-  private JoystickButton m_armDefault;
+  private JoystickButton m_armRaiseToDefault;
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
@@ -151,7 +151,7 @@ public class RobotContainer {
     m_armRaiseToSpeakerButton = new JoystickButton(m_flightStick, Constants.ARMSPEAKERBUTTON);
     m_armRaiseToAmpButton = new JoystickButton(m_flightStick, Constants.ARMAMPBUTTON);
     m_enableAxisButton = new JoystickButton(m_flightStick, Constants.ENABLEAXISBUTTON);
-    m_armDefault = new JoystickButton(m_flightStick, Constants.ARMDEFAULTBUTTON);
+    m_armRaiseToDefault = new JoystickButton(m_flightStick, Constants.ARMDEFAULTBUTTON);
 
     // load and shoot buttons
     m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
@@ -174,6 +174,8 @@ public class RobotContainer {
         new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.AMP)));
     m_armWheelLoadButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.SOURCE)));
+    m_armRaiseToDefault.whileTrue(
+        new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.DEFAULT)));
     m_enableAxisButton.whileTrue(new InstantCommand(() -> m_shooterState.toggleAxis()));
   }
 
