@@ -51,7 +51,8 @@ public class ShooterSubsystem extends SubsystemBase {
     // create the shooter motors
     m_ShooterMotorMain =
         new CANSparkMax(CANConstants.MOTORSHOOTERLEFTID, CANSparkMax.MotorType.kBrushless);
-    m_ShooterMotorSecondary = new CANSparkMax(CANConstants.MOTORSHOOTERRIGHTID, CANSparkMax.MotorType.kBrushless);
+    m_ShooterMotorSecondary =
+        new CANSparkMax(CANConstants.MOTORSHOOTERRIGHTID, CANSparkMax.MotorType.kBrushless);
     // set the idle mode to coast
     m_ShooterMotorMain.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_ShooterMotorSecondary.setIdleMode(CANSparkMax.IdleMode.kBrake);
