@@ -28,16 +28,16 @@ public class ShooterSubsystem extends SubsystemBase {
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
-  private final double kWheelDiameter = Units.inchesToMeters(6); // meters
+  private final double kWheelDiameter = Units.inchesToMeters(4); // meters
   private final double kGearRatio = 4; // TBD
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
   private final double kVelocityConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio / 60;
 
   // setup feedforward
-  private final double ksShooterVolts = 0.0;
-  private final double kvDriveVoltSecondsPerMeter = 0.0;
-  private final double kaDriveVoltSecondsSquaredPerMeter = 0.0;
+  private final double ksShooterVolts = 0.17875;
+  private final double kvDriveVoltSecondsPerMeter = 1.5442;
+  private final double kaDriveVoltSecondsSquaredPerMeter = 0.019079;
 
   SimpleMotorFeedforward m_shooterFeedForward =
       new SimpleMotorFeedforward(
@@ -65,7 +65,7 @@ public class ShooterSubsystem extends SubsystemBase {
     m_ShooterMainEncoder = m_ShooterMotorMain.getEncoder();
     m_ShooterMainEncoder.setVelocityConversionFactor(kVelocityConversionRatio);
     // PID coefficients
-    kP = 6e-5;
+    kP = 0.00032423;
     kI = 0;
     kD = 0;
     kIz = 0;

@@ -57,8 +57,8 @@ public final class Constants {
   // Digital Ports
 
   // Shooter Speeds (M/s)
-  public static final double SHOOTERSOURCE = -5.0;
-  public static final double SHOOTERAMP = 3.0;
-  public static final double SHOOTERSPEAKER = 5.0;
-  public static final double SHOOTERDEFAULT = 5.0;
+  public static final double SHOOTERSOURCE = -20.0;
+  public static final double SHOOTERAMP = 20.0;
+  public static final double SHOOTERSPEAKER = 8.0;
+  public static final double SHOOTERDEFAULT = 8.0;
 }

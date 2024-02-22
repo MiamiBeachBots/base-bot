@@ -44,6 +44,7 @@ public class ShooterCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     m_shooterState.shooting = false;
+    m_shooterSubsystem.StopShooter();
   }
 
   // Returns true when the command should end.
