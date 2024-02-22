@@ -42,6 +42,7 @@ public class ArmSubsystem extends SubsystemBase {
       Units.degreesToRadians(45); // angle to be when shooting into amp
   private final double karmMaxVelocity = 2; // m/s
   private final double karmMaxAcceleration = 1; // m/s^2
+  private boolean kPIDEnabled = true;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
@@ -178,19 +179,23 @@ public class ArmSubsystem extends SubsystemBase {
     m_MainEncoder.setPosition(0);
   }
 
+  public void disablePID() {
+    kPIDEnabled = false;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
-    // update the setpoint
-    m_setpoint = m_armTrapezoidProfile.calculate(kDt, m_setpoint, m_goal);
-
-    // Call the controller and feedforward with the target position and velocity
-    m_armMainPIDController.setReference(
-        m_setpoint.position,
-        CANSparkBase.ControlType.kPosition,
-        0,
-        m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
+    if (kPIDEnabled) {
+      // update the setpoint
+      m_setpoint = m_armTrapezoidProfile.calculate(kDt, m_setpoint, m_goal);
+      // Call the controller and feedforward with the target position and velocity
+      m_armMainPIDController.setReference(
+          m_setpoint.position,
+          CANSparkBase.ControlType.kPosition,
+          0,
+          m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
+    }
     m_shooterState.updateDash();
   }
 

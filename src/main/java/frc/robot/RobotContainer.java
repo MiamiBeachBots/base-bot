@@ -193,6 +193,7 @@ public class RobotContainer {
     m_controller1.x().whileTrue(m_armSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     m_controller1.y().whileTrue(m_armSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
+    m_armSubsystem.disablePID();
   }
 
   private void bindShooterSysIDCommands() {
