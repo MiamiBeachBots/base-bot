@@ -8,16 +8,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 
 public class ShooterState {
-  public final class ShooterMode {
-    public static final int DEFAULT = 0;
-    public static final int SOURCE = 1;
-    public static final int AMP = 2;
-    public static final int SPEAKER = 3;
-  }
 
   public boolean isLoaded = false;
   public boolean isLowered = false;
-  public int mode = ShooterMode.SOURCE;
+
+  public enum ShooterMode {
+    DEFAULT,
+    SOURCE,
+    AMP,
+    SPEAKER,
+    STOP
+  };
+
+  public ShooterMode mode = ShooterMode.DEFAULT;
   public boolean axisEnabled = false;
   public boolean shooting = false;
 
@@ -27,7 +30,7 @@ public class ShooterState {
     isLoaded = true;
   }
 
-  public void setMode(int newMode) {
+  public void setMode(ShooterMode newMode) {
     mode = newMode;
   }
 
@@ -48,11 +51,11 @@ public class ShooterState {
 
   public double getShooterSpeed() {
     switch (mode) {
-      case ShooterMode.SOURCE: // TODO
+      case SOURCE: // TODO
         return Constants.SHOOTERSOURCE;
-      case ShooterMode.AMP:
+      case AMP:
         return Constants.SHOOTERAMP;
-      case ShooterMode.SPEAKER:
+      case SPEAKER:
         return Constants.SHOOTERSPEAKER;
       default:
         return Constants.SHOOTERDEFAULT;
@@ -61,7 +64,7 @@ public class ShooterState {
 
   public void updateDash() {
     SmartDashboard.putBoolean("Manual Arm Mode Enabled", axisEnabled);
-    SmartDashboard.putNumber("Arm Mode", mode);
+    SmartDashboard.putString("Arm Mode", mode.name());
     SmartDashboard.putBoolean("Loaded", isLoaded);
     SmartDashboard.putBoolean("Lowered", isLowered);
     SmartDashboard.putBoolean("Arm Shooting", shooting);

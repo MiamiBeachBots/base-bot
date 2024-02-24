@@ -20,7 +20,6 @@ public class ArmCommand extends Command {
   private final ShooterState m_shooterState;
   private final DoubleSupplier m_yAxis;
   private final double kMaxRadiansPerInput = Units.degreesToRadians(5);
-  private final int lastMode = 0;
 
   /**
    * Creates a new ExampleCommand.
@@ -51,27 +50,28 @@ public class ArmCommand extends Command {
         m_shooterState.setLowered();
       } else if (!m_shooterState.isLoaded & !m_shooterState.isLowered) {
         m_ArmSubsystem.lowerArm();
-      } else if (lastMode != m_shooterState.mode) {
-        followState();
       } else {
-        m_ArmSubsystem.stop();
+        followState();
       }
     }
   }
 
   private void followState() {
     switch (m_shooterState.mode) {
-      case ShooterState.ShooterMode.SOURCE:
+      case SOURCE:
         m_ArmSubsystem.moveArmToLoad();
         break;
-      case ShooterState.ShooterMode.AMP:
+      case AMP:
         m_ArmSubsystem.moveArmToAmp();
         break;
-      case ShooterState.ShooterMode.SPEAKER:
+      case SPEAKER:
         m_ArmSubsystem.moveArmToSpeaker();
         break;
-      default:
+      case DEFAULT:
         m_ArmSubsystem.lowerArm();
+        break;
+      case STOP:
+        m_ArmSubsystem.stop();
         break;
     }
   }
