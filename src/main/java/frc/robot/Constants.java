@@ -45,7 +45,7 @@ public final class Constants {
   public static final int TRIGGER = 1;
   public static final int ARMAMPBUTTON = 3;
   public static final int ARMSPEAKERBUTTON = 4;
-  public static final int ARMDEFAULTBUTTON = 5;
+  public static final int ARMDEFAULTBUTTON = 2;
   public static final int ARMLOADBUTTON = 6;
   public static final int ENABLEAXISBUTTON = 10;
   public static final int AIMBUTTON = 12;
@@ -56,9 +56,15 @@ public final class Constants {
 
   // Digital Ports
 
+  // Shooter Angles
+  public static final double ARMANGLEOFFSET = 22.5; // WHY MaTH HURT
+  public static final double ARMLOADANGLE = 45;
+  public static final double ARMSPEAKERANGLE =
+      70; // our start is like 40 degrees or something lol - ma
+  public static final double ARMAMPANGLE = 50;
   // Shooter Speeds (M/s)
-  public static final double SHOOTERSOURCE = -20.0;
-  public static final double SHOOTERAMP = 20.0;
+  public static final double SHOOTERSOURCE = -8.0;
+  public static final double SHOOTERAMP = 3.0;
   public static final double SHOOTERSPEAKER = 8.0;
-  public static final double SHOOTERDEFAULT = 8.0;
+  public static final double SHOOTERDEFAULT = 8.0; // somewhere around 8 is the cap - ma
 }
