@@ -15,9 +15,11 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.ShooterState;
 
@@ -32,16 +34,16 @@ public class ArmSubsystem extends SubsystemBase {
   private final double kgArmGravityGain = 0.1711;
   private final double kvArmVoltSecondsPerMeter = 0.0022383;
   private final double kaArmVoltSecondsSquaredPerMeter = 0.00041162;
-  private final double kMinArmAngleRadians = Units.degreesToRadians(0);
-  private final double kMaxArmAngleRadians = Units.degreesToRadians(190);
+  private final double kMinArmAngleRadians = Units.degreesToRadians(Constants.ARMSTARTINGANGLE);
+  private final double kMaxArmAngleRadians = Units.degreesToRadians(90);
   private final double kArmLoadAngleRadians =
-      Units.degreesToRadians(45); // angle to be when recieving ring
+      Units.degreesToRadians(Constants.ARMLOADANGLE); // angle to be when recieving ring
   private final double kArmSpeakerAngleRadians =
-      Units.degreesToRadians(50); // angle to be when shooting into speaker
+      Units.degreesToRadians(Constants.ARMSPEAKERANGLE); // angle to be when shooting into speaker
   private final double kArmAmpAngleRadians =
-      Units.degreesToRadians(45); // angle to be when shooting into amp
-  private final double karmMaxVelocity = 0.025; // m/s
-  private final double karmMaxAcceleration = 0.005; // m/s^2
+      Units.degreesToRadians(Constants.ARMAMPANGLE); // angle to be when shooting into amp
+  private final double karmMaxVelocity = 1.0; // m/s
+  private final double karmMaxAcceleration = 0.5; // m/s^2
   private boolean kPIDEnabled = true;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
@@ -79,6 +81,7 @@ public class ArmSubsystem extends SubsystemBase {
     m_MainEncoder = m_armMotorMain.getEncoder();
     // setup the encoders
     m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
+    m_MainEncoder.setPosition(Units.degreesToRadians(Constants.ARMSTARTINGANGLE));
     // PID coefficients
     kP = 1.0935;
     kI = 0;
@@ -176,10 +179,6 @@ public class ArmSubsystem extends SubsystemBase {
     }
   }
 
-  public void zeroEncoders() {
-    m_MainEncoder.setPosition(0);
-  }
-
   public void disablePID() {
     kPIDEnabled = false;
   }
@@ -198,6 +197,8 @@ public class ArmSubsystem extends SubsystemBase {
           m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
     }
     m_shooterState.updateDash();
+    SmartDashboard.putNumber(
+        "Current Arm Angle (Degrees)", Units.radiansToDegrees(m_MainEncoder.getPosition()));
   }
 
   @Override
