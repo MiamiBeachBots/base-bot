@@ -26,15 +26,16 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
-import frc.robot.commands.LifterDownCommand;
-import frc.robot.commands.LifterUpCommand;
+import frc.robot.commands.LeftLifterCommand;
+import frc.robot.commands.RightLifterCommand;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.StraightCommand;
 import frc.robot.commands.UltrasonicShooterCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.LifterSubsystem;
+import frc.robot.subsystems.LeftLifterSubsystem;
+import frc.robot.subsystems.RightLifterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 
@@ -64,7 +65,8 @@ public class RobotContainer {
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem(m_shooterState);
   private final ShooterSubsystem m_shooterSubsytem = new ShooterSubsystem();
-  private final LifterSubsystem m_lifterSubsystem = new LifterSubsystem();
+  private final LeftLifterSubsystem m_leftLifterSubsystem = new LeftLifterSubsystem();
+  private final RightLifterSubsystem m_rightLifterSubsystem = new RightLifterSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -80,17 +82,20 @@ public class RobotContainer {
       new ArmCommand(m_armSubsystem, m_shooterState, this::GetFlightStickY);
   private final ShooterCommand m_shooterCommand =
       new ShooterCommand(m_shooterSubsytem, m_shooterState);
-  private final LifterUpCommand m_lifterUpCommand = new LifterUpCommand(m_lifterSubsystem);
-  private final LifterDownCommand m_lifterDownCommand = new LifterDownCommand(m_lifterSubsystem);
+  private final LeftLifterCommand m_LeftLifterCommand =
+      new LeftLifterCommand(m_leftLifterSubsystem);
+  private final RightLifterCommand m_RightLifterCommand =
+      new RightLifterCommand(m_rightLifterSubsystem);
 
   private Command m_driveToSpeaker;
   // Init Buttons
-  private Trigger m_balanceButton;
+  // private Trigger m_balanceButton;
   private Trigger m_straightButton;
   private Trigger m_toggleBrakeButton;
-  private Trigger m_lifterUpButton;
-  private Trigger m_lifterDownButton;
+  private Trigger m_lifterRightButton;
+  private Trigger m_lifterLeftButton;
   private Trigger m_driveToSpeakerButton;
+  private Trigger m_lifterDirectionButton;
   // joystick buttons
   private JoystickButton m_aimButton;
   private JoystickButton m_armRaiseToSpeakerButton;
@@ -138,11 +143,11 @@ public class RobotContainer {
   private void setupTriggers() {
     // Controller buttons
     m_toggleBrakeButton = m_controller1.x();
-    m_lifterUpButton = m_controller1.a();
-    m_lifterDownButton = m_controller1.b();
-    m_balanceButton = m_controller1.rightBumper();
-    m_straightButton = m_controller1.rightTrigger();
+    m_straightButton = m_controller1.rightBumper();
+    m_lifterRightButton = m_controller1.rightTrigger();
+    m_lifterLeftButton = m_controller1.leftTrigger();
     m_driveToSpeakerButton = m_controller1.y();
+    m_lifterDirectionButton = m_controller1.a();
 
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
@@ -159,12 +164,15 @@ public class RobotContainer {
 
   private void bindCommands() {
     // commands
-    m_balanceButton.whileTrue(m_balanceCommand);
+    // m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_aimButton.whileTrue(m_aimCommand);
     m_driveToSpeakerButton.whileTrue(m_driveToSpeaker);
-    m_lifterUpButton.whileTrue(m_lifterUpCommand);
-    m_lifterDownButton.whileTrue(m_lifterDownCommand);
+    m_lifterRightButton.whileTrue(m_RightLifterCommand);
+    m_lifterLeftButton.whileTrue(m_LeftLifterCommand);
+    m_lifterDirectionButton.whileTrue(
+        new InstantCommand(() -> m_leftLifterSubsystem.changeDirection())
+            .andThen(new InstantCommand(() -> m_rightLifterSubsystem.changeDirection())));
     m_toggleBrakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SwitchBrakemode()));
     // shooter + arm commands
     m_shooterTrigger.whileTrue(m_shooterCommand);

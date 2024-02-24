@@ -5,22 +5,19 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
-import frc.robot.subsystems.LifterSubsystem;
+import frc.robot.subsystems.LeftLifterSubsystem;
 
 /** Lifter Command using the Lifter Subsystem. */
-public class LifterDownCommand extends Command {
+public class LeftLifterCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final LifterSubsystem m_lifterSubsystem;
-
-  private final double speed = Constants.LIFTERSPEED;
+  private final LeftLifterSubsystem m_lifterSubsystem;
 
   /**
    * Creates a new LifterDownCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public LifterDownCommand(LifterSubsystem l_subsystem) {
+  public LeftLifterCommand(LeftLifterSubsystem l_subsystem) {
     m_lifterSubsystem = l_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(l_subsystem);
@@ -33,14 +30,13 @@ public class LifterDownCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_lifterSubsystem.leftDown(speed);
-    m_lifterSubsystem.rightDown(speed);
+    m_lifterSubsystem.activateLeft();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_lifterSubsystem.stop();
+    m_lifterSubsystem.stopLeft();
   }
 
   // Returns true when the command should end.
