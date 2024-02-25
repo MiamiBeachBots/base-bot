@@ -83,12 +83,12 @@ public class ArmSubsystem extends SubsystemBase {
     m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
     m_MainEncoder.setPosition(Units.degreesToRadians(Constants.ARMSTARTINGANGLE));
     // PID coefficients
-    kP = 1.0935;
+    kP = 1.7496;
     kI = 0;
-    kD = 0.0042903;
+    kD = 0.0068645;
     kIz = 0;
-    kMaxOutput = 0.25;
-    kMinOutput = -0.25;
+    kMaxOutput = 0.4;
+    kMinOutput = -0.4;
 
     // set PID coefficients
     m_armMainPIDController.setP(kP);
