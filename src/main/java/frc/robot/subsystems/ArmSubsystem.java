@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -28,14 +29,15 @@ public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax m_armMotorMain;
   private final SparkPIDController m_armMainPIDController;
   private final RelativeEncoder m_MainEncoder;
+  private final AbsoluteEncoder m_AbsoluteEncoder;
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   private static double kDt = 0.02; // 20ms (update rate for wpilib)
   private final double ksArmVolts = 0.08521;
   private final double kgArmGravityGain = 0.1711;
   private final double kvArmVoltSecondsPerMeter = 0.0022383;
   private final double kaArmVoltSecondsSquaredPerMeter = 0.00041162;
-  private final double kMinArmAngleRadians = Units.degreesToRadians(Constants.ARMSTARTINGANGLE);
-  private final double kMaxArmAngleRadians = Units.degreesToRadians(90);
+  private final double kMinArmAngleRadians = Units.degreesToRadians(Constants.ARMMINRELATVESTART);
+  private final double kMaxArmAngleRadians = Units.degreesToRadians(Constants.ARMMAXRELATIVE);
   private final double kArmLoadAngleRadians =
       Units.degreesToRadians(Constants.ARMLOADANGLE); // angle to be when recieving ring
   private final double kArmSpeakerAngleRadians =
@@ -53,6 +55,7 @@ public class ArmSubsystem extends SubsystemBase {
   // gear ratio by dividing by the gear ratio.
   // remember that 2pi radians in 360 degrees.
   private final double kRadiansConversionRatio = (Math.PI * 2) / kGearRatio;
+  private final double kAbsoluteRadiansConversionRatio = (Math.PI * 2);
   private final ArmFeedforward m_armFeedforward =
       new ArmFeedforward(
           ksArmVolts, kgArmGravityGain, kvArmVoltSecondsPerMeter, kaArmVoltSecondsSquaredPerMeter);
@@ -79,9 +82,13 @@ public class ArmSubsystem extends SubsystemBase {
     m_armMainPIDController = m_armMotorMain.getPIDController();
     // allow us to read the encoder
     m_MainEncoder = m_armMotorMain.getEncoder();
+    m_AbsoluteEncoder = m_armMotorMain.getAbsoluteEncoder();
+    m_AbsoluteEncoder.setInverted(false);
+    m_AbsoluteEncoder.setPositionConversionFactor(kAbsoluteRadiansConversionRatio);
+    // m_AbsoluteEncoder.setZeroOffset(Constants.ARMENCODEROFFSET);
     // setup the encoders
     m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
-    m_MainEncoder.setPosition(Units.degreesToRadians(Constants.ARMSTARTINGANGLE));
+    m_MainEncoder.setPosition(Units.degreesToRadians(Constants.ARMMINRELATVESTART));
     // PID coefficients
     kP = 1.7496;
     kI = 0;
@@ -96,6 +103,7 @@ public class ArmSubsystem extends SubsystemBase {
     m_armMainPIDController.setD(kD);
     m_armMainPIDController.setIZone(kIz);
     m_armMainPIDController.setOutputRange(kMinOutput, kMaxOutput);
+    m_armMainPIDController.setFeedbackDevice(m_AbsoluteEncoder);
     m_armMotorMain.burnFlash();
 
     // setup SysID for auto profiling
@@ -198,7 +206,11 @@ public class ArmSubsystem extends SubsystemBase {
     }
     m_shooterState.updateDash();
     SmartDashboard.putNumber(
-        "Current Arm Angle (Degrees)", Units.radiansToDegrees(m_MainEncoder.getPosition()));
+        "Current Arm Angle (Degrees) (Relative)",
+        Units.radiansToDegrees(m_MainEncoder.getPosition()));
+    SmartDashboard.putNumber(
+        "Current Arm Angle (Degrees) (Absolute)",
+        Units.radiansToDegrees(m_AbsoluteEncoder.getPosition()));
   }
 
   @Override

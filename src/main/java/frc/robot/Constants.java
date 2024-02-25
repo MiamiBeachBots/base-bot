@@ -57,11 +57,14 @@ public final class Constants {
   // Digital Ports
 
   // Shooter Angles
+  public static final double ARMENCODEROFFSET = 0.8457221;
   public static final double ARMSTARTINGANGLE = 22.5; // WHY MaTH HURT
-  public static final double ARMLOADANGLE = 65;
+  public static final double ARMMINRELATVESTART = 0.0;
+  public static final double ARMLOADANGLE = 65 - ARMSTARTINGANGLE;
   public static final double ARMSPEAKERANGLE =
-      60; // our start is like 40 degrees or something lol - ma
-  public static final double ARMAMPANGLE = 98;
+      60 - ARMSTARTINGANGLE; // our start is like 40 degrees or something lol - ma
+  public static final double ARMAMPANGLE = 98 - ARMSTARTINGANGLE;
+  public static final double ARMMAXRELATIVE = 100 - ARMSTARTINGANGLE;
   // Shooter Speeds (M/s)
   public static final double SHOOTERSOURCE = -6.0;
   public static final double SHOOTERAMP = 2.4;
