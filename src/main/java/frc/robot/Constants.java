@@ -53,6 +53,8 @@ public final class Constants {
   // Analog Ports
   /// Ultrasonic Sensors and ports.
   public static final int ULTRASONICSHOOTERPORT = 0;
+  public static final int ARMLIMITSWITCHBACK = 1;
+  public static final int ARMLIMITSWITCHFRONT = 2;
 
   // Digital Ports
 
