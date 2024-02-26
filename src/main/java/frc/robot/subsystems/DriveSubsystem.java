@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
+import frc.robot.Constants;
 import frc.robot.DriveConstants;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
@@ -76,8 +77,8 @@ public class DriveSubsystem extends SubsystemBase {
   static final double turn_P = 0.1;
   static final double turn_I = 0.00;
   static final double turn_D = 0.00;
-  static final double MaxTurnRateDegPerS = 20;
-  static final double MaxTurnAccelerationDegPerSSquared = 50;
+  static final double MaxTurnRateDegPerS = 5;
+  static final double MaxTurnAccelerationDegPerSSquared = 10;
   static final double TurnToleranceDeg = 3; // max diff in degrees
   static final double TurnRateToleranceDegPerS = 10; // degrees per second
   // false when inactive, true when active / a target is set.
@@ -370,7 +371,7 @@ public class DriveSubsystem extends SubsystemBase {
     }
     double leftStickValue = joystickMagnitude + angleRate;
     double rightStickValue = joystickMagnitude - angleRate;
-    this.tankDrive(leftStickValue, rightStickValue);
+    this.tankDrive((leftStickValue * Constants.MAX_SPEED), (rightStickValue * Constants.MAX_SPEED));
   }
 
   /*
