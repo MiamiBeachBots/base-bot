@@ -32,10 +32,10 @@ public class ArmSubsystem extends SubsystemBase {
   private final AbsoluteEncoder m_AbsoluteEncoder;
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   private static double kDt = 0.02; // 20ms (update rate for wpilib)
-  private final double ksArmVolts = 0.08521;
-  private final double kgArmGravityGain = 0.1711;
-  private final double kvArmVoltSecondsPerMeter = 0.0022383;
-  private final double kaArmVoltSecondsSquaredPerMeter = 0.00041162;
+  private final double ksArmVolts = 0.62208;
+  private final double kgArmGravityGain = 0.23678;
+  private final double kvArmVoltSecondsPerMeter = 1.4195;
+  private final double kaArmVoltSecondsSquaredPerMeter = 0.44504;
   private final double kMinArmAngleRadians = Units.degreesToRadians(Constants.ARMMINRELATVESTART);
   private final double kMaxArmAngleRadians = Units.degreesToRadians(Constants.ARMMAXRELATIVE);
   private final double kArmLoadAngleRadians =
@@ -44,8 +44,8 @@ public class ArmSubsystem extends SubsystemBase {
       Units.degreesToRadians(Constants.ARMSPEAKERANGLE); // angle to be when shooting into speaker
   private final double kArmAmpAngleRadians =
       Units.degreesToRadians(Constants.ARMAMPANGLE); // angle to be when shooting into amp
-  private final double karmMaxVelocity = 1.0; // m/s
-  private final double karmMaxAcceleration = 0.5; // m/s^2
+  private final double karmMaxVelocity = 0.25; // rad/s
+  private final double karmMaxAcceleration = 0.10; // rad/s^2
   private boolean kPIDEnabled = true;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
@@ -94,9 +94,9 @@ public class ArmSubsystem extends SubsystemBase {
     m_MainEncoder.setVelocityConversionFactor(kVelocityConversionRatio);
     m_MainEncoder.setPosition(Units.degreesToRadians(Constants.ARMMINRELATVESTART));
     // PID coefficients
-    kP = 1.7496;
+    kP = 2.3142;
     kI = 0;
-    kD = 0.0068645;
+    kD = 0.0;
     kIz = 0;
     kMaxOutput = 0.4;
     kMinOutput = -0.4;

@@ -60,7 +60,8 @@ public final class Constants {
 
   // Shooter Angles
   public static final double ARMENCODEROFFSET = 2.8378526;
-  public static final double ARMSTARTINGANGLE = 22.5; // WHY MaTH HURT
+  public static final double ARMSTARTINGANGLEOFFSET = -2.2;
+  public static final double ARMSTARTINGANGLE = 22.5 + ARMSTARTINGANGLEOFFSET; // WHY MaTH HURT
   public static final double ARMMINRELATVESTART = 0.0;
   public static final double ARMLOADANGLE = 65 - ARMSTARTINGANGLE;
   public static final double ARMSPEAKERANGLE =

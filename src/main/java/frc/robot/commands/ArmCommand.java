@@ -42,10 +42,12 @@ public class ArmCommand extends Command {
   @Override
   public void execute() {
     if (!m_shooterState.shooting) {
-      if ((!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE))
-          && m_shooterState.axisEnabled) {
-        m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
-      } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
+      if (m_shooterState.axisEnabled) {
+          if ((!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE))) {
+            m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
+          }
+        }
+      else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
         m_ArmSubsystem.lowerArm();
         m_shooterState.setLowered();
       } else if (!m_shooterState.isLoaded & !m_shooterState.isLowered) {

@@ -26,15 +26,15 @@ public class CameraSubsystem extends SubsystemBase {
   private final PhotonCamera frontCamera;
   public PhotonPipelineResult frontCameraResult;
   // Physical location of camera relative to center
-  private final double CameraLocationXMeters = 0.5;
-  private final double CameraLocationYMeters = 0.0;
-  private final double CameraLocationZMeters = 0.5;
+  private final double CameraLocationXMeters = Units.inchesToMeters(6);
+  private final double CameraLocationYMeters = Units.inchesToMeters(9.3);
+  private final double CameraLocationZMeters = Units.inchesToMeters(10.5);
   // angle of camera / orientation
 
   // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-  private final double CameraRollRadians = Units.degreesToRadians(0.5);
+  private final double CameraRollRadians = Units.degreesToRadians(90);
   private final double CameraPitchRadians = Units.degreesToRadians(0.0);
-  private final double CameraYawRadians = Units.degreesToRadians(0.5);
+  private final double CameraYawRadians = Units.degreesToRadians(0);
 
   private final Transform3d frontCameraLocation =
       new Transform3d(

@@ -36,9 +36,9 @@ public class ShooterSubsystem extends SubsystemBase {
   private final double kVelocityConversionRatio = kPositionConversionRatio / 60;
 
   // setup feedforward
-  private final double ksShooterVolts = 0.17875;
-  private final double kvDriveVoltSecondsPerMeter = 1.5442;
-  private final double kaDriveVoltSecondsSquaredPerMeter = 0.019079;
+  private final double ksShooterVolts = 0.2063;
+  private final double kvDriveVoltSecondsPerMeter = 1.5611;
+  private final double kaDriveVoltSecondsSquaredPerMeter = 0.1396;
 
   SimpleMotorFeedforward m_shooterFeedForward =
       new SimpleMotorFeedforward(
@@ -67,7 +67,7 @@ public class ShooterSubsystem extends SubsystemBase {
     m_ShooterMainEncoder.setPositionConversionFactor(kPositionConversionRatio);
     m_ShooterMainEncoder.setVelocityConversionFactor(kVelocityConversionRatio);
     // PID coefficients
-    kP = 0.00032423;
+    kP = 0.00013373;
     kI = 0;
     kD = 0;
     kIz = 0;
