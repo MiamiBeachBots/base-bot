@@ -53,13 +53,13 @@ public final class Constants {
   // Analog Ports
   /// Ultrasonic Sensors and ports.
   public static final int ULTRASONICSHOOTERPORT = 0;
-  public static final int ARMLIMITSWITCHBACK = 1;
-  public static final int ARMLIMITSWITCHFRONT = 2;
 
   // Digital Ports
+  public static final int ARMLIMITSWITCHBACK = 0;
+  public static final int ARMLIMITSWITCHFRONT = 1;
 
   // Shooter Angles
-  public static final double ARMENCODEROFFSET = 0.8457221;
+  public static final double ARMENCODEROFFSET = 2.8378526;
   public static final double ARMSTARTINGANGLE = 22.5; // WHY MaTH HURT
   public static final double ARMMINRELATVESTART = 0.0;
   public static final double ARMLOADANGLE = 65 - ARMSTARTINGANGLE;

@@ -55,7 +55,9 @@ public class ArmSubsystem extends SubsystemBase {
   // gear ratio by dividing by the gear ratio.
   // remember that 2pi radians in 360 degrees.
   private final double kRadiansConversionRatio = (Math.PI * 2) / kGearRatio;
+  private final double kVelocityConversionRatio = kRadiansConversionRatio / 60;
   private final double kAbsoluteRadiansConversionRatio = (Math.PI * 2);
+  private final double kAbsoluteVelocityConversionRatio = kAbsoluteRadiansConversionRatio / 60;
   private final ArmFeedforward m_armFeedforward =
       new ArmFeedforward(
           ksArmVolts, kgArmGravityGain, kvArmVoltSecondsPerMeter, kaArmVoltSecondsSquaredPerMeter);
@@ -85,9 +87,11 @@ public class ArmSubsystem extends SubsystemBase {
     m_AbsoluteEncoder = m_armMotorMain.getAbsoluteEncoder();
     m_AbsoluteEncoder.setInverted(false);
     m_AbsoluteEncoder.setPositionConversionFactor(kAbsoluteRadiansConversionRatio);
+    m_AbsoluteEncoder.setVelocityConversionFactor(kAbsoluteVelocityConversionRatio);
     // m_AbsoluteEncoder.setZeroOffset(Constants.ARMENCODEROFFSET);
     // setup the encoders
     m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
+    m_MainEncoder.setVelocityConversionFactor(kVelocityConversionRatio);
     m_MainEncoder.setPosition(Units.degreesToRadians(Constants.ARMMINRELATVESTART));
     // PID coefficients
     kP = 1.7496;
@@ -104,6 +108,8 @@ public class ArmSubsystem extends SubsystemBase {
     m_armMainPIDController.setIZone(kIz);
     m_armMainPIDController.setOutputRange(kMinOutput, kMaxOutput);
     m_armMainPIDController.setFeedbackDevice(m_AbsoluteEncoder);
+    // m_armMotorMain.setSoftLimit(SoftLimitDirection.kReverse, kMinArmAngleRadians));
+    // m_armMotorMain.setSoftLimit(SoftLimitDirection.kForward, kMaxArmAngleRadians);
     m_armMotorMain.burnFlash();
 
     // setup SysID for auto profiling

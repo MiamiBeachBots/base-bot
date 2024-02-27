@@ -30,8 +30,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.CANConstants;
 import frc.robot.Constants;
+import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */

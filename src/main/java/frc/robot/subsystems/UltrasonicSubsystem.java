@@ -5,6 +5,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** This Subsystem is what translates the output of the ultrasonic sensor to standard units. */
@@ -34,6 +35,7 @@ public class UltrasonicSubsystem extends SubsystemBase {
     // SmartDashboard.putNumber("Ultrasonic Sensor Distance", getRangeInches(ultrasonic1));
     // Calculate what percentage of 5 Volts we are actually at
     voltageScaleFactor = 5 / RobotController.getVoltage5V();
+    SmartDashboard.putNumber("Ring Distance", DistanceIn());
   }
 
   @Override
