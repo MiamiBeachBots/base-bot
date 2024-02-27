@@ -32,8 +32,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private final double kGearRatio = 4; // TBD
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
-  private final double kPositionConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio; 
-  private final double kVelocityConversionRatio =  kPositionConversionRatio / 60;
+  private final double kPositionConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio;
+  private final double kVelocityConversionRatio = kPositionConversionRatio / 60;
 
   // setup feedforward
   private final double ksShooterVolts = 0.17875;
