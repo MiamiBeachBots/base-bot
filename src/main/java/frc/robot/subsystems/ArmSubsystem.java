@@ -12,10 +12,12 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.ShooterState;
+import frc.robot.utils.HelperFunctions;
 
 public class ArmSubsystem extends SubsystemBase {
   private final ShooterState m_shooterState;
@@ -32,10 +35,10 @@ public class ArmSubsystem extends SubsystemBase {
   private final AbsoluteEncoder m_AbsoluteEncoder;
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   private static double kDt = 0.02; // 20ms (update rate for wpilib)
-  private final double ksArmVolts = 0.62208;
-  private final double kgArmGravityGain = 0.23678;
-  private final double kvArmVoltSecondsPerMeter = 1.4195;
-  private final double kaArmVoltSecondsSquaredPerMeter = 0.44504;
+  private final double ksArmVolts = 0.31531;
+  private final double kgArmGravityGain = 0.19588;
+  private final double kvArmVoltSecondsPerMeter = 2.0638;
+  private final double kaArmVoltSecondsSquaredPerMeter = 0.37994;
   private final double kMinArmAngleRadians = Units.degreesToRadians(Constants.ARMMINRELATVESTART);
   private final double kMaxArmAngleRadians = Units.degreesToRadians(Constants.ARMMAXRELATIVE);
   private final double kArmLoadAngleRadians =
@@ -44,8 +47,8 @@ public class ArmSubsystem extends SubsystemBase {
       Units.degreesToRadians(Constants.ARMSPEAKERANGLE); // angle to be when shooting into speaker
   private final double kArmAmpAngleRadians =
       Units.degreesToRadians(Constants.ARMAMPANGLE); // angle to be when shooting into amp
-  private final double karmMaxVelocity = 0.25; // rad/s
-  private final double karmMaxAcceleration = 0.10; // rad/s^2
+  private final double karmMaxVelocity = 1.0; // rad/s
+  private final double karmMaxAcceleration = 0.5; // rad/s^2
   private boolean kPIDEnabled = true;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
@@ -70,11 +73,20 @@ public class ArmSubsystem extends SubsystemBase {
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
 
+  // setup front limit switch for rest
+  private final DigitalInput m_frontLimit;
+
+  private boolean m_frontLimitState = false;
+  private final Debouncer m_frontLimitDebouncer = new Debouncer(0.2, Debouncer.DebounceType.kBoth);
+
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem(ShooterState shooterState) {
     m_shooterState = shooterState;
     // create the arm motors
     m_armMotorMain = new CANSparkMax(CANConstants.MOTORARMMAINID, CANSparkMax.MotorType.kBrushless);
+
+    // front limit switch
+    m_frontLimit = new DigitalInput(Constants.ARMLIMITSWITCHFRONT);
 
     // set the idle mode to brake
     m_armMotorMain.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -92,11 +104,11 @@ public class ArmSubsystem extends SubsystemBase {
     // setup the encoders
     m_MainEncoder.setPositionConversionFactor(kRadiansConversionRatio);
     m_MainEncoder.setVelocityConversionFactor(kVelocityConversionRatio);
-    m_MainEncoder.setPosition(Units.degreesToRadians(Constants.ARMMINRELATVESTART));
+    matchEncoders();
     // PID coefficients
     kP = 2.3142;
     kI = 0;
-    kD = 0.0;
+    kD = 0.23128;
     kIz = 0;
     kMaxOutput = 0.4;
     kMinOutput = -0.4;
@@ -107,7 +119,7 @@ public class ArmSubsystem extends SubsystemBase {
     m_armMainPIDController.setD(kD);
     m_armMainPIDController.setIZone(kIz);
     m_armMainPIDController.setOutputRange(kMinOutput, kMaxOutput);
-    m_armMainPIDController.setFeedbackDevice(m_AbsoluteEncoder);
+    m_armMainPIDController.setFeedbackDevice(m_MainEncoder);
     // m_armMotorMain.setSoftLimit(SoftLimitDirection.kReverse, kMinArmAngleRadians));
     // m_armMotorMain.setSoftLimit(SoftLimitDirection.kForward, kMaxArmAngleRadians);
     m_armMotorMain.burnFlash();
@@ -197,6 +209,23 @@ public class ArmSubsystem extends SubsystemBase {
     kPIDEnabled = false;
   }
 
+  public void matchEncoders() {
+    m_MainEncoder.setPosition(m_AbsoluteEncoder.getPosition());
+  }
+
+  public double getError() {
+    return m_AbsoluteEncoder.getPosition() - m_MainEncoder.getPosition();
+  }
+
+  private boolean atGoal() {
+    return HelperFunctions.inDeadzone(
+        m_goal.position - m_MainEncoder.getPosition(), Units.degreesToRadians(3));
+  }
+
+  private boolean ArmStopped() {
+    return HelperFunctions.inDeadzone(m_goal.velocity, 0.01);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -209,14 +238,28 @@ public class ArmSubsystem extends SubsystemBase {
           CANSparkBase.ControlType.kPosition,
           0,
           m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
+      if (atGoal() && ArmStopped() && !m_stopped) {
+        m_stopped = true;
+        double cur_error = getError();
+        if (!HelperFunctions.inDeadzone(cur_error, Units.degreesToRadians(3))) {
+          matchEncoders();
+        }
+      }
+    }
+    if (m_frontLimitState != !m_frontLimitDebouncer.calculate(m_frontLimit.get())) {
+      m_frontLimitState = !m_frontLimitDebouncer.calculate(m_frontLimit.get());
+      if (m_frontLimitState) {
+        matchEncoders();
+      }
     }
     m_shooterState.updateDash();
     SmartDashboard.putNumber(
         "Current Arm Angle (Degrees) (Relative)",
-        Units.radiansToDegrees(m_MainEncoder.getPosition()));
+        Units.radiansToDegrees(m_MainEncoder.getPosition()) + Constants.ARMSTARTINGANGLE);
     SmartDashboard.putNumber(
         "Current Arm Angle (Degrees) (Absolute)",
-        Units.radiansToDegrees(m_AbsoluteEncoder.getPosition()));
+        Units.radiansToDegrees(m_AbsoluteEncoder.getPosition()) + Constants.ARMSTARTINGANGLE);
+    SmartDashboard.putBoolean("Front Limit Switch Pressed", !m_frontLimit.get());
   }
 
   @Override

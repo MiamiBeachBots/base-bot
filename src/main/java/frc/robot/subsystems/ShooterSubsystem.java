@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -24,7 +25,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private final CANSparkMax m_ShooterMotorSecondary;
   private final SparkPIDController m_ShooterMainPIDController;
   private RelativeEncoder m_ShooterMainEncoder;
-  private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput, kMaxSpeed;
+  private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
@@ -73,8 +74,6 @@ public class ShooterSubsystem extends SubsystemBase {
     kIz = 0;
     kMaxOutput = 1;
     kMinOutput = -1;
-    kMaxSpeed = 5;
-
     // set PID coefficients
     m_ShooterMainPIDController.setP(kP);
     m_ShooterMainPIDController.setI(kI);
@@ -113,18 +112,15 @@ public class ShooterSubsystem extends SubsystemBase {
         speed, CANSparkBase.ControlType.kVelocity, 0, m_shooterFeedForward.calculate(speed));
   }
 
+  public void SpinAtFull() {
+    m_ShooterMotorMain.set(1);
+  }
+
   /*
    * Stop the shooter
    */
   public void StopShooter() {
     SpinShooter(0);
-  }
-
-  /*
-   * Spin Shooter at max Speed
-   */
-  public void SpinShooterFull() {
-    SpinShooter(kMaxSpeed);
   }
 
   /*
@@ -135,16 +131,10 @@ public class ShooterSubsystem extends SubsystemBase {
         && m_ShooterMainEncoder.getVelocity() < speed + 0.1);
   }
 
-  /*
-   * Check if shooter is at max Speed
-   */
-  public Boolean isAtMaxSpeed() {
-    return isAtSpeedTolerance(kMaxSpeed);
-  }
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Shooter Motor Speed m/s", m_ShooterMainEncoder.getVelocity());
   }
 
   @Override
