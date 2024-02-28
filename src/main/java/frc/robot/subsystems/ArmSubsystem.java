@@ -193,7 +193,7 @@ public class ArmSubsystem extends SubsystemBase {
     // add minimum starting angle to the target angle to get the real angle
     double final_radians = Math.max(radians, kMinArmAngleRadians);
     final_radians = Math.min(final_radians, kMaxArmAngleRadians);
-    if (final_radians != m_goal.position) {
+    if (final_radians != (m_goal.position - m_curOffset))) {
       m_newGoal = true;
       resetOffset();
     }
