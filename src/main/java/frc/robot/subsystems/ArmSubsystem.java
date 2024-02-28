@@ -79,6 +79,9 @@ public class ArmSubsystem extends SubsystemBase {
   private boolean m_frontLimitState = false;
   private final Debouncer m_frontLimitDebouncer = new Debouncer(0.2, Debouncer.DebounceType.kBoth);
 
+  // offset to match the absolute encoder with the main encoder
+  private double m_curOffset = 0.0;
+
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem(ShooterState shooterState) {
     m_shooterState = shooterState;
@@ -192,8 +195,9 @@ public class ArmSubsystem extends SubsystemBase {
     final_radians = Math.min(final_radians, kMaxArmAngleRadians);
     if (final_radians != m_goal.position) {
       m_newGoal = true;
+      resetOffset();
     }
-    m_goal = new TrapezoidProfile.State(radians, 0); // set the goal
+    m_goal = new TrapezoidProfile.State(radians + m_curOffset, 0); // set the goal
   }
 
   /*
@@ -213,6 +217,14 @@ public class ArmSubsystem extends SubsystemBase {
   /** Matches the position of the main encoder with the absolute encoder. */
   public void matchEncoders() {
     m_MainEncoder.setPosition(m_AbsoluteEncoder.getPosition());
+  }
+
+  private void SetOffsetWithEncoder() {
+    m_curOffset = getError();
+  }
+
+  private void resetOffset() {
+    m_curOffset = 0.0;
   }
 
   /**
@@ -264,7 +276,7 @@ public class ArmSubsystem extends SubsystemBase {
         m_newGoal = false; // reset the new goal flag, so that we dont try resyncing encoders again
         double cur_error = getError();
         if (!HelperFunctions.inDeadzone(cur_error, Units.degreesToRadians(3))) {
-          matchEncoders();
+          SetOffsetWithEncoder();
         }
       }
     }
