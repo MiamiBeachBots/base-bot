@@ -68,7 +68,7 @@ public class ArmSubsystem extends SubsystemBase {
       new TrapezoidProfile(new TrapezoidProfile.Constraints(karmMaxVelocity, karmMaxAcceleration));
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
-  private boolean m_stopped = true;
+  private boolean m_newGoal = true;
 
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
@@ -186,11 +186,13 @@ public class ArmSubsystem extends SubsystemBase {
    * Move arm to global position (by updating goal)
    */
   public void MoveArmToPosition(double radians) {
-    m_stopped = false;
     // update the motion profile with new goal
     // add minimum starting angle to the target angle to get the real angle
     double final_radians = Math.max(radians, kMinArmAngleRadians);
     final_radians = Math.min(final_radians, kMaxArmAngleRadians);
+    if (final_radians != m_goal.position) {
+      m_newGoal = true;
+    }
     m_goal = new TrapezoidProfile.State(radians, 0); // set the goal
   }
 
@@ -198,10 +200,9 @@ public class ArmSubsystem extends SubsystemBase {
    * attempt to hold arm at current location
    */
   public void stop() {
-    if (!m_stopped) {
+    if (!atGoal()) {
       // update the PID controller with current encoder position
       MoveArmToPosition(getAverageEncoderPosition());
-      m_stopped = true;
     }
   }
 
@@ -209,21 +210,42 @@ public class ArmSubsystem extends SubsystemBase {
     kPIDEnabled = false;
   }
 
+  /** Matches the position of the main encoder with the absolute encoder. */
   public void matchEncoders() {
     m_MainEncoder.setPosition(m_AbsoluteEncoder.getPosition());
   }
 
+  /**
+   * Calculates the error between the position reported by the absolute encoder and the main
+   * encoder.
+   *
+   * @return The error between the two encoder positions.
+   */
   public double getError() {
     return m_AbsoluteEncoder.getPosition() - m_MainEncoder.getPosition();
   }
 
+  /**
+   * Checks if the arm is at the goal position.
+   *
+   * @return true if the arm is at the goal position, false otherwise.
+   */
   private boolean atGoal() {
     return HelperFunctions.inDeadzone(
         m_goal.position - m_MainEncoder.getPosition(), Units.degreesToRadians(3));
   }
 
+  /**
+   * Checks if the arm is stopped.
+   *
+   * @return true if the arm is stopped, false otherwise.
+   */
   private boolean ArmStopped() {
     return HelperFunctions.inDeadzone(m_goal.velocity, 0.01);
+  }
+
+  private boolean getFrontLimit() {
+    return !m_frontLimitDebouncer.calculate(m_frontLimit.get());
   }
 
   @Override
@@ -238,16 +260,16 @@ public class ArmSubsystem extends SubsystemBase {
           CANSparkBase.ControlType.kPosition,
           0,
           m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
-      if (atGoal() && ArmStopped() && !m_stopped) {
-        m_stopped = true;
+      if (atGoal() && ArmStopped() && m_newGoal) {
+        m_newGoal = false; // reset the new goal flag, so that we dont try resyncing encoders again
         double cur_error = getError();
         if (!HelperFunctions.inDeadzone(cur_error, Units.degreesToRadians(3))) {
           matchEncoders();
         }
       }
     }
-    if (m_frontLimitState != !m_frontLimitDebouncer.calculate(m_frontLimit.get())) {
-      m_frontLimitState = !m_frontLimitDebouncer.calculate(m_frontLimit.get());
+    if (m_frontLimitState != getFrontLimit()) {
+      m_frontLimitState = getFrontLimit();
       if (m_frontLimitState) {
         matchEncoders();
       }
