@@ -63,8 +63,8 @@ public final class Constants {
   public static final double ARMSTARTINGANGLE = 22.5 + ARMENCODEROFFSET; // WHY MaTH HURT
   public static final double ARMMINRELATVESTART = 0.0;
   public static final double ARMLOADANGLE = 45 - ARMSTARTINGANGLE;
-  public static final double ARMSPEAKERANGLE = 65 - ARMSTARTINGANGLE; // to go to 75 you just put 75
-  public static final double ARMAMPANGLE = 100 - ARMSTARTINGANGLE;
+  public static final double ARMSPEAKERANGLE = 75 - ARMSTARTINGANGLE; // to go to 75 you just put 75
+  public static final double ARMAMPANGLE = 105 - ARMSTARTINGANGLE;
   public static final double ARMMAXRELATIVE = 100 - ARMSTARTINGANGLE;
   // Shooter Speeds (M/s)
   public static final double SHOOTERSOURCE = -6.0;

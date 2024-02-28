@@ -78,8 +78,8 @@ public class DriveSubsystem extends SubsystemBase {
   static final double turn_I = 0.00;
   static final double turn_D = 0.00;
   static final double MaxTurnRateDegPerS = 5;
-  static final double MaxTurnAccelerationDegPerSSquared = 10;
-  static final double TurnToleranceDeg = 3; // max diff in degrees
+  static final double MaxTurnAccelerationDegPerSSquared = 5;
+  static final double TurnToleranceDeg = 10; // max diff in degrees
   static final double TurnRateToleranceDegPerS = 10; // degrees per second
   // false when inactive, true when active / a target is set.
   private boolean turnControllerEnabled = false;
