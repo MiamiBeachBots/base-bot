@@ -279,7 +279,7 @@ public class ArmSubsystem extends SubsystemBase {
     return m_curOffset != 0.0;
   }
 
-  private boolean getFrontLimit() {
+  public boolean getFrontLimit() {
     return !m_frontLimitDebouncer.calculate(m_frontLimit.get());
   }
 

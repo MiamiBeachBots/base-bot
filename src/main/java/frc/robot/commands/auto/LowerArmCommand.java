@@ -49,7 +49,7 @@ public class LowerArmCommand extends Command {
   public boolean isFinished() {
     // if the arm is stopped, at goal, and the offset is set, then the command is finished, aka at
     // correct angle
-    if (m_ArmSubsystem.ArmStopped() && m_ArmSubsystem.atGoal() && m_ArmSubsystem.isOffsetSet()) {
+    if (m_ArmSubsystem.ArmStopped() && m_ArmSubsystem.getFrontLimit()) {
       return true;
     } else {
       return false;
