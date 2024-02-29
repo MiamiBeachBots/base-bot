@@ -33,6 +33,7 @@ import frc.robot.commands.StraightCommand;
 import frc.robot.commands.UltrasonicShooterCommand;
 import frc.robot.commands.auto.AimAmpCommand;
 import frc.robot.commands.auto.AimSpeakerCommand;
+import frc.robot.commands.auto.LowerArmCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -93,6 +94,8 @@ public class RobotContainer {
 
   // these commands are used by autonomous only
   private final AimAmpCommand m_AimAmpCommand = new AimAmpCommand(m_armSubsystem, m_shooterState);
+  private final LowerArmCommand m_AimLowerCommand =
+      new LowerArmCommand(m_armSubsystem, m_shooterState);
   private final AimSpeakerCommand m_AimSpeakerCommand =
       new AimSpeakerCommand(m_armSubsystem, m_shooterState);
 
@@ -239,8 +242,8 @@ public class RobotContainer {
 
   private void initializeAutonomous() {
     // Network Table Routine Options
-    autoDashboardChooser.setDefaultOption("ShootSpeaker", "SpeakerAuto");
-    autoDashboardChooser.addOption("ShootAmp", "AmpAuto");
+    autoDashboardChooser.setDefaultOption("ShootSpeakerClose", "ShootSpeakerClose");
+    autoDashboardChooser.addOption("ShootSpeakerFar", "ShootSpeakerFar");
     autoDashboardChooser.addOption("DriveForward", "DriveForward");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
     SmartDashboard.putData(autoDashboardChooser);
@@ -254,7 +257,9 @@ public class RobotContainer {
         "BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     NamedCommands.registerCommand("ShooterCommand", m_shooterCommand);
     NamedCommands.registerCommand("AimSpeakerCommand", m_AimSpeakerCommand);
+    NamedCommands.registerCommand("ArmCommand", m_armCommand);
     NamedCommands.registerCommand("AimAmpCommand", m_AimAmpCommand);
+    NamedCommands.registerCommand("AimLowerCommand", m_AimLowerCommand);
 
     // autoBuilder =
     //     new RamseteAutoBuilder(
