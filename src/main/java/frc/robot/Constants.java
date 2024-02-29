@@ -47,6 +47,7 @@ public final class Constants {
   public static final int ARMSPEAKERBUTTON = 4;
   public static final int ARMDEFAULTBUTTON = 2;
   public static final int ARMLOADBUTTON = 11;
+  public static final int ARMTRAPBUTTON = 9;
   public static final int ENABLEAXISBUTTON = 10;
   public static final int AIMBUTTON = 12;
 
@@ -65,7 +66,7 @@ public final class Constants {
   public static final double ARMLOADANGLE = 35 - ARMSTARTINGANGLE;
   public static final double ARMSPEAKERANGLE = 55 - ARMSTARTINGANGLE; // to go to 75 you just put 75
   public static final double ARMAMPANGLE = 110 - ARMSTARTINGANGLE;
-  public static final double ARMTRAPANGLE = 45 - ARMSTARTINGANGLE;
+  public static final double ARMTRAPANGLE = 60 - ARMSTARTINGANGLE;
   public static final double ARMMAXRELATIVE = 120 - ARMSTARTINGANGLE;
   // Shooter Speeds (M/s)
   public static final double SHOOTERSOURCE = -6.0;

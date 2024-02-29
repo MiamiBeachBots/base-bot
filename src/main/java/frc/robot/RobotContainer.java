@@ -114,6 +114,7 @@ public class RobotContainer {
   private JoystickButton m_aimButton;
   private JoystickButton m_armRaiseToSpeakerButton;
   private JoystickButton m_armRaiseToAmpButton;
+  private JoystickButton m_armRaiseToTrapButton;
   private JoystickButton m_armWheelLoadButton;
   private JoystickButton m_enableAxisButton;
   private JoystickButton m_shooterTrigger;
@@ -170,6 +171,7 @@ public class RobotContainer {
     m_armWheelLoadButton = new JoystickButton(m_flightStick, Constants.ARMLOADBUTTON);
     m_armRaiseToSpeakerButton = new JoystickButton(m_flightStick, Constants.ARMSPEAKERBUTTON);
     m_armRaiseToAmpButton = new JoystickButton(m_flightStick, Constants.ARMAMPBUTTON);
+    m_armRaiseToTrapButton = new JoystickButton(m_flightStick, Constants.ARMTRAPBUTTON);
     m_enableAxisButton = new JoystickButton(m_flightStick, Constants.ENABLEAXISBUTTON);
     m_armRaiseToDefault = new JoystickButton(m_flightStick, Constants.ARMDEFAULTBUTTON);
 
@@ -199,6 +201,8 @@ public class RobotContainer {
         new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.AMP)));
     m_armWheelLoadButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.SOURCE)));
+    m_armRaiseToTrapButton.whileTrue(
+    new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.TRAP)));
     m_armRaiseToDefault.whileTrue(
         new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.DEFAULT)));
     m_enableAxisButton.whileTrue(new InstantCommand(() -> m_shooterState.toggleAxis()));
