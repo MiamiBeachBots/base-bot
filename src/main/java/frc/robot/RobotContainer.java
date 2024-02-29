@@ -31,6 +31,8 @@ import frc.robot.commands.RightLifterCommand;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.StraightCommand;
 import frc.robot.commands.UltrasonicShooterCommand;
+import frc.robot.commands.auto.AimAmpCommand;
+import frc.robot.commands.auto.AimSpeakerCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -89,7 +91,15 @@ public class RobotContainer {
   private final RightLifterCommand m_RightLifterCommand =
       new RightLifterCommand(m_rightLifterSubsystem);
 
+  // these commands are used by autonomous only
+  private final AimAmpCommand m_AimAmpCommand = new AimAmpCommand(m_armSubsystem, m_shooterState);
+  private final AimSpeakerCommand m_AimSpeakerCommand =
+      new AimSpeakerCommand(m_armSubsystem, m_shooterState);
+
+  // this command is used by on the fly path planning
   private Command m_driveToSpeaker;
+  private Command m_driveToAmp;
+  private Command m_driveToSource;
   // Init Buttons
   // private Trigger m_balanceButton;
   private Trigger m_straightButton;
@@ -97,6 +107,8 @@ public class RobotContainer {
   private Trigger m_lifterRightButton;
   private Trigger m_lifterLeftButton;
   private Trigger m_driveToSpeakerButton;
+  private Trigger m_driveToSourceButton;
+  private Trigger m_driveToAmpButton;
   private Trigger m_lifterDirectionButton;
   // joystick buttons
   private JoystickButton m_aimButton;
@@ -149,6 +161,7 @@ public class RobotContainer {
     m_lifterRightButton = m_controller1.rightTrigger();
     m_lifterLeftButton = m_controller1.leftTrigger();
     m_driveToSpeakerButton = m_controller1.y();
+    m_driveToSourceButton = m_controller1.b();
     m_lifterDirectionButton = m_controller1.a();
 
     // Joystick buttons
@@ -170,6 +183,8 @@ public class RobotContainer {
     m_straightButton.whileTrue(m_straightCommand);
     m_aimButton.whileTrue(m_aimCommand);
     m_driveToSpeakerButton.whileTrue(m_driveToSpeaker);
+    // m_driveToAmpButton.whileTrue(m_driveToAmp); // TODO: Need to bind button
+    m_driveToSourceButton.whileTrue(m_driveToSource);
     m_lifterRightButton.whileTrue(m_RightLifterCommand);
     m_lifterLeftButton.whileTrue(m_LeftLifterCommand);
     m_lifterDirectionButton.whileTrue(
@@ -220,9 +235,9 @@ public class RobotContainer {
 
   private void initializeAutonomous() {
     // Network Table Routine Options
-    autoDashboardChooser.setDefaultOption("Auto With Balancing", "FullAuto");
-    autoDashboardChooser.setDefaultOption("DriveForward", "DriveForward");
-    autoDashboardChooser.addOption("End at cones", "EndAtCones");
+    autoDashboardChooser.setDefaultOption("ShootSpeaker", "SpeakerAuto");
+    autoDashboardChooser.addOption("ShootAmp", "AmpAuto");
+    autoDashboardChooser.addOption("DriveForward", "DriveForward");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
     SmartDashboard.putData(autoDashboardChooser);
 
@@ -233,6 +248,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("BalanceRobot", m_balanceCommand);
     NamedCommands.registerCommand(
         "BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
+    NamedCommands.registerCommand("ShooterCommand", m_shooterCommand);
+    NamedCommands.registerCommand("AimSpeakerCommand", m_AimSpeakerCommand);
+    NamedCommands.registerCommand("AimAmpCommand", m_AimAmpCommand);
 
     // autoBuilder =
     //     new RamseteAutoBuilder(
@@ -264,8 +282,12 @@ public class RobotContainer {
         new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
 
     PathPlannerPath speakerPath = PathPlannerPath.fromPathFile("TeleopSpeakerPath");
+    PathPlannerPath ampPath = PathPlannerPath.fromPathFile("TeleopAmpPath");
+    PathPlannerPath sourcePath = PathPlannerPath.fromPathFile("TeleopSourcePath");
 
     m_driveToSpeaker = AutoBuilder.pathfindThenFollowPath(speakerPath, constraints);
+    m_driveToAmp = AutoBuilder.pathfindThenFollowPath(ampPath, constraints);
+    m_driveToSource = AutoBuilder.pathfindThenFollowPath(sourcePath, constraints);
   }
 
   public double getControllerRightY() {

@@ -251,7 +251,7 @@ public class ArmSubsystem extends SubsystemBase {
    *
    * @return true if the arm is at the goal position, false otherwise.
    */
-  private boolean atGoal() {
+  public boolean atGoal() {
     return HelperFunctions.inDeadzone(
         m_goal.position - m_MainEncoder.getPosition(), Units.degreesToRadians(1));
   }
@@ -261,8 +261,12 @@ public class ArmSubsystem extends SubsystemBase {
    *
    * @return true if the arm is stopped, false otherwise.
    */
-  private boolean ArmStopped() {
+  public boolean ArmStopped() {
     return HelperFunctions.inDeadzone(m_goal.velocity, 0.0001);
+  }
+
+  public boolean isOffsetSet() {
+    return m_curOffset != 0.0;
   }
 
   private boolean getFrontLimit() {
