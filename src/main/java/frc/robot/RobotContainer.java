@@ -202,7 +202,7 @@ public class RobotContainer {
     m_armWheelLoadButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.SOURCE)));
     m_armRaiseToTrapButton.whileTrue(
-    new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.TRAP)));
+        new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.TRAP)));
     m_armRaiseToDefault.whileTrue(
         new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.DEFAULT)));
     m_enableAxisButton.whileTrue(new InstantCommand(() -> m_shooterState.toggleAxis()));

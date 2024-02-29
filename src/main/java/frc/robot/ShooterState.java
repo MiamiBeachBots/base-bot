@@ -58,7 +58,7 @@ public class ShooterState {
         return Constants.SHOOTERAMP;
       case SPEAKER:
         return Constants.SHOOTERSPEAKER;
-      case TRAP: 
+      case TRAP:
         return Constants.SHOOTERTRAP;
       default:
         return Constants.SHOOTERDEFAULT;

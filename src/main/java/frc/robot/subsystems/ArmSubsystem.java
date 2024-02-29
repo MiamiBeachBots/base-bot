@@ -49,7 +49,7 @@ public class ArmSubsystem extends SubsystemBase {
       Units.degreesToRadians(Constants.ARMAMPANGLE); // angle to be when shooting into amp
   private final double kArmTrapAngleRadians =
       Units.degreesToRadians(Constants.ARMTRAPANGLE); // angle to be when shooting into trap
-  
+
   private final double karmMaxVelocity = 1.0; // rad/s
   private final double karmMaxAcceleration = 0.5; // rad/s^2
   private boolean kPIDEnabled = true;
@@ -198,6 +198,7 @@ public class ArmSubsystem extends SubsystemBase {
   public void moveArmToSpeaker() {
     MoveArmToPosition(kArmSpeakerAngleRadians);
   }
+
   public void moveArmToTrap() {
     MoveArmToPosition(kArmTrapAngleRadians);
   }
@@ -289,7 +290,6 @@ public class ArmSubsystem extends SubsystemBase {
   public void disableOffset() {
     m_offsetEnabled = true;
   }
-
 
   @Override
   public void periodic() {
