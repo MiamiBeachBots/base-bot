@@ -75,6 +75,9 @@ public class ArmSubsystem extends SubsystemBase {
   // track if goal was changed
   private boolean m_newGoal = true;
 
+  // enable or disable offset
+  private boolean m_offsetEnabled = true;
+
   // last goal pre offset
   private double m_lastGoal = 0.0;
 
@@ -279,6 +282,15 @@ public class ArmSubsystem extends SubsystemBase {
     return !m_frontLimitDebouncer.calculate(m_frontLimit.get());
   }
 
+  public void enableOffset() {
+    m_offsetEnabled = true;
+  }
+
+  public void disableOffset() {
+    m_offsetEnabled = true;
+  }
+
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -291,7 +303,7 @@ public class ArmSubsystem extends SubsystemBase {
           CANSparkBase.ControlType.kPosition,
           0,
           m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
-      if (atGoal() && ArmStopped() && m_newGoal) {
+      if (atGoal() && ArmStopped() && m_newGoal && m_offsetEnabled) {
         double cur_error = getError();
         if (!HelperFunctions.inDeadzone(cur_error, Units.degreesToRadians(5))) {
           SetOffsetWithEncoder();

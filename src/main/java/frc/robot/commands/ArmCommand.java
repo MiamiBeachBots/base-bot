@@ -43,16 +43,20 @@ public class ArmCommand extends Command {
   public void execute() {
     if (!m_shooterState.shooting) {
       if (m_shooterState.axisEnabled) {
-        m_ArmSubsystem.resetOffset();
+        m_ArmSubsystem.disableOffset();
         if ((!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE))) {
           m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
         }
-      } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
+      }
+       else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
+        m_ArmSubsystem.enableOffset();
         m_ArmSubsystem.lowerArm();
         m_shooterState.setLowered();
       } else if (!m_shooterState.isLoaded & !m_shooterState.isLowered) {
+        m_ArmSubsystem.enableOffset();
         m_ArmSubsystem.lowerArm();
       } else {
+        m_ArmSubsystem.enableOffset();
         followState();
       }
     }
