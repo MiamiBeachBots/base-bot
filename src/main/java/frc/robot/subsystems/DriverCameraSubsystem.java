@@ -22,12 +22,14 @@ public class DriverCameraSubsystem extends SubsystemBase {
 
     // set the camera selection to the front camera
     cameraSelection.setString(m_DriverCamera1.getName());
+    // start telemetry
+    //m_DriverCamera1.set
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Driver Camera FPS", m_DriverCamera1.getActualFPS());
+    //SmartDashboard.putNumber("Driver Camera FPS", m_DriverCamera1.getActualFPS());
   }
 
   @Override
