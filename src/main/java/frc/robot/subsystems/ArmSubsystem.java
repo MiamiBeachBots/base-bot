@@ -68,7 +68,7 @@ public class ArmSubsystem extends SubsystemBase {
       new TrapezoidProfile(new TrapezoidProfile.Constraints(karmMaxVelocity, karmMaxAcceleration));
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
-  
+
   // track if goal was changed
   private boolean m_newGoal = true;
 
@@ -285,7 +285,8 @@ public class ArmSubsystem extends SubsystemBase {
         double cur_error = getError();
         if (!HelperFunctions.inDeadzone(cur_error, Units.degreesToRadians(5))) {
           SetOffsetWithEncoder();
-          m_newGoal = false; // reset the new goal flag, so that we dont try resyncing encoders again
+          m_newGoal =
+              false; // reset the new goal flag, so that we dont try resyncing encoders again
           m_goal = new TrapezoidProfile.State(m_lastGoal + m_curOffset, 0); // set the goal
         }
       }
@@ -305,10 +306,11 @@ public class ArmSubsystem extends SubsystemBase {
         Units.radiansToDegrees(m_AbsoluteEncoder.getPosition()) + Constants.ARMSTARTINGANGLE);
     SmartDashboard.putBoolean("Front Limit Switch Pressed", !m_frontLimit.get());
     SmartDashboard.putNumber("Current angle Offset", Units.radiansToDegrees(m_curOffset));
-    SmartDashboard.putNumber("Requested Angle", Units.radiansToDegrees(m_lastGoal) + Constants.ARMSTARTINGANGLE);
-    SmartDashboard.putNumber("Current Goal Angle", Units.radiansToDegrees(m_goal.position) + Constants.ARMSTARTINGANGLE);
+    SmartDashboard.putNumber(
+        "Requested Angle", Units.radiansToDegrees(m_lastGoal) + Constants.ARMSTARTINGANGLE);
+    SmartDashboard.putNumber(
+        "Current Goal Angle", Units.radiansToDegrees(m_goal.position) + Constants.ARMSTARTINGANGLE);
     SmartDashboard.putBoolean("At Goal", atGoal());
-
   }
 
   @Override
