@@ -17,6 +17,7 @@ public class ShooterState {
     SOURCE,
     AMP,
     SPEAKER,
+    TRAP,
     STOP
   };
 
@@ -57,6 +58,8 @@ public class ShooterState {
         return Constants.SHOOTERAMP;
       case SPEAKER:
         return Constants.SHOOTERSPEAKER;
+      case TRAP: 
+        return Constants.SHOOTERTRAP;
       default:
         return Constants.SHOOTERDEFAULT;
     }

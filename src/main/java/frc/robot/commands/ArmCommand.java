@@ -43,6 +43,7 @@ public class ArmCommand extends Command {
   public void execute() {
     if (!m_shooterState.shooting) {
       if (m_shooterState.axisEnabled) {
+        m_ArmSubsystem.resetOffset();
         if ((!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE))) {
           m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
         }
@@ -67,6 +68,9 @@ public class ArmCommand extends Command {
         break;
       case SPEAKER:
         m_ArmSubsystem.moveArmToSpeaker();
+        break;
+      case TRAP:
+        m_ArmSubsystem.moveArmToTrap();
         break;
       case DEFAULT:
         m_ArmSubsystem.lowerArm();
