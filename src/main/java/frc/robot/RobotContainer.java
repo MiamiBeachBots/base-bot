@@ -279,7 +279,7 @@ public class RobotContainer {
   private void configureTeleopPaths() {
     // Limits for all Paths
     PathConstraints constraints =
-        new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+        new PathConstraints(3.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
 
     PathPlannerPath speakerPath = PathPlannerPath.fromPathFile("TeleopSpeakerPath");
     PathPlannerPath ampPath = PathPlannerPath.fromPathFile("TeleopAmpPath");
