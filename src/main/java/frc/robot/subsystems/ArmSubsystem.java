@@ -305,7 +305,7 @@ public class ArmSubsystem extends SubsystemBase {
           m_armFeedforward.calculate(m_setpoint.position, m_setpoint.velocity));
       if (atGoal() && ArmStopped() && m_newGoal && m_offsetEnabled) {
         double cur_error = getError();
-        if (!HelperFunctions.inDeadzone(cur_error, Units.degreesToRadians(5))) {
+        if (!HelperFunctions.inDeadzone(cur_error, Units.degreesToRadians(3))) {
           SetOffsetWithEncoder();
           m_newGoal =
               false; // reset the new goal flag, so that we dont try resyncing encoders again
