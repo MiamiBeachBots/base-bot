@@ -18,6 +18,7 @@ public class LeftLifterSubsystem extends SubsystemBase {
     m_left = new CANSparkMax(CANConstants.MOTORLIFTERLEFTID, CANSparkMax.MotorType.kBrushless);
     m_left.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_left.setInverted(false);
+    m_left.setSmartCurrentLimit(60);
     m_left.burnFlash();
   }
 
