@@ -242,7 +242,9 @@ public class RobotContainer {
 
   private void initializeAutonomous() {
     // Network Table Routine Options
-    autoDashboardChooser.setDefaultOption("ShootSpeakerClose", "ShootSpeakerClose");
+    autoDashboardChooser.setDefaultOption("ShootSpeakerCenter", "ShootSpeakerCenter");
+    autoDashboardChooser.addOption("ShootSpeakerLeft", "ShootSpeakerLeft");
+    autoDashboardChooser.addOption("ShootSpeakerRight", "ShootSpeakerRight");
     autoDashboardChooser.addOption("ShootSpeakerFar", "ShootSpeakerFar");
     autoDashboardChooser.addOption("DriveForward", "DriveForward");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
