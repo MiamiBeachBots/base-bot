@@ -48,6 +48,9 @@ public class ShooterSubsystem extends SubsystemBase {
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
 
+  // current limit
+  private final int k_CurrentLimit = 80;
+
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
     // create the shooter motors
@@ -59,6 +62,8 @@ public class ShooterSubsystem extends SubsystemBase {
     m_ShooterMotorMain.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_ShooterMotorSecondary.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_ShooterMotorSecondary.follow(m_ShooterMotorMain, true);
+    m_ShooterMotorMain.setSmartCurrentLimit(k_CurrentLimit);
+    m_ShooterMotorSecondary.setSmartCurrentLimit(k_CurrentLimit);
 
     // connect to built in PID controller
     m_ShooterMainPIDController = m_ShooterMotorMain.getPIDController();
