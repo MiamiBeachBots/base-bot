@@ -49,6 +49,7 @@ public final class Constants {
   public static final int ARMLOADBUTTON = 11;
   public static final int ARMTRAPBUTTON = 9;
   public static final int ENABLEAXISBUTTON = 10;
+  public static final int ARMDISABLEENCODER = 8;
   public static final int AIMBUTTON = 12;
 
   // Analog Ports

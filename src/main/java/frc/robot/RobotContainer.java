@@ -122,6 +122,7 @@ public class RobotContainer {
   private JoystickButton m_enableAxisButton;
   private JoystickButton m_shooterTrigger;
   private JoystickButton m_armRaiseToDefault;
+  private JoystickButton m_armDisableEncoderButton;
   // Init For Autonomous
   // private RamseteAutoBuilder autoBuilder;
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
@@ -172,6 +173,7 @@ public class RobotContainer {
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     // arm raise buttons
     m_armWheelLoadButton = new JoystickButton(m_flightStick, Constants.ARMLOADBUTTON);
+    m_armDisableEncoderButton = new JoystickButton(m_flightStick, Constants.ARMDISABLEENCODER);
     m_armRaiseToSpeakerButton = new JoystickButton(m_flightStick, Constants.ARMSPEAKERBUTTON);
     m_armRaiseToAmpButton = new JoystickButton(m_flightStick, Constants.ARMAMPBUTTON);
     m_armRaiseToTrapButton = new JoystickButton(m_flightStick, Constants.ARMTRAPBUTTON);
@@ -198,6 +200,7 @@ public class RobotContainer {
     m_toggleBrakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SwitchBrakemode()));
     // shooter + arm commands
     m_shooterTrigger.whileTrue(m_shooterCommand);
+    m_armDisableEncoderButton.whileTrue(new InstantCommand(() -> m_armSubsystem.disableOffset()));
     m_armRaiseToSpeakerButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setMode(ShooterState.ShooterMode.SPEAKER)));
     m_armRaiseToAmpButton.whileTrue(
@@ -242,7 +245,8 @@ public class RobotContainer {
 
   private void initializeAutonomous() {
     // Network Table Routine Options
-    autoDashboardChooser.setDefaultOption("ShootSpeakerCenter", "ShootSpeakerCenter");
+    autoDashboardChooser.setDefaultOption("SFR", "SFR");
+    autoDashboardChooser.addOption("ShootSpeakerCenter", "ShootSpeakerCenter");
     autoDashboardChooser.addOption("ShootSpeakerLeft", "ShootSpeakerLeft");
     autoDashboardChooser.addOption("ShootSpeakerRight", "ShootSpeakerRight");
     autoDashboardChooser.addOption("ShootSpeakerFar", "ShootSpeakerFar");

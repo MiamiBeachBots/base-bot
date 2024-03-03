@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6727105761903848,
-      "y": 4.635503404956002
+      "x": 0.75,
+      "y": 4.35
     },
-    "rotation": 180.0
+    "rotation": 120.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "BrakeCommand"
+          }
+        },
         {
           "type": "sequential",
           "data": {
@@ -65,7 +71,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SpeakerToLine"
+            "pathName": "SFR1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SFR2"
           }
         }
       ]
