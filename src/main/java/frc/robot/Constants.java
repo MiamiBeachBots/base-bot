@@ -22,7 +22,8 @@ public final class Constants {
     /// Arm Motors
     public static final int MOTORARMMAINID = 21;
     /// Shooter Motors
-    public static final int MOTORSHOOTERID = 31;
+    public static final int MOTORSHOOTERLEFTID = 31;
+    public static final int MOTORSHOOTERRIGHTID = 32;
     /// Lifter Motors
     public static final int MOTORLIFTERLEFTID = 41;
     public static final int MOTORLIFTERRIGHTID = 42;
@@ -41,12 +42,37 @@ public final class Constants {
   // Now In RobotContainer as Native Triggers.
 
   // Joystick buttons
+  public static final int TRIGGER = 1;
+  public static final int ARMAMPBUTTON = 3;
+  public static final int ARMSPEAKERBUTTON = 4;
+  public static final int ARMDEFAULTBUTTON = 2;
+  public static final int ARMLOADBUTTON = 11;
+  public static final int ARMTRAPBUTTON = 9;
+  public static final int ENABLEAXISBUTTON = 10;
+  public static final int ARMDISABLEENCODER = 8;
   public static final int AIMBUTTON = 12;
-  public static final int FIREBUTTON = 0;
 
   // Analog Ports
   /// Ultrasonic Sensors and ports.
   public static final int ULTRASONICSHOOTERPORT = 0;
 
   // Digital Ports
+  public static final int ARMLIMITSWITCHFRONT = 0;
+  public static final int ARMLIMITSWITCHBACK = 1;
+
+  // Shooter Angles
+  public static final double ARMENCODEROFFSET = -2.45;
+  public static final double ARMSTARTINGANGLE = 22.5 + ARMENCODEROFFSET; // WHY MaTH HURT
+  public static final double ARMMINRELATVESTART = 0.0;
+  public static final double ARMLOADANGLE = 35 - ARMSTARTINGANGLE;
+  public static final double ARMSPEAKERANGLE = 59 - ARMSTARTINGANGLE; // to go to 75 you just put 75
+  public static final double ARMAMPANGLE = 110 - ARMSTARTINGANGLE;
+  public static final double ARMTRAPANGLE = 63 - ARMSTARTINGANGLE;
+  public static final double ARMMAXRELATIVE = 120 - ARMSTARTINGANGLE;
+  // Shooter Speeds (M/s)
+  public static final double SHOOTERSOURCE = -6.0;
+  public static final double SHOOTERAMP = 3;
+  public static final double SHOOTERSPEAKER = 20.0;
+  public static final double SHOOTERTRAP = 8.0;
+  public static final double SHOOTERDEFAULT = 8.0; // somewhere around 8 is the cap - ma
 }

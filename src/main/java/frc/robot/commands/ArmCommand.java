@@ -41,14 +41,46 @@ public class ArmCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE)) {
-      m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
+    if (!m_shooterState.shooting) {
+      if (m_shooterState.axisEnabled) {
+        m_ArmSubsystem.disableOffset();
+        if ((!HelperFunctions.inDeadzone(m_yAxis.getAsDouble(), Constants.CONTROLLERDEADZONE))) {
+          m_ArmSubsystem.MoveArmRelative(m_yAxis.getAsDouble() * kMaxRadiansPerInput);
+        }
+      } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
+        m_ArmSubsystem.enableOffset();
+        m_ArmSubsystem.lowerArm();
+        m_shooterState.setLowered();
+      } else if (!m_shooterState.isLoaded & !m_shooterState.isLowered) {
+        m_ArmSubsystem.enableOffset();
+        m_ArmSubsystem.lowerArm();
+      } else {
+        m_ArmSubsystem.enableOffset();
+        followState();
+      }
+    }
+  }
 
-    } else if (m_shooterState.isLoaded & !m_shooterState.isLowered) {
-      m_ArmSubsystem.lowerArm();
-      m_shooterState.setLowered();
-    } else {
-      m_ArmSubsystem.stop();
+  private void followState() {
+    switch (m_shooterState.mode) {
+      case SOURCE:
+        m_ArmSubsystem.moveArmToLoad();
+        break;
+      case AMP:
+        m_ArmSubsystem.moveArmToAmp();
+        break;
+      case SPEAKER:
+        m_ArmSubsystem.moveArmToSpeaker();
+        break;
+      case TRAP:
+        m_ArmSubsystem.moveArmToTrap();
+        break;
+      case DEFAULT:
+        m_ArmSubsystem.lowerArm();
+        break;
+      case STOP:
+        m_ArmSubsystem.stop();
+        break;
     }
   }
 

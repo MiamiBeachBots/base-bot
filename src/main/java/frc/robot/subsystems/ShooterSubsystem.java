@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -21,22 +22,24 @@ import frc.robot.Constants.CANConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   private final CANSparkMax m_ShooterMotorMain;
+  private final CANSparkMax m_ShooterMotorSecondary;
   private final SparkPIDController m_ShooterMainPIDController;
   private RelativeEncoder m_ShooterMainEncoder;
-  private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput, kMaxSpeed;
+  private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
-  private final double kWheelDiameter = Units.inchesToMeters(6); // meters
-  private final double kGearRatio = 1; // TBD
+  private final double kWheelDiameter = Units.inchesToMeters(4); // meters
+  private final double kGearRatio = 4; // TBD
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
-  private final double kVelocityConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio / 60;
+  private final double kPositionConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio;
+  private final double kVelocityConversionRatio = kPositionConversionRatio / 60;
 
   // setup feedforward
-  private final double ksShooterVolts = 0.0;
-  private final double kvDriveVoltSecondsPerMeter = 0.0;
-  private final double kaDriveVoltSecondsSquaredPerMeter = 0.0;
+  private final double ksShooterVolts = 0.2063;
+  private final double kvDriveVoltSecondsPerMeter = 1.5611;
+  private final double kaDriveVoltSecondsSquaredPerMeter = 0.1396;
 
   SimpleMotorFeedforward m_shooterFeedForward =
       new SimpleMotorFeedforward(
@@ -45,29 +48,37 @@ public class ShooterSubsystem extends SubsystemBase {
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
 
+  // current limit
+  private final int k_CurrentLimit = 80;
+
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
     // create the shooter motors
     m_ShooterMotorMain =
-        new CANSparkMax(CANConstants.MOTORSHOOTERID, CANSparkMax.MotorType.kBrushless);
+        new CANSparkMax(CANConstants.MOTORSHOOTERLEFTID, CANSparkMax.MotorType.kBrushless);
+    m_ShooterMotorSecondary =
+        new CANSparkMax(CANConstants.MOTORSHOOTERRIGHTID, CANSparkMax.MotorType.kBrushless);
     // set the idle mode to coast
-    m_ShooterMotorMain.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_ShooterMotorMain.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_ShooterMotorSecondary.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_ShooterMotorSecondary.follow(m_ShooterMotorMain, true);
+    m_ShooterMotorMain.setSmartCurrentLimit(k_CurrentLimit);
+    m_ShooterMotorSecondary.setSmartCurrentLimit(k_CurrentLimit);
 
     // connect to built in PID controller
     m_ShooterMainPIDController = m_ShooterMotorMain.getPIDController();
 
     // allow us to read the encoder
     m_ShooterMainEncoder = m_ShooterMotorMain.getEncoder();
+    m_ShooterMainEncoder.setPositionConversionFactor(kPositionConversionRatio);
     m_ShooterMainEncoder.setVelocityConversionFactor(kVelocityConversionRatio);
     // PID coefficients
-    kP = 6e-5;
+    kP = 0.00013373;
     kI = 0;
     kD = 0;
     kIz = 0;
     kMaxOutput = 1;
     kMinOutput = -1;
-    kMaxSpeed = 5;
-
     // set PID coefficients
     m_ShooterMainPIDController.setP(kP);
     m_ShooterMainPIDController.setI(kI);
@@ -82,6 +93,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 (voltage) -> this.setVoltage(voltage),
                 null, // No log consumer, since data is recorded by URCL
                 this));
+    m_ShooterMotorMain.burnFlash();
+    m_ShooterMotorSecondary.burnFlash();
   }
 
   public void setVoltage(Measure<Voltage> voltage) {
@@ -104,18 +117,15 @@ public class ShooterSubsystem extends SubsystemBase {
         speed, CANSparkBase.ControlType.kVelocity, 0, m_shooterFeedForward.calculate(speed));
   }
 
+  public void SpinAtFull() {
+    m_ShooterMotorMain.set(1);
+  }
+
   /*
    * Stop the shooter
    */
   public void StopShooter() {
     SpinShooter(0);
-  }
-
-  /*
-   * Spin Shooter at max Speed
-   */
-  public void SpinShooterFull() {
-    SpinShooter(kMaxSpeed);
   }
 
   /*
@@ -126,16 +136,10 @@ public class ShooterSubsystem extends SubsystemBase {
         && m_ShooterMainEncoder.getVelocity() < speed + 0.1);
   }
 
-  /*
-   * Check if shooter is at max Speed
-   */
-  public Boolean isAtMaxSpeed() {
-    return isAtSpeedTolerance(kMaxSpeed);
-  }
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Shooter Motor Speed m/s", m_ShooterMainEncoder.getVelocity());
   }
 
   @Override
