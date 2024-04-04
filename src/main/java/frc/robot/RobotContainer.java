@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
-import frc.robot.commands.BreakCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DriftCommand;
 import frc.robot.commands.RawDrive;
@@ -63,8 +62,6 @@ public class RobotContainer {
       new DriftCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightRawCommand m_straightRawCommand =
       new StraightRawCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  private final BreakCommand m_breakCommand =
-      new BreakCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
   private Trigger m_rawDriveButton;
@@ -111,7 +108,6 @@ public class RobotContainer {
     m_aimButton.whileTrue(m_aimCommand);
     m_driftButton.whileTrue(m_driftCommand);
     m_straightRawButton.whileTrue(m_straightRawCommand);
-    m_breakButton.whileTrue(m_breakCommand);
 
     m_controller1.a().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     m_controller1.b().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));

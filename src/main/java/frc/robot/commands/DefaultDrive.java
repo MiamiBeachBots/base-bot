@@ -10,8 +10,8 @@ import java.util.function.DoubleSupplier;
 
 /** The default drive command that uses the drive subsystem. */
 public class DefaultDrive extends CommandBase {
-  SlewRateLimiter leftFilter = new SlewRateLimiter(0.8);
-  SlewRateLimiter rightFilter = new SlewRateLimiter(0.8);
+  SlewRateLimiter leftFilter = new SlewRateLimiter(2.5);
+  SlewRateLimiter rightFilter = new SlewRateLimiter(2.5);
   private final DriveSubsystem m_driveSubsystem;
   private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
   private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
