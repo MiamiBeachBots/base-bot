@@ -2,6 +2,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -61,7 +63,7 @@ public final class Constants {
   public static final int ARMLIMITSWITCHBACK = 1;
 
   // Shooter Angles
-  public static final double ARMENCODEROFFSET = -2.45;
+  public static final double ARMENCODEROFFSET = Units.radiansToDegrees(0.0305);
   public static final double ARMSTARTINGANGLE = 22.5 + ARMENCODEROFFSET; // WHY MaTH HURT
   public static final double ARMMINRELATVESTART = 0.0;
   public static final double ARMLOADANGLE = 35 - ARMSTARTINGANGLE;
