@@ -51,6 +51,8 @@ public class ShooterState {
   }
 
   public double getShooterSpeed() {
+    /*
+    Example:
     switch (mode) {
       case SOURCE: // TODO
         return Constants.SHOOTERSOURCE;
@@ -63,6 +65,8 @@ public class ShooterState {
       default:
         return Constants.SHOOTERDEFAULT;
     }
+    */
+    return 0;
   }
 
   /**

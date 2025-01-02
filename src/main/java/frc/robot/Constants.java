@@ -2,8 +2,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.util.Units;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -22,13 +20,13 @@ public final class Constants {
     public static final int MOTORFRONTLEFTID = 12;
     public static final int MOTORBACKLEFTID = 11;
     /// Arm Motors
-    public static final int MOTORARMMAINID = 21;
+    public static final int MOTORARMMAINID = -1;
     /// Shooter Motors
     public static final int MOTORSHOOTERLEFTID = 31;
     public static final int MOTORSHOOTERRIGHTID = 32;
     /// Lifter Motors
-    public static final int MOTORLIFTERLEFTID = 41;
-    public static final int MOTORLIFTERRIGHTID = 42;
+    public static final int MOTORLIFTERLEFTID = -1;
+    public static final int MOTORLIFTERRIGHTID = -1;
   }
 
   public static final double MAX_SPEED = 0.8;
@@ -45,13 +43,6 @@ public final class Constants {
 
   // Joystick buttons
   public static final int TRIGGER = 1;
-  public static final int ARMAMPBUTTON = 3;
-  public static final int ARMSPEAKERBUTTON = 4;
-  public static final int ARMDEFAULTBUTTON = 2;
-  public static final int ARMLOADBUTTON = 11;
-  public static final int ARMTRAPBUTTON = 9;
-  public static final int ENABLEAXISBUTTON = 10;
-  public static final int ARMDISABLEENCODER = 8;
   public static final int AIMBUTTON = 12;
 
   // Analog Ports
@@ -59,22 +50,7 @@ public final class Constants {
   public static final int ULTRASONICSHOOTERPORT = 0;
 
   // Digital Ports
-  public static final int ARMLIMITSWITCHFRONT = 0;
-  public static final int ARMLIMITSWITCHBACK = 1;
+  public static final int EXAMPLELIMITSWITCH = 0;
 
   // Shooter Angles
-  public static final double ARMENCODEROFFSET = Units.radiansToDegrees(0.0305);
-  public static final double ARMSTARTINGANGLE = 22.5 + ARMENCODEROFFSET; // WHY MaTH HURT
-  public static final double ARMMINRELATVESTART = 0.0;
-  public static final double ARMLOADANGLE = 35 - ARMSTARTINGANGLE;
-  public static final double ARMSPEAKERANGLE = 59 - ARMSTARTINGANGLE; // to go to 75 you just put 75
-  public static final double ARMAMPANGLE = 110 - ARMSTARTINGANGLE;
-  public static final double ARMTRAPANGLE = 63 - ARMSTARTINGANGLE;
-  public static final double ARMMAXRELATIVE = 120 - ARMSTARTINGANGLE;
-  // Shooter Speeds (M/s)
-  public static final double SHOOTERSOURCE = -6.0;
-  public static final double SHOOTERAMP = 3;
-  public static final double SHOOTERSPEAKER = 20.0;
-  public static final double SHOOTERTRAP = 8.0;
-  public static final double SHOOTERDEFAULT = 8.0; // somewhere around 8 is the cap - ma
 }
