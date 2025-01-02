@@ -4,20 +4,12 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.server.PathPlannerServer;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.wpilibj.DataLogManager;
 // import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import org.littletonrobotics.urcl.URCL;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,11 +22,6 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private UsbCamera camera1;
-  private UsbCamera camera2;
-  private VideoSink mainCameraServer;
-  private int cameraCounter = 2;
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -44,31 +31,15 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    PathPlannerServer.startServer(5811); // 5811 = port number. adjust this according to your needs
 
-    camera1 = CameraServer.startAutomaticCapture(0);
-    camera2 = CameraServer.startAutomaticCapture(1);
-    mainCameraServer = CameraServer.getServer();
     // Tell both cameras to always stream.
     // camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     // camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-    // this is to put git info in the dashboard & Logs
-    String deployDir = Filesystem.getDeployDirectory().getPath();
-    String branchName = "unknown";
-    String commitHash = "unknown";
-    try {
-      branchName = Files.readString(Path.of(deployDir, "branch.txt"));
-      commitHash = Files.readString(Path.of(deployDir, "commit.txt"));
-
-    } catch (IOException e) {
-      e.printStackTrace();
-      System.out.println("Parsing Git metadata Files Failed");
+    if (m_robotContainer.enableAutoProfiling) {
+      DataLogManager.start();
+      URCL.start();
     }
-    System.out.println("Branch: " + branchName);
-    System.out.println("Commit: " + commitHash);
-    SmartDashboard.putString("Branch", branchName);
-    SmartDashboard.putString("Commit", commitHash);
   }
 
   /**
@@ -85,6 +56,9 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    if (m_robotContainer.enableAutoProfiling) {
+      System.out.println("WARNING, AUTO PROFILE IS ENABLED!");
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -118,20 +92,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer
-        .getCameraButton()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  cameraCounter++;
-                  if (cameraCounter % 2 == 0) {
-                    System.out.println("Setting Camera 2");
-                    mainCameraServer.setSource(camera2);
-                  } else {
-                    System.out.println("Setting Camera 1");
-                    mainCameraServer.setSource(camera1);
-                  }
-                }));
   }
 
   /** This function is called periodically during operator control. */

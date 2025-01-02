@@ -4,12 +4,14 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.RamseteAutoBuilder;
-import edu.wpi.first.math.controller.RamseteController;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,14 +19,19 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.FlywheelCommand;
+import frc.robot.commands.LifterCommand;
 import frc.robot.commands.StraightCommand;
+import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriverCameraSubsystem;
+import frc.robot.subsystems.FlywheelSubsystem;
+import frc.robot.subsystems.LifterSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,6 +40,9 @@ import java.util.List;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  // These states are used to pass data between commands.
+  private final ShooterState m_shooterState = new ShooterState();
+
   // Init joysticks
   private final CommandXboxController m_controller1 =
       new CommandXboxController(Constants.CONTROLLERUSBINDEX);
@@ -42,36 +52,67 @@ public class RobotContainer {
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   // Init Gyro & ultrasonic
-  private final UltrasonicSubsystem m_ultrasonic1 =
-      new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
+  private final UltrasonicSubsystem m_ultrasonicShooterSubsystem =
+      new UltrasonicSubsystem(Constants.ULTRASONICSHOOTERPORT);
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+  private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
+  private final FlywheelSubsystem m_shooterSubsytem = new FlywheelSubsystem();
+  private final LifterSubsystem m_leftLifterSubsystem =
+      new LifterSubsystem(Constants.CANConstants.MOTORLIFTERLEFTID);
+  private final LifterSubsystem m_rightLifterSubsystem =
+      new LifterSubsystem(Constants.CANConstants.MOTORLIFTERRIGHTID);
+  private final DriverCameraSubsystem m_DriverCameraSubsystem = new DriverCameraSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem);
+  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_cameraSubsystem);
   private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand =
       new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  // misc init
-  private Trigger m_switchCameraButton;
-  private Trigger m_balanceButton;
+  private final FlywheelCommand m_shooterCommand =
+      new FlywheelCommand(m_shooterSubsytem, m_shooterState);
+  private final LifterCommand m_LeftLifterCommand = new LifterCommand(m_leftLifterSubsystem);
+  private final LifterCommand m_RightLifterCommand = new LifterCommand(m_rightLifterSubsystem);
+
+  // EX: these commands are used by autonomous only
+  // private final AimAmpCommand m_AimAmpCommand = new AimAmpCommand(m_armSubsystem,
+  // m_shooterState);
+
+  // this command is used by on the fly path planning
+  // private Command m_driveToAmp;
+  // Init Buttons
+  // private Trigger m_balanceButton;
   private Trigger m_straightButton;
+  private Trigger m_toggleBrakeButton;
+  private Trigger m_lifterRightButton;
+  private Trigger m_lifterLeftButton;
+  // private Trigger m_driveToAmpButton;
+  private Trigger m_lifterDirectionButton;
+  // joystick buttons
   private JoystickButton m_aimButton;
+  private JoystickButton m_shooterTrigger;
   // Init For Autonomous
-  private RamseteAutoBuilder autoBuilder;
-  private final HashMap<String, Command> autonomousEventMap = new HashMap<String, Command>();
   private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
-  private List<PathPlannerTrajectory> pathGroup;
+  public final boolean enableAutoProfiling = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the button bindings
-    configureButtonBindings();
     // Initialize the autonomous command
     initializeAutonomous();
+    // Setup On the Fly Path Planning
+    configureTeleopPaths();
+    // Configure the button bindings
+    setupTriggers();
+    // Bind the commands to the triggers
+    if (enableAutoProfiling) {
+      bindDriveSysIDCommands();
+      // bindShooterSysIDCommands();
+    } else {
+      bindCommands();
+    }
 
     // set default drive command
     m_driveSubsystem.setDefaultCommand(m_defaultDrive);
@@ -83,58 +124,85 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
+  private void setupTriggers() {
     // Controller buttons
-    m_switchCameraButton = m_controller1.x();
-    m_balanceButton = m_controller1.rightBumper();
-    m_straightButton = m_controller1.rightTrigger();
+    m_toggleBrakeButton = m_controller1.x();
+    m_straightButton = m_controller1.rightBumper();
+    m_lifterRightButton = m_controller1.rightTrigger();
+    m_lifterLeftButton = m_controller1.leftTrigger();
+    // m_driveToAmpButton= m_controller1.y();
+    m_lifterDirectionButton = m_controller1.a();
+
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
+
+    // load and shoot buttons
+    m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
+  }
+
+  private void bindCommands() {
     // commands
-    m_balanceButton.whileTrue(m_balanceCommand);
+    // m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_aimButton.whileTrue(m_aimCommand);
+    // m_driveToAmpButton.whileTrue(m_driveToAmp); // TODO: Need to bind button
+    m_lifterRightButton.whileTrue(m_RightLifterCommand);
+    m_lifterLeftButton.whileTrue(m_LeftLifterCommand);
+    m_lifterDirectionButton.whileTrue(
+        new InstantCommand(() -> m_leftLifterSubsystem.changeDirection())
+            .andThen(new InstantCommand(() -> m_rightLifterSubsystem.changeDirection())));
+    m_toggleBrakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SwitchBrakemode()));
+    // shooter + arm commands
+    m_shooterTrigger.whileTrue(m_shooterCommand);
+  }
 
-    m_controller1.a().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
-    m_controller1.b().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));
+  private void bindDriveSysIDCommands() {
+    m_controller1.a().whileTrue(m_driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_controller1.b().whileTrue(m_driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_controller1.x().whileTrue(m_driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_controller1.y().whileTrue(m_driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
+  }
+
+  private void bindShooterSysIDCommands() {
+    m_controller1
+        .a()
+        .whileTrue(m_shooterSubsytem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_controller1
+        .b()
+        .whileTrue(m_shooterSubsytem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_controller1.x().whileTrue(m_shooterSubsytem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_controller1.y().whileTrue(m_shooterSubsytem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_controller1.leftTrigger().whileTrue(new InstantCommand(() -> DataLogManager.stop()));
   }
 
   private void initializeAutonomous() {
     // Network Table Routine Options
-    autoDashboardChooser.setDefaultOption("Auto With Balancing", "FullAuto");
-    autoDashboardChooser.addOption("End at cones", "EndAtCones");
+    autoDashboardChooser.setDefaultOption("SFR", "SFR");
+    autoDashboardChooser.addOption("DriveForward", "DriveForward");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
     SmartDashboard.putData(autoDashboardChooser);
 
-    // Events
+    // Named Commands
     // ex:
-    // autonomousEventMap.put("A", new PathFollowingCommand(m_driveSubsystem, pathGroup.get(0)));
-    autonomousEventMap.put("BalanceRobot", m_balanceCommand);
+    // NamedCommands.registerCommand("A", new PathFollowingCommand(m_driveSubsystem,
+    // pathGroup.get(0)));
+    NamedCommands.registerCommand("BalanceRobot", m_balanceCommand);
+    NamedCommands.registerCommand(
+        "BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
+    NamedCommands.registerCommand("ShooterCommand", m_shooterCommand);
+    // NamedCommands.registerCommand("AimAmpCommand", m_AimAmpCommand);
 
-    // Create the AutoBuilder. This only needs to be created once when robot code starts, not every
-    // time you want to create an auto command.
-    // Use blue side of field when designing!
-    autoBuilder =
-        new RamseteAutoBuilder(
-            m_driveSubsystem::getPose, // Pose2d supplier
-            m_driveSubsystem
-                ::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
-            new RamseteController(
-                DriveConstants.kRamseteB, DriveConstants.kRamseteZeta), // RamseteController
-            DriveConstants.kDriveKinematics, // DifferentialDriveKinematics
-            DriveConstants
-                .FeedForward, // A feedforward value to apply to the drive subsystem's controllers
-            m_driveSubsystem
-                ::getWheelSpeeds, // A method for getting the current wheel speeds of the drive
-            new PIDConstants(
-                DriveConstants.kPDriveVel, 0, 0), // A PID controller for wheel velocity control
-            m_driveSubsystem
-                ::tankDriveVolts, // A consumer that takes left and right wheel voltages and sets
-            // them to the drive subsystem's controllers
-            autonomousEventMap,
-            true, // change for either team
-            m_driveSubsystem //  Requirements of the commands (should be the drive subsystem)
-            );
+  }
+
+  private void configureTeleopPaths() {
+    // Limits for all Paths
+    PathConstraints constraints =
+        new PathConstraints(3.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+    // EX
+    // PathPlannerPath ampPath = PathPlannerPath.fromPathFile("TeleopAmpPath");
+
+    // m_driveToAmp = AutoBuilder.pathfindThenFollowPath(ampPath, constraints);
   }
 
   public double getControllerRightY() {
@@ -145,18 +213,15 @@ public class RobotContainer {
     return -m_controller1.getLeftY();
   }
 
+  public double GetFlightStickY() {
+    return m_flightStick.getY();
+  }
+
   // for autonomous
   public DefaultDrive getDefaultDrive() {
     return m_defaultDrive;
   }
-  // for autonomous
-  public UltrasonicSubsystem getUltrasonic1() {
-    return m_ultrasonic1;
-  }
-  // to swap camera type.
-  public Trigger getCameraButton() {
-    return m_switchCameraButton;
-  }
+
   // for future SmartDashboard uses.
   public CommandXboxController getController1() {
     return this.m_controller1;
@@ -173,10 +238,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    pathGroup =
-        PathPlanner.loadPathGroup(
-            autoDashboardChooser.getSelected(), DriveConstants.autoPathConstraints);
-    // Generate the auto command from the auto builder using the routine selected in the dashboard.
-    return autoBuilder.fullAuto(pathGroup);
+    // get the name of the auto from network tables, as the rest is preconfigured by the drive
+    // subsystem.
+    String autoName = autoDashboardChooser.getSelected();
+    return new PathPlannerAuto(autoName);
   }
 }

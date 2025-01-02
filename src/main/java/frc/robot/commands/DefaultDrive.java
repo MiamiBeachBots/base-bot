@@ -2,13 +2,14 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.utils.HelperFunctions;
 import java.util.function.DoubleSupplier;
 
 /** The default drive command that uses the drive subsystem. */
-public class DefaultDrive extends CommandBase {
+public class DefaultDrive extends Command {
   private final DriveSubsystem m_driveSubsystem;
   private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
   private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
@@ -38,9 +39,12 @@ public class DefaultDrive extends CommandBase {
   public void execute() {
     // we include a limit on the drivers speed for safety.
     // Additonally the axis's on the
-    this.m_driveSubsystem.tankDrive(
-        Constants.MAX_SPEED * m_left_y.getAsDouble(),
-        Constants.MAX_SPEED * m_right_y.getAsDouble());
+    if (!HelperFunctions.inDeadzone(m_left_y.getAsDouble(), Constants.CONTROLLERDEADZONE)
+        || !HelperFunctions.inDeadzone(m_right_y.getAsDouble(), Constants.CONTROLLERDEADZONE)) {
+      this.m_driveSubsystem.tankDrive(
+          Constants.MAX_SPEED * m_left_y.getAsDouble(),
+          Constants.MAX_SPEED * m_right_y.getAsDouble());
+    }
   }
 
   // Called once the command ends or is interrupted.
