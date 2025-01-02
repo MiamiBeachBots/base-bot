@@ -21,7 +21,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -282,7 +282,7 @@ public class DriveSubsystem extends SubsystemBase {
         DriveConstants.kDrivetrainPositionPIDSlot);
   }
 
-  public void setVoltage(Measure<Voltage> rightVoltage, Measure<Voltage> leftVoltage) {
+  public void setVoltage(Voltage rightVoltage, Voltage leftVoltage) {
     m_backLeft.setVoltage(leftVoltage.in(Volts));
     m_backRight.setVoltage(rightVoltage.in(Volts));
     m_ddrive.feed();
