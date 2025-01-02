@@ -5,22 +5,26 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.RightLifterSubsystem;
+import frc.robot.ShooterState;
+import frc.robot.subsystems.FlywheelSubsystem;
 
-/** Lifter Command using the Lifter Subsystem. */
-public class RightLifterCommand extends Command {
+/** A Shooter Command that uses an example subsystem. */
+public class FlywheelCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final RightLifterSubsystem m_lifterSubsystem;
+  private final FlywheelSubsystem m_shooterSubsystem;
+
+  private final ShooterState m_shooterState;
 
   /**
-   * Creates a new LifterDownCommand.
+   * Creates a new ShooterCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public RightLifterCommand(RightLifterSubsystem l_subsystem) {
-    m_lifterSubsystem = l_subsystem;
+  public FlywheelCommand(FlywheelSubsystem s_subsystem, ShooterState shooterState) {
+    m_shooterSubsystem = s_subsystem;
+    m_shooterState = shooterState;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(l_subsystem);
+    addRequirements(s_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -30,13 +34,15 @@ public class RightLifterCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_lifterSubsystem.activateRight();
+    m_shooterSubsystem.SpinShooter(m_shooterState.getShooterSpeed());
+    m_shooterState.shooting = true;
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_lifterSubsystem.stopRight();
+    m_shooterState.shooting = false;
+    m_shooterSubsystem.StopShooter();
   }
 
   // Returns true when the command should end.

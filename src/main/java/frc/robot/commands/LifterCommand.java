@@ -5,19 +5,19 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LeftLifterSubsystem;
+import frc.robot.subsystems.LifterSubsystem;
 
 /** Lifter Command using the Lifter Subsystem. */
-public class LeftLifterCommand extends Command {
+public class LifterCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final LeftLifterSubsystem m_lifterSubsystem;
+  private final LifterSubsystem m_lifterSubsystem;
 
   /**
    * Creates a new LifterDownCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public LeftLifterCommand(LeftLifterSubsystem l_subsystem) {
+  public LifterCommand(LifterSubsystem l_subsystem) {
     m_lifterSubsystem = l_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(l_subsystem);
@@ -30,13 +30,13 @@ public class LeftLifterCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_lifterSubsystem.activateLeft();
+    m_lifterSubsystem.activate();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_lifterSubsystem.stopLeft();
+    m_lifterSubsystem.stop();
   }
 
   // Returns true when the command should end.

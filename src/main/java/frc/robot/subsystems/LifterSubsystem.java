@@ -7,35 +7,36 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.CANConstants;
 
-public class LeftLifterSubsystem extends SubsystemBase {
-  private final CANSparkMax m_left; // Motor for Left
+public class LifterSubsystem extends SubsystemBase {
+  private final CANSparkMax m_motor; // Motor for
   private double kCurrentSpeed = Constants.LIFTERSPEED;
+  private int motorID;
 
   /** Creates a new LifterSubsystem. */
-  public LeftLifterSubsystem() {
-    m_left = new CANSparkMax(CANConstants.MOTORLIFTERLEFTID, CANSparkMax.MotorType.kBrushless);
-    m_left.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    m_left.setInverted(false);
-    m_left.setSmartCurrentLimit(60);
-    m_left.burnFlash();
+  public LifterSubsystem(int motor_ID) {
+    motorID = motor_ID;
+    m_motor = new CANSparkMax(motorID, CANSparkMax.MotorType.kBrushless);
+    m_motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_motor.setInverted(false);
+    m_motor.setSmartCurrentLimit(60);
+    m_motor.burnFlash();
   }
 
-  public void leftMove(double speed) {
-    m_left.set(speed);
+  public void move(double speed) {
+    m_motor.set(speed);
   }
 
-  public void activateLeft() {
-    leftMove(kCurrentSpeed);
+  public void activate() {
+    move(kCurrentSpeed);
   }
 
   public void changeDirection() {
     kCurrentSpeed = -kCurrentSpeed;
   }
 
-  public void stopLeft() {
-    m_left.set(0);
+  public void stop() {
+    m_motor.set(0);
   }
 
   @Override

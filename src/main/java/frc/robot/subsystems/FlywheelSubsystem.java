@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
 
-public class ShooterSubsystem extends SubsystemBase {
+public class FlywheelSubsystem extends SubsystemBase {
   private final CANSparkMax m_ShooterMotorMain;
   private final CANSparkMax m_ShooterMotorSecondary;
   private final SparkPIDController m_ShooterMainPIDController;
@@ -52,7 +52,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private final int k_CurrentLimit = 80;
 
   /** Creates a new ShooterSubsystem. */
-  public ShooterSubsystem() {
+  public FlywheelSubsystem() {
     // create the shooter motors
     m_ShooterMotorMain =
         new CANSparkMax(CANConstants.MOTORSHOOTERLEFTID, CANSparkMax.MotorType.kBrushless);

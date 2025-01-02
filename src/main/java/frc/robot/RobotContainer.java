@@ -26,9 +26,8 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
-import frc.robot.commands.LeftLifterCommand;
-import frc.robot.commands.RightLifterCommand;
-import frc.robot.commands.ShooterCommand;
+import frc.robot.commands.FlywheelCommand;
+import frc.robot.commands.LifterCommand;
 import frc.robot.commands.StraightCommand;
 import frc.robot.commands.UltrasonicShooterCommand;
 import frc.robot.commands.auto.AimAmpCommand;
@@ -38,9 +37,8 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.DriverCameraSubsystem;
-import frc.robot.subsystems.LeftLifterSubsystem;
-import frc.robot.subsystems.RightLifterSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.FlywheelSubsystem;
+import frc.robot.subsystems.LifterSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 
 /**
@@ -68,9 +66,11 @@ public class RobotContainer {
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem(m_shooterState);
-  private final ShooterSubsystem m_shooterSubsytem = new ShooterSubsystem();
-  private final LeftLifterSubsystem m_leftLifterSubsystem = new LeftLifterSubsystem();
-  private final RightLifterSubsystem m_rightLifterSubsystem = new RightLifterSubsystem();
+  private final FlywheelSubsystem m_shooterSubsytem = new FlywheelSubsystem();
+  private final LifterSubsystem m_leftLifterSubsystem =
+      new LifterSubsystem(Constants.CANConstants.MOTORLIFTERLEFTID);
+  private final LifterSubsystem m_rightLifterSubsystem =
+      new LifterSubsystem(Constants.CANConstants.MOTORLIFTERRIGHTID);
   private final DriverCameraSubsystem m_DriverCameraSubsystem = new DriverCameraSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
@@ -85,12 +85,10 @@ public class RobotContainer {
       new UltrasonicShooterCommand(m_ultrasonicShooterSubsystem, m_shooterState);
   private final ArmCommand m_armCommand =
       new ArmCommand(m_armSubsystem, m_shooterState, this::GetFlightStickY);
-  private final ShooterCommand m_shooterCommand =
-      new ShooterCommand(m_shooterSubsytem, m_shooterState);
-  private final LeftLifterCommand m_LeftLifterCommand =
-      new LeftLifterCommand(m_leftLifterSubsystem);
-  private final RightLifterCommand m_RightLifterCommand =
-      new RightLifterCommand(m_rightLifterSubsystem);
+  private final FlywheelCommand m_shooterCommand =
+      new FlywheelCommand(m_shooterSubsytem, m_shooterState);
+  private final LifterCommand m_LeftLifterCommand = new LifterCommand(m_leftLifterSubsystem);
+  private final LifterCommand m_RightLifterCommand = new LifterCommand(m_rightLifterSubsystem);
 
   // these commands are used by autonomous only
   private final AimAmpCommand m_AimAmpCommand = new AimAmpCommand(m_armSubsystem, m_shooterState);
