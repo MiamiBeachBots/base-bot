@@ -4,23 +4,32 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class LifterSubsystem extends SubsystemBase {
-  private final CANSparkMax m_motor; // Motor for
+  private final SparkMax m_motor; // Motor
+  private final SparkMaxConfig m_motorConfig = new SparkMaxConfig(); // Motor Configuration
   private double kCurrentSpeed = Constants.LIFTERSPEED;
   private int motorID;
 
   /** Creates a new LifterSubsystem. */
   public LifterSubsystem(int motor_ID) {
     motorID = motor_ID;
-    m_motor = new CANSparkMax(motorID, CANSparkMax.MotorType.kBrushless);
-    m_motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    m_motor.setInverted(false);
-    m_motor.setSmartCurrentLimit(60);
-    m_motor.burnFlash();
+
+    m_motor = new SparkMax(motorID, SparkMax.MotorType.kBrushless);
+
+    m_motorConfig.idleMode(IdleMode.kBrake);
+    m_motorConfig.inverted(false);
+    m_motorConfig.smartCurrentLimit(50);
+
+    m_motor.configure(
+        m_motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void move(double speed) {
