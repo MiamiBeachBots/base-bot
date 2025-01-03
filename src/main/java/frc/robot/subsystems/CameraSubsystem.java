@@ -59,14 +59,11 @@ public class CameraSubsystem extends SubsystemBase {
     frontCamera = new PhotonCamera(frontCameraName);
     frontCameraPoseEstimator =
         new PhotonPoseEstimator(
-            aprilTagFieldLayout,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            frontCamera,
-            frontCameraLocation);
+            aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCameraLocation);
   }
 
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-    return frontCameraPoseEstimator.update();
+    return frontCameraPoseEstimator.update(frontCameraResult);
   }
 
   @Override
@@ -81,7 +78,7 @@ public class CameraSubsystem extends SubsystemBase {
     }
     frontCameraResult = frontCamera.getLatestResult();
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Front Camera Latency", frontCameraResult.getLatencyMillis() / 1000.0);
+    SmartDashboard.putNumber("Front Camera Latency", frontCameraResult.getTimestampSeconds());
   }
 
   @Override

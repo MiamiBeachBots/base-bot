@@ -6,24 +6,32 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
+import frc.robot.DriveConstants;
 
 public class FlywheelSubsystem extends SubsystemBase {
-  private final CANSparkMax m_ShooterMotorMain;
-  private final CANSparkMax m_ShooterMotorSecondary;
-  private final SparkPIDController m_ShooterMainPIDController;
+  private final SparkMax m_ShooterMotorMain;
+  private final SparkMax m_ShooterMotorSecondary;
+
+  private final SparkMaxConfig m_MainConfig = new SparkMaxConfig(); // Motor Configuration
+  private final SparkMaxConfig m_SecondaryConfig = new SparkMaxConfig(); // Motor Configuration
+
+  private final SparkClosedLoopController m_ShooterMainPIDController;
   private RelativeEncoder m_ShooterMainEncoder;
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   // general drive constants
@@ -55,23 +63,26 @@ public class FlywheelSubsystem extends SubsystemBase {
   public FlywheelSubsystem() {
     // create the shooter motors
     m_ShooterMotorMain =
-        new CANSparkMax(CANConstants.MOTORSHOOTERLEFTID, CANSparkMax.MotorType.kBrushless);
+        new SparkMax(CANConstants.MOTORSHOOTERLEFTID, SparkMax.MotorType.kBrushless);
     m_ShooterMotorSecondary =
-        new CANSparkMax(CANConstants.MOTORSHOOTERRIGHTID, CANSparkMax.MotorType.kBrushless);
+        new SparkMax(CANConstants.MOTORSHOOTERRIGHTID, SparkMax.MotorType.kBrushless);
+
     // set the idle mode to coast
-    m_ShooterMotorMain.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    m_ShooterMotorSecondary.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    m_ShooterMotorSecondary.follow(m_ShooterMotorMain, true);
-    m_ShooterMotorMain.setSmartCurrentLimit(k_CurrentLimit);
-    m_ShooterMotorSecondary.setSmartCurrentLimit(k_CurrentLimit);
+    m_MainConfig.idleMode(IdleMode.kBrake);
+    m_SecondaryConfig.idleMode(IdleMode.kBrake);
+    // set current limit
+    m_MainConfig.smartCurrentLimit(k_CurrentLimit);
+    m_SecondaryConfig.smartCurrentLimit(k_CurrentLimit);
+    // config follow
+    m_SecondaryConfig.follow(m_ShooterMotorMain, true);
 
     // connect to built in PID controller
-    m_ShooterMainPIDController = m_ShooterMotorMain.getPIDController();
+    m_ShooterMainPIDController = m_ShooterMotorMain.getClosedLoopController();
 
     // allow us to read the encoder
     m_ShooterMainEncoder = m_ShooterMotorMain.getEncoder();
-    m_ShooterMainEncoder.setPositionConversionFactor(kPositionConversionRatio);
-    m_ShooterMainEncoder.setVelocityConversionFactor(kVelocityConversionRatio);
+    m_MainConfig.encoder.positionConversionFactor(kPositionConversionRatio);
+    m_MainConfig.encoder.velocityConversionFactor(kVelocityConversionRatio);
     // PID coefficients
     kP = 0.00013373;
     kI = 0;
@@ -80,11 +91,10 @@ public class FlywheelSubsystem extends SubsystemBase {
     kMaxOutput = 1;
     kMinOutput = -1;
     // set PID coefficients
-    m_ShooterMainPIDController.setP(kP);
-    m_ShooterMainPIDController.setI(kI);
-    m_ShooterMainPIDController.setD(kD);
-    m_ShooterMainPIDController.setIZone(kIz);
-    m_ShooterMainPIDController.setOutputRange(kMinOutput, kMaxOutput);
+    m_MainConfig.closedLoop.pid(kP, kI, kD, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_MainConfig.closedLoop.iZone(kIz, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_MainConfig.closedLoop.outputRange(
+        kMinOutput, kMaxOutput, DriveConstants.kDrivetrainVelocityPIDSlot);
     // setup SysID for auto profiling
     m_sysIdRoutine =
         new SysIdRoutine(
@@ -93,8 +103,10 @@ public class FlywheelSubsystem extends SubsystemBase {
                 (voltage) -> this.setVoltage(voltage),
                 null, // No log consumer, since data is recorded by URCL
                 this));
-    m_ShooterMotorMain.burnFlash();
-    m_ShooterMotorSecondary.burnFlash();
+    m_ShooterMotorMain.configure(
+        m_MainConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_ShooterMotorSecondary.configure(
+        m_SecondaryConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void setVoltage(Voltage voltage) {
@@ -114,7 +126,10 @@ public class FlywheelSubsystem extends SubsystemBase {
    */
   public void SpinShooter(double speed) {
     m_ShooterMainPIDController.setReference(
-        speed, CANSparkBase.ControlType.kVelocity, 0, m_shooterFeedForward.calculate(speed));
+        speed,
+        SparkBase.ControlType.kVelocity,
+        DriveConstants.kDrivetrainVelocityPIDSlot.value,
+        m_shooterFeedForward.calculate(speed));
   }
 
   public void SpinAtFull() {
