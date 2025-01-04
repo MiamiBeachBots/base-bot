@@ -128,7 +128,7 @@ public class FlywheelSubsystem extends SubsystemBase {
     m_ShooterMainPIDController.setReference(
         speed,
         SparkBase.ControlType.kVelocity,
-        DriveConstants.kDrivetrainVelocityPIDSlot.value,
+        DriveConstants.kDrivetrainVelocityPIDSlot,
         m_shooterFeedForward.calculate(speed));
   }
 

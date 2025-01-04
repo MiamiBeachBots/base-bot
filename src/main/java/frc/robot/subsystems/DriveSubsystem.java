@@ -434,12 +434,12 @@ public class DriveSubsystem extends SubsystemBase {
     m_backLeftPIDController.setReference(
         leftSpeed,
         SparkBase.ControlType.kVelocity,
-        DriveConstants.kDrivetrainVelocityPIDSlot.value,
+        DriveConstants.kDrivetrainVelocityPIDSlot,
         m_driveFeedForward.calculate(leftSpeed));
     m_backRightPIDController.setReference(
         rightSpeed,
         SparkBase.ControlType.kVelocity,
-        DriveConstants.kDrivetrainVelocityPIDSlot.value,
+        DriveConstants.kDrivetrainVelocityPIDSlot,
         m_driveFeedForward.calculate(rightSpeed));
   }
 
@@ -447,13 +447,9 @@ public class DriveSubsystem extends SubsystemBase {
   // function.
   public void driveToPosition(final double NewPosition) {
     m_backLeftPIDController.setReference(
-        NewPosition,
-        SparkBase.ControlType.kPosition,
-        DriveConstants.kDrivetrainPositionPIDSlot.value);
+        NewPosition, SparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
     m_backRightPIDController.setReference(
-        NewPosition,
-        SparkBase.ControlType.kPosition,
-        DriveConstants.kDrivetrainPositionPIDSlot.value);
+        NewPosition, SparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
   }
 
   public Pose2d getPose() {

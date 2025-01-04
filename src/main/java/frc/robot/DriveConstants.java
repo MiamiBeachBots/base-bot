@@ -1,7 +1,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.config.RobotConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig.ClosedLoopSlot;
+import com.revrobotics.spark.ClosedLoopSlot;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
