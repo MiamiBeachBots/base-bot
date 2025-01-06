@@ -42,8 +42,8 @@ public class DefaultDrive extends CommandBase {
     // we include a limit on the drivers speed for safety.
     // Additonally the axis's on the
     this.m_driveSubsystem.tankDrive(
-        leftFilter.calculate(Constants.MAX_SPEED * m_left_y.getAsDouble()),
-        rightFilter.calculate(Constants.MAX_SPEED * m_right_y.getAsDouble()));
+        Constants.MAX_SPEED_BABY * m_left_y.getAsDouble(),
+        Constants.MAX_SPEED_BABY * m_right_y.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.

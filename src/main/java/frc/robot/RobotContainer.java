@@ -18,11 +18,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
+import frc.robot.commands.AirCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DriftCommand;
-import frc.robot.commands.RawDrive;
 import frc.robot.commands.StraightRawCommand;
+import frc.robot.subsystems.AirSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 import java.util.HashMap;
@@ -47,6 +48,8 @@ public class RobotContainer {
   private final UltrasonicSubsystem m_ultrasonic1 =
       new UltrasonicSubsystem(Constants.ULTRASONIC1PORT);
 
+  private final AirSubsystem m_airSubsystem = new AirSubsystem();
+
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
@@ -55,19 +58,16 @@ public class RobotContainer {
   private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  private final RawDrive m_RawDriveCommand =
-      new RawDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  // misc init
   private final DriftCommand m_driftCommand =
       new DriftCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
   private final StraightRawCommand m_straightRawCommand =
       new StraightRawCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
+  private final AirCommand m_airCommand = new AirCommand(m_airSubsystem);
   private Trigger m_switchCameraButton;
   private Trigger m_balanceButton;
-  private Trigger m_rawDriveButton;
   private Trigger m_driftButton;
   private Trigger m_straightRawButton;
-  private Trigger m_breakButton;
+  private Trigger m_airButton;
   private JoystickButton m_aimButton;
   // Init For Autonomous
   private RamseteAutoBuilder autoBuilder;
@@ -96,18 +96,17 @@ public class RobotContainer {
     // Controller buttons
     m_switchCameraButton = m_controller1.x();
     m_balanceButton = m_controller1.rightBumper();
-    m_rawDriveButton = m_controller1.rightTrigger();
     m_driftButton = m_controller1.leftTrigger();
     m_straightRawButton = m_controller1.rightBumper();
-    m_breakButton = m_controller1.leftBumper();
+    m_airButton = m_controller1.y();
     // Joystick buttons
     m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
     // commands
     m_balanceButton.whileTrue(m_balanceCommand);
-    m_rawDriveButton.whileTrue(m_RawDriveCommand);
     m_aimButton.whileTrue(m_aimCommand);
     m_driftButton.whileTrue(m_driftCommand);
     m_straightRawButton.whileTrue(m_straightRawCommand);
+    m_airButton.whileTrue(m_airCommand);
 
     m_controller1.a().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     m_controller1.b().whileTrue(new InstantCommand(() -> m_driveSubsystem.SetCoastmode()));

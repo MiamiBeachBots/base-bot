@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
@@ -40,14 +41,14 @@ public class DriftCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveSubsystem.tankDrive(m_left_y.getAsDouble(), m_right_y.getAsDouble());
+    m_driveSubsystem.tankDrive(
+        Constants.MAX_SPEED_SPRINT * m_left_y.getAsDouble(),
+        Constants.MAX_SPEED_SPRINT * m_right_y.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.turnResetPID(); // we make sure to clear the PID angle
-    System.out.println("Ending 'StraightCommand.");
   }
 
   // Returns true when the command should end.
