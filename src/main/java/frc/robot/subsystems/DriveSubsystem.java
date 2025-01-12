@@ -5,8 +5,6 @@ package frc.robot.subsystems;
 // import motor & frc dependencies
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPLTVController;
 import com.revrobotics.RelativeEncoder;
@@ -39,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
+import org.littletonrobotics.junction.Logger;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
@@ -228,10 +227,11 @@ public class DriveSubsystem extends SubsystemBase {
     // setup SysID for auto profiling
     m_sysIdRoutine =
         new SysIdRoutine(
-          new SysIdRoutine.Config(
-            null, null, null,
-            (state) -> Logger.recordOutput("SysIdTestState", state.toString())
-          ),
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> Logger.recordOutput("SysIdTestState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> this.setVoltage(voltage, voltage),
                 null, // No log consumer, since data is recorded by URCL
