@@ -55,7 +55,7 @@ public class CameraSubsystem extends SubsystemBase {
   /** Creates a new CameraSubsystem. */
   public CameraSubsystem(DriveSubsystem d_subsystem) {
     m_driveSubsystem = d_subsystem;
-    aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     frontCamera = new PhotonCamera(frontCameraName);
     frontCameraPoseEstimator =
         new PhotonPoseEstimator(
