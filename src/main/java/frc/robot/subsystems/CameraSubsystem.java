@@ -68,6 +68,7 @@ public class CameraSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    frontCameraResult = frontCamera.getLatestResult();
     Optional<EstimatedRobotPose> pose = getEstimatedGlobalPose();
     if (pose.isPresent()) {
       SmartDashboard.putBoolean("CameraConnnected", true);
@@ -76,7 +77,6 @@ public class CameraSubsystem extends SubsystemBase {
     } else {
       SmartDashboard.putBoolean("CameraConnnected", false);
     }
-    frontCameraResult = frontCamera.getLatestResult();
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Front Camera Latency", frontCameraResult.getTimestampSeconds());
   }
