@@ -12,6 +12,7 @@ import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -27,6 +28,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -50,6 +52,11 @@ public class DriveSubsystem extends SubsystemBase {
   private final SparkMax m_frontLeft; // Slave Motor for Left (Follow Master)
   private final SparkMax m_backRight; // Main / Master Motor for Right
   private final SparkMax m_frontRight; // Slave Motor for Right (Follow Master)
+  // Simulated Motors
+  private final DCMotor m_leftGearbox;
+  private final DCMotor m_rightGearbox;
+  private final SparkMaxSim m_leftSim;
+  private final SparkMaxSim m_rightSim;
 
   // Motor Configs
   private final SparkMaxConfig m_backLeftConfig = new SparkMaxConfig();
@@ -104,7 +111,11 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontLeft = new SparkMax(CANConstants.MOTORFRONTLEFTID, SparkMax.MotorType.kBrushless);
     m_frontRight = new SparkMax(CANConstants.MOTORFRONTRIGHTID, SparkMax.MotorType.kBrushless);
     m_backRight = new SparkMax(CANConstants.MOTORBACKRIGHTID, SparkMax.MotorType.kBrushless);
-
+    // Create simulated motors
+    m_leftGearbox = DCMotor.getNEO(2);
+    m_rightGearbox = DCMotor.getNEO(2);
+    m_leftSim = new SparkMaxSim(m_backLeft, m_leftGearbox);
+    m_rightSim = new SparkMaxSim(m_backRight, m_rightGearbox);
     // invert right side
     m_backRightConfig.inverted(true);
     m_frontRightConfig.inverted(true);
