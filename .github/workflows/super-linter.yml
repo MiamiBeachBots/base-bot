@@ -1,5 +1,3 @@
-
-
 ---
 #################################
 #################################
@@ -23,6 +21,8 @@ on:
   pull_request:
     branches: [master, main]
 
+permissions: read-all
+
 ###############
 # Set the Job #
 ###############
@@ -41,7 +41,7 @@ jobs:
       # Checkout the code base #
       ##########################
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
@@ -51,7 +51,7 @@ jobs:
       # Run Linter against code base #
       ################################
       - name: Lint Code Base
-        uses: github/super-linter/slim@v4
+        uses: github/super-linter/slim@v7
         env:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_JSCPD: false
