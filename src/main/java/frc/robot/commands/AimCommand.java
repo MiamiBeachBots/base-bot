@@ -9,8 +9,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import java.util.Optional;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 /** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends Command {
@@ -39,28 +41,40 @@ public class AimCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    PhotonPipelineResult CamResult = m_cameraSubsystem.frontCameraResult;
+    Optional<PhotonPipelineResult> CamResult = m_cameraSubsystem.frontCameraResult;
     // will not work if cam is defined incorrectly, but will not tell you
-    if (CamResult.hasTargets()) {
-      SmartDashboard.putBoolean("CameraTargetDetected", true);
-      double angleGoal = m_driveSubsystem.getYaw() + CamResult.getBestTarget().getYaw();
-      SmartDashboard.putNumber("CameraTargetPitch", angleGoal);
-      double distanceFromTarget =
-          PhotonUtils.calculateDistanceToTargetMeters(
-                  m_cameraSubsystem.frontCameraHeightMeters,
-                  m_cameraSubsystem.frontCameraTargetHeightMeters,
-                  m_cameraSubsystem.frontCameraTargetPitchRadians,
-                  Units.degreesToRadians(CamResult.getBestTarget().getPitch()))
-              - m_cameraSubsystem.frontCameraGoalRangeMeters;
-      // turn and move towards target.
-      // m_driveSubsystem.driveAndTurn(m_driveSubsystem.getYaw(), angleGoal, distanceFromTarget);
-      // we reset the angle everytime as the target could change / move.
-      m_driveSubsystem.turnSetGoal(angleGoal);
-    } else {
-      SmartDashboard.putBoolean("CameraTargetDetected", false);
-      SmartDashboard.putNumber("CameraTargetPitch", 0.0);
-      m_driveSubsystem.tankDrive(0, 0);
-    }
+    CamResult.ifPresentOrElse(
+        result -> {
+          if (result.hasTargets()) {
+            SmartDashboard.putBoolean("CameraTargetDetected", true);
+            // find target we want, we can change later
+            PhotonTrackedTarget target = result.getBestTarget();
+            // we can change this to be a certain april tag later
+            // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
+            double angleGoal = m_driveSubsystem.getYaw() + target.getYaw();
+            SmartDashboard.putNumber("CameraTargetPitch", angleGoal);
+            double distanceFromTarget =
+                PhotonUtils.calculateDistanceToTargetMeters(
+                        m_cameraSubsystem.frontCameraHeightMeters,
+                        m_cameraSubsystem.frontCameraTargetHeightMeters,
+                        m_cameraSubsystem.frontCameraTargetPitchRadians,
+                        Units.degreesToRadians(target.getPitch()))
+                    - m_cameraSubsystem.frontCameraGoalRangeMeters;
+
+            // turn and move towards target.
+            // if within 0.5 pos or neg
+            if (Math.abs(target.getYaw()) > 0.5) {
+              m_driveSubsystem.turnSetGoal(angleGoal);
+            } else if (Math.abs(distanceFromTarget) > 0.1) {
+              m_driveSubsystem.driveToRelativePosition(distanceFromTarget);
+            }
+          }
+        },
+        () -> {
+          SmartDashboard.putBoolean("CameraTargetDetected", false);
+          SmartDashboard.putNumber("CameraTargetPitch", 0.0);
+          m_driveSubsystem.tankDrive(0, 0);
+        });
   }
 
   // Called once the command ends or is interrupted.

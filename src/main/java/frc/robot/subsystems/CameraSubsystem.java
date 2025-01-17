@@ -24,7 +24,7 @@ public class CameraSubsystem extends SubsystemBase {
   public final AprilTagFieldLayout aprilTagFieldLayout;
   private final String frontCameraName = "cam";
   private final PhotonCamera frontCamera;
-  public PhotonPipelineResult frontCameraResult;
+  public Optional<PhotonPipelineResult> frontCameraResult;
   // Physical location of camera relative to center
   private final double CameraLocationXMeters = Units.inchesToMeters(6);
   private final double CameraLocationYMeters = Units.inchesToMeters(9.3);
@@ -63,22 +63,37 @@ public class CameraSubsystem extends SubsystemBase {
   }
 
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-    return frontCameraPoseEstimator.update(frontCameraResult);
+    if (frontCameraResult.isEmpty()) {
+      return Optional.empty();
+    }
+    return frontCameraPoseEstimator.update(frontCameraResult.get());
+  }
+
+  private Optional<PhotonPipelineResult> getLatestResult() {
+    var results = frontCamera.getAllUnreadResults();
+    if (!results.isEmpty()) {
+      // Camera processed a new frame since last
+      // Get the last one in the list.
+      var result = results.get(results.size() - 1);
+      if (result.hasTargets()) {
+        // select last result with targets
+        SmartDashboard.putBoolean("CameraConnnected", true);
+        SmartDashboard.putNumber("Front Camera Latency", result.getTimestampSeconds());
+        return Optional.of(result);
+      }
+    }
+    SmartDashboard.putBoolean("CameraConnnected", false);
+    return Optional.empty();
   }
 
   @Override
   public void periodic() {
-    frontCameraResult = frontCamera.getLatestResult();
+    frontCameraResult = getLatestResult();
     Optional<EstimatedRobotPose> pose = getEstimatedGlobalPose();
     if (pose.isPresent()) {
-      SmartDashboard.putBoolean("CameraConnnected", true);
       m_driveSubsystem.updateVisionPose(
           pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
-    } else {
-      SmartDashboard.putBoolean("CameraConnnected", false);
     }
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Front Camera Latency", frontCameraResult.getTimestampSeconds());
   }
 
   @Override

@@ -345,7 +345,8 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void driveToRelativePosition(double targetPosition) {
-    if (targetPosition < 0.1) { // less then 0.1 meters, do nothing, pervents feedback loop
+    if (Math.abs(targetPosition)
+        < 0.1) { // less then 0.1 meters, do nothing, pervents feedback loop
       double totalPosition = this.AverageDistance() + targetPosition;
       this.driveToPosition(totalPosition);
     }
