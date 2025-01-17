@@ -48,7 +48,7 @@ public class AimCommand extends Command {
   public void execute() {
     // TODO: update offset here
     // robotoffset = ....
-    Optional<PhotonPipelineResult> CamResult = m_cameraSubsystem.frontCameraResult;
+    Optional<PhotonPipelineResult> CamResult = m_cameraSubsystem.targetingCamera1Result;
     // will not work if cam is defined incorrectly, but will not tell you
     CamResult.ifPresentOrElse(
         result -> {

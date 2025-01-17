@@ -6,8 +6,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -93,7 +91,7 @@ public class RobotContainer {
   private JoystickButton m_shooterTrigger;
   // Init For Autonomous
   private LoggedDashboardChooser<String> autoDashboardChooser =
-      new LoggedDashboardChooser<String>(null);
+      new LoggedDashboardChooser<String>("AutoMode");
 
   public final boolean enableAutoProfiling = false;
 
@@ -194,9 +192,7 @@ public class RobotContainer {
   }
 
   private void configureTeleopPaths() {
-    // Limits for all Paths
-    PathConstraints constraints =
-        new PathConstraints(3.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+    // TODO: Write new paths
     // EX
     // PathPlannerPath ampPath = PathPlannerPath.fromPathFile("TeleopAmpPath");
 

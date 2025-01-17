@@ -2,6 +2,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -69,4 +73,53 @@ public final class Constants {
   public static final int EXAMPLELIMITSWITCH = 0;
 
   // Shooter Angles
+
+  // Camera Constants
+  public static final class PoseCamera1 {
+    public static final String name = "pose1";
+    // XYZ
+    private static final double XLocation = Units.inchesToMeters(6);
+    private static final double YLocation = Units.inchesToMeters(9.3);
+    private static final double ZLocation = Units.inchesToMeters(10.5);
+    // ROTATION
+    public static final double roll = Units.degreesToRadians(90);
+    public static final double pitch = Units.degreesToRadians(0.0);
+    public static final double yaw = Units.degreesToRadians(0);
+
+    public static final Transform3d location =
+        new Transform3d(
+            new Translation3d(XLocation, YLocation, ZLocation), new Rotation3d(roll, pitch, yaw));
+  }
+
+  public static final class PoseCamera2 {
+    public static final String name = "pose2";
+    // XYZ
+    private static final double XLocation = Units.inchesToMeters(6);
+    private static final double YLocation = Units.inchesToMeters(9.3);
+    private static final double ZLocation = Units.inchesToMeters(10.5);
+    // ROTATION
+    public static final double roll = Units.degreesToRadians(90);
+    public static final double pitch = Units.degreesToRadians(0.0);
+    public static final double yaw = Units.degreesToRadians(0);
+
+    public static final Transform3d location =
+        new Transform3d(
+            new Translation3d(XLocation, YLocation, ZLocation), new Rotation3d(roll, pitch, yaw));
+  }
+
+  public static final class TargetingCamera1 {
+    public static final String name = "targeting1";
+    // XYZ
+    private static final double XLocation = Units.inchesToMeters(6);
+    private static final double YLocation = Units.inchesToMeters(9.3);
+    private static final double ZLocation = Units.inchesToMeters(10.5);
+    // ROTATION
+    public static final double roll = Units.degreesToRadians(90);
+    public static final double pitch = Units.degreesToRadians(0.0);
+    public static final double yaw = Units.degreesToRadians(0);
+
+    public static final Transform3d location =
+        new Transform3d(
+            new Translation3d(XLocation, YLocation, ZLocation), new Rotation3d(roll, pitch, yaw));
+  }
 }

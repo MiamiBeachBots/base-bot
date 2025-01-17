@@ -6,12 +6,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -22,55 +19,42 @@ import org.photonvision.targeting.PhotonPipelineResult;
 public class CameraSubsystem extends SubsystemBase {
   private final DriveSubsystem m_driveSubsystem;
   public final AprilTagFieldLayout aprilTagFieldLayout;
-  private final String frontCameraName = "cam";
-  private final PhotonCamera frontCamera;
-  public Optional<PhotonPipelineResult> frontCameraResult;
-  // Physical location of camera relative to center
-  private final double CameraLocationXMeters = Units.inchesToMeters(6);
-  private final double CameraLocationYMeters = Units.inchesToMeters(9.3);
-  private final double CameraLocationZMeters = Units.inchesToMeters(10.5);
-  // angle of camera / orientation
+  private final PhotonCamera poseCamera1;
+  private final PhotonCamera poseCamera2;
+  private final PhotonCamera targetingCamera1;
 
-  // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-  private final double CameraRollRadians = Units.degreesToRadians(90);
-  private final double CameraPitchRadians = Units.degreesToRadians(0.0);
-  private final double CameraYawRadians = Units.degreesToRadians(0);
+  public Optional<PhotonPipelineResult> poseCamera1Result;
+  public Optional<PhotonPipelineResult> poseCamera2Result;
+  public Optional<PhotonPipelineResult> targetingCamera1Result;
 
-  private final Transform3d frontCameraLocation =
-      new Transform3d(
-          new Translation3d(CameraLocationXMeters, CameraLocationYMeters, CameraLocationZMeters),
-          new Rotation3d(CameraRollRadians, CameraPitchRadians, CameraYawRadians));
-
-  private final PhotonPoseEstimator frontCameraPoseEstimator;
-  // Constants such as camera and target height stored. Change per robot and goal!
-  public final double frontCameraHeightMeters = Units.inchesToMeters(24);
-
-  // Target Configruation for the front camera
-  public final double frontCameraTargetHeightMeters = Units.feetToMeters(0.5);
-  // Angle between horizontal and the camera.
-  public final double frontCameraTargetPitchRadians = Units.degreesToRadians(0);
-  // How far from the target we want to be
-  public final double frontCameraGoalRangeMeters = Units.feetToMeters(3);
+  private final PhotonPoseEstimator poseCamera1PoseEstimator;
+  private final PhotonPoseEstimator poseCamera2PoseEstimator;
 
   /** Creates a new CameraSubsystem. */
   public CameraSubsystem(DriveSubsystem d_subsystem) {
     m_driveSubsystem = d_subsystem;
     aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    frontCamera = new PhotonCamera(frontCameraName);
-    frontCameraPoseEstimator =
+
+    poseCamera1 = new PhotonCamera(Constants.PoseCamera1.name);
+    poseCamera2 = new PhotonCamera(Constants.PoseCamera2.name);
+    targetingCamera1 = new PhotonCamera(Constants.TargetingCamera1.name);
+
+    poseCamera1PoseEstimator =
         new PhotonPoseEstimator(
-            aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCameraLocation);
+            aprilTagFieldLayout,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            Constants.PoseCamera1.location);
+    poseCamera2PoseEstimator =
+        new PhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            Constants.PoseCamera2.location);
+    poseCamera1PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-    if (frontCameraResult.isEmpty()) {
-      return Optional.empty();
-    }
-    return frontCameraPoseEstimator.update(frontCameraResult.get());
-  }
-
-  private Optional<PhotonPipelineResult> getLatestResult() {
-    var results = frontCamera.getAllUnreadResults();
+  private Optional<PhotonPipelineResult> getPipelineResults(PhotonCamera camera) {
+    var results = camera.getAllUnreadResults();
     if (!results.isEmpty()) {
       // Camera processed a new frame since last
       // Get the last one in the list.
@@ -86,14 +70,27 @@ public class CameraSubsystem extends SubsystemBase {
     return Optional.empty();
   }
 
+  private void updateGlobalPose(
+      Optional<PhotonPipelineResult> result, PhotonPoseEstimator poseEstimator) {
+    if (result.isPresent()) {
+      Optional<EstimatedRobotPose> curPose = poseEstimator.update(result.get());
+      if (curPose.isPresent()) {
+        m_driveSubsystem.updateVisionPose(
+            curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
+      }
+    }
+  }
+
   @Override
   public void periodic() {
-    frontCameraResult = getLatestResult();
-    Optional<EstimatedRobotPose> pose = getEstimatedGlobalPose();
-    if (pose.isPresent()) {
-      m_driveSubsystem.updateVisionPose(
-          pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
-    }
+    // This method will be called once per scheduler run
+    // update the pipeline results
+    poseCamera1Result = getPipelineResults(poseCamera1);
+    poseCamera2Result = getPipelineResults(poseCamera2);
+    targetingCamera1Result = getPipelineResults(targetingCamera1);
+    // update the pose estimators
+    updateGlobalPose(poseCamera1Result, poseCamera1PoseEstimator);
+    updateGlobalPose(poseCamera2Result, poseCamera2PoseEstimator);
   }
 
   @Override
