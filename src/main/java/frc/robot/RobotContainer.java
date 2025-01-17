@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -32,6 +31,7 @@ import frc.robot.subsystems.DriverCameraSubsystem;
 import frc.robot.subsystems.FlywheelSubsystem;
 import frc.robot.subsystems.LifterSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -95,7 +95,9 @@ public class RobotContainer {
   private JoystickButton m_aimButton;
   private JoystickButton m_shooterTrigger;
   // Init For Autonomous
-  private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
+  private LoggedDashboardChooser<String> autoDashboardChooser =
+      new LoggedDashboardChooser<String>(null);
+
   public final boolean enableAutoProfiling = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -178,10 +180,10 @@ public class RobotContainer {
 
   private void initializeAutonomous() {
     // Network Table Routine Options
-    autoDashboardChooser.setDefaultOption("SFR", "SFR");
+    autoDashboardChooser.addDefaultOption("SFR", "SFR");
     autoDashboardChooser.addOption("DriveForward", "DriveForward");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
-    SmartDashboard.putData(autoDashboardChooser);
+    SmartDashboard.putData(autoDashboardChooser.getSendableChooser());
 
     // Named Commands
     // ex:
@@ -240,7 +242,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // get the name of the auto from network tables, as the rest is preconfigured by the drive
     // subsystem.
-    String autoName = autoDashboardChooser.getSelected();
+    String autoName = autoDashboardChooser.get();
     return new PathPlannerAuto(autoName);
   }
 }
