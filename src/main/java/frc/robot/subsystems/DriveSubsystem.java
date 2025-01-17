@@ -22,6 +22,8 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -116,6 +118,9 @@ public class DriveSubsystem extends SubsystemBase {
     m_rightGearbox = DCMotor.getNEO(2);
     m_leftSim = new SparkMaxSim(m_backLeft, m_leftGearbox);
     m_rightSim = new SparkMaxSim(m_backRight, m_rightGearbox);
+    // setup simulation for gyro
+    int gyroID = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
+    SimDouble SimGyroAngle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(gyroID, "Yaw"));
     // invert right side
     m_backRightConfig.inverted(true);
     m_frontRightConfig.inverted(true);
