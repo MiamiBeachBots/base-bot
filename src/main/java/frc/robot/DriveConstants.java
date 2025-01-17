@@ -1,6 +1,7 @@
 package frc.robot;
 
-import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.config.RobotConfig;
+import com.revrobotics.spark.ClosedLoopSlot;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
@@ -51,10 +52,20 @@ public final class DriveConstants {
   // wheel velocities for a differential drive.
   public static final DifferentialDriveKinematics kDriveKinematics =
       new DifferentialDriveKinematics(kTrackwidthMeters);
-  // Default path replanning config. See the API for the options
-  public static final ReplanningConfig autoReplanningConfig = new ReplanningConfig();
+
+  // Default path config from path planning app
+  public static RobotConfig autoConfig;
+
+  static {
+    try {
+      autoConfig = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+  }
 
   // Motor Controller PID Slots
-  public static final int kDrivetrainVelocityPIDSlot = 0;
-  public static final int kDrivetrainPositionPIDSlot = 1;
+  public static final ClosedLoopSlot kDrivetrainVelocityPIDSlot = ClosedLoopSlot.kSlot0;
+  public static final ClosedLoopSlot kDrivetrainPositionPIDSlot = ClosedLoopSlot.kSlot1;
 }

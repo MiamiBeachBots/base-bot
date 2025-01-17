@@ -2,6 +2,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.RobotBase;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -20,13 +22,27 @@ public final class Constants {
     public static final int MOTORFRONTLEFTID = 12;
     public static final int MOTORBACKLEFTID = 11;
     /// Arm Motors
-    public static final int MOTORARMMAINID = -1;
+    public static final int MOTORARMMAINID = 21;
     /// Shooter Motors
     public static final int MOTORSHOOTERLEFTID = 31;
     public static final int MOTORSHOOTERRIGHTID = 32;
     /// Lifter Motors
-    public static final int MOTORLIFTERLEFTID = -1;
-    public static final int MOTORLIFTERRIGHTID = -1;
+    public static final int MOTORLIFTERLEFTID = 41;
+    public static final int MOTORLIFTERRIGHTID = 42;
+  }
+
+  public static final Mode simMode = Mode.SIM;
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+  public static enum Mode {
+    /** Running on a real robot. */
+    REAL,
+
+    /** Running a physics simulator. */
+    SIM,
+
+    /** Replaying from a log file. */
+    REPLAY
   }
 
   public static final double MAX_SPEED = 0.8;

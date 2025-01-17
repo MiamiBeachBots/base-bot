@@ -5,12 +5,18 @@ package frc.robot.subsystems;
 // import motor & frc dependencies
 import static edu.wpi.first.units.Units.Volts;
 
-import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkMax;
+import com.pathplanner.lib.controllers.PPLTVController;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -20,10 +26,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
+import org.littletonrobotics.junction.Logger;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
 public class DriveSubsystem extends SubsystemBase {
@@ -40,10 +45,17 @@ public class DriveSubsystem extends SubsystemBase {
   private final AHRS m_Gyro;
 
   // motors
-  private final CANSparkMax m_backLeft; // Main / Master Motor for Left
-  private final CANSparkMax m_frontLeft; // Slave Motor for Left (Follow Master)
-  private final CANSparkMax m_backRight; // Main / Master Motor for Right
-  private final CANSparkMax m_frontRight; // Slave Motor for Right (Follow Master)
+  private final SparkMax m_backLeft; // Main / Master Motor for Left
+  private final SparkMax m_frontLeft; // Slave Motor for Left (Follow Master)
+  private final SparkMax m_backRight; // Main / Master Motor for Right
+  private final SparkMax m_frontRight; // Slave Motor for Right (Follow Master)
+
+  // Motor Configs
+  private final SparkMaxConfig m_backLeftConfig = new SparkMaxConfig();
+  private final SparkMaxConfig m_frontLeftConfig = new SparkMaxConfig();
+  private final SparkMaxConfig m_backRightConfig = new SparkMaxConfig();
+  private final SparkMaxConfig m_frontRightConfig = new SparkMaxConfig();
+
   // Main drive function
   private final DifferentialDrive m_ddrive;
 
@@ -54,8 +66,8 @@ public class DriveSubsystem extends SubsystemBase {
   private final RelativeEncoder m_encoderFrontRight;
 
   // Motor PID Controllers
-  private final SparkPIDController m_backLeftPIDController;
-  private final SparkPIDController m_backRightPIDController;
+  private final SparkClosedLoopController m_backLeftPIDController;
+  private final SparkClosedLoopController m_backRightPIDController;
 
   // Current Idle mode
   private boolean isBrakeMode;
@@ -122,22 +134,21 @@ public class DriveSubsystem extends SubsystemBase {
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     // Init gyro
-    m_Gyro = new AHRS(SPI.Port.kMXP);
+    m_Gyro = new AHRS(NavXComType.kMXP_SPI);
     // init motors
     // rio means built into the roboRIO
-    m_backLeft = new CANSparkMax(CANConstants.MOTORBACKLEFTID, CANSparkMax.MotorType.kBrushless);
-    m_frontLeft = new CANSparkMax(CANConstants.MOTORFRONTLEFTID, CANSparkMax.MotorType.kBrushless);
-    m_frontRight =
-        new CANSparkMax(CANConstants.MOTORFRONTRIGHTID, CANSparkMax.MotorType.kBrushless);
-    m_backRight = new CANSparkMax(CANConstants.MOTORBACKRIGHTID, CANSparkMax.MotorType.kBrushless);
+    m_backLeft = new SparkMax(CANConstants.MOTORBACKLEFTID, SparkMax.MotorType.kBrushless);
+    m_frontLeft = new SparkMax(CANConstants.MOTORFRONTLEFTID, SparkMax.MotorType.kBrushless);
+    m_frontRight = new SparkMax(CANConstants.MOTORFRONTRIGHTID, SparkMax.MotorType.kBrushless);
+    m_backRight = new SparkMax(CANConstants.MOTORBACKRIGHTID, SparkMax.MotorType.kBrushless);
 
     // invert right side
-    m_backRight.setInverted(true);
-    m_frontRight.setInverted(true);
+    m_backRightConfig.inverted(true);
+    m_frontRightConfig.inverted(true);
 
     // setup main and secondary motors
-    m_frontLeft.follow(m_backLeft); // set front left to follow back left
-    m_frontRight.follow(m_backRight); // set front right to follow back right
+    m_frontLeftConfig.follow(m_backLeft); // set front left to follow back left
+    m_frontRightConfig.follow(m_backRight); // set front right to follow back right
 
     // init drive function
     m_ddrive = new DifferentialDrive(m_backLeft, m_backRight);
@@ -151,20 +162,20 @@ public class DriveSubsystem extends SubsystemBase {
     // Encoders inverted with motors
 
     // init PID Controllers
-    m_backLeftPIDController = m_backLeft.getPIDController();
-    m_backRightPIDController = m_backRight.getPIDController();
+    m_backLeftPIDController = m_backLeft.getClosedLoopController();
+    m_backRightPIDController = m_backRight.getClosedLoopController();
 
     // configure encoders
     // RPM TO m/s
-    m_encoderBackLeft.setVelocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
-    m_encoderBackRight.setVelocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
-    m_encoderFrontLeft.setVelocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
-    m_encoderFrontRight.setVelocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
+    m_backLeftConfig.encoder.velocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
+    m_backRightConfig.encoder.velocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
+    m_frontLeftConfig.encoder.velocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
+    m_frontRightConfig.encoder.velocityConversionFactor(DriveConstants.VELOCITY_CONVERSION_RATIO);
     // rotations to meters
-    m_encoderBackLeft.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
-    m_encoderBackRight.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
-    m_encoderFrontLeft.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
-    m_encoderFrontRight.setPositionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
+    m_backLeftConfig.encoder.positionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
+    m_backRightConfig.encoder.positionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
+    m_frontLeftConfig.encoder.positionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
+    m_frontRightConfig.encoder.positionConversionFactor(DriveConstants.POSITION_CONVERSION_RATIO);
     resetEncoders();
 
     // setup PID controllers
@@ -187,13 +198,16 @@ public class DriveSubsystem extends SubsystemBase {
             getPositionRight(),
             new Pose2d());
 
+    final PPLTVController m_driveController = new PPLTVController(0.02);
     // Setup Base AutoBuilder (Autonomous)
-    AutoBuilder.configureRamsete(
+    AutoBuilder.configure(
         this::getPose, // Pose2d supplier
         this::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
         this::getSpeeds, // A method for getting the chassis' current speed and direction
         this::setSpeeds, // A consumer that takes the desired chassis speed and direction
-        DriveConstants.autoReplanningConfig,
+        m_driveController, // PPLTVController is the built in path following controller for
+        // differential drive trains
+        DriveConstants.autoConfig, // AutoConfig
         () -> {
           // Boolean supplier that controls when the path will be mirrored for the red alliance
           // This will flip the path being followed to the red side of the field.
@@ -213,11 +227,25 @@ public class DriveSubsystem extends SubsystemBase {
     // setup SysID for auto profiling
     m_sysIdRoutine =
         new SysIdRoutine(
-            new SysIdRoutine.Config(),
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> Logger.recordOutput("SysIdTestState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> this.setVoltage(voltage, voltage),
                 null, // No log consumer, since data is recorded by URCL
                 this));
+
+    // burn config to motors
+    m_backLeft.configure(
+        m_backLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_frontLeft.configure(
+        m_frontLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_backRight.configure(
+        m_backRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_frontRight.configure(
+        m_frontRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -230,59 +258,62 @@ public class DriveSubsystem extends SubsystemBase {
 
   private void configureMotorPIDControllers() {
     // setup velocity PID controllers (used by auto)
-    m_backLeftPIDController.setP(
-        DriveConstants.kPDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setP(
-        DriveConstants.kPDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setI(
-        DriveConstants.kIDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setI(
-        DriveConstants.kIDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setD(
-        DriveConstants.kDDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setD(
-        DriveConstants.kDDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setIZone(
+    // PID
+    m_backLeftConfig.closedLoop.pid(
+        DriveConstants.kPDriveVel,
+        DriveConstants.kIDriveVel,
+        DriveConstants.kDDriveVel,
+        DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_backRightConfig.closedLoop.pid(
+        DriveConstants.kPDriveVel,
+        DriveConstants.kIDriveVel,
+        DriveConstants.kDDriveVel,
+        DriveConstants.kDrivetrainVelocityPIDSlot);
+    // Set Izone (Integral Zone)
+    m_backLeftConfig.closedLoop.iZone(
         DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setIZone(
+    m_backRightConfig.closedLoop.iZone(
         DriveConstants.kIzDriveVel, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backLeftPIDController.setOutputRange(
+    // set output range
+    m_backLeftConfig.closedLoop.outputRange(
         DriveConstants.kMinOutputDrive,
         DriveConstants.kMaxOutputDrive,
         DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_backRightPIDController.setOutputRange(
+    m_backRightConfig.closedLoop.outputRange(
         DriveConstants.kMinOutputDrive,
         DriveConstants.kMaxOutputDrive,
         DriveConstants.kDrivetrainVelocityPIDSlot);
 
     // setup position PID controllers (used when we manually path find)
-    m_backLeftPIDController.setP(
-        DriveConstants.kPDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setP(
-        DriveConstants.kPDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setI(
-        DriveConstants.kIDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setI(
-        DriveConstants.kIDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setD(
-        DriveConstants.kDDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setD(
-        DriveConstants.kDDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setIZone(
+    // PID
+    m_backLeftConfig.closedLoop.pid(
+        DriveConstants.kPDrivePos,
+        DriveConstants.kIDrivePos,
+        DriveConstants.kDDrivePos,
+        DriveConstants.kDrivetrainPositionPIDSlot);
+    m_backRightConfig.closedLoop.pid(
+        DriveConstants.kPDrivePos,
+        DriveConstants.kIDrivePos,
+        DriveConstants.kDDrivePos,
+        DriveConstants.kDrivetrainPositionPIDSlot);
+    // Integral Zone
+
+    m_backLeftConfig.closedLoop.iZone(
         DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setIZone(
+    m_backRightConfig.closedLoop.iZone(
         DriveConstants.kIzDrivePos, DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backLeftPIDController.setOutputRange(
+    // Output Range
+    m_backLeftConfig.closedLoop.outputRange(
         DriveConstants.kMinOutputDrive,
         DriveConstants.kMaxOutputDrive,
         DriveConstants.kDrivetrainPositionPIDSlot);
-    m_backRightPIDController.setOutputRange(
+    m_backRightConfig.closedLoop.outputRange(
         DriveConstants.kMinOutputDrive,
         DriveConstants.kMaxOutputDrive,
         DriveConstants.kDrivetrainPositionPIDSlot);
   }
 
-  public void setVoltage(Measure<Voltage> rightVoltage, Measure<Voltage> leftVoltage) {
+  public void setVoltage(Voltage rightVoltage, Voltage leftVoltage) {
     m_backLeft.setVoltage(leftVoltage.in(Volts));
     m_backRight.setVoltage(rightVoltage.in(Volts));
     m_ddrive.feed();
@@ -407,12 +438,12 @@ public class DriveSubsystem extends SubsystemBase {
     // set to position of motors
     m_backLeftPIDController.setReference(
         leftSpeed,
-        CANSparkBase.ControlType.kVelocity,
+        SparkBase.ControlType.kVelocity,
         DriveConstants.kDrivetrainVelocityPIDSlot,
         m_driveFeedForward.calculate(leftSpeed));
     m_backRightPIDController.setReference(
         rightSpeed,
-        CANSparkBase.ControlType.kVelocity,
+        SparkBase.ControlType.kVelocity,
         DriveConstants.kDrivetrainVelocityPIDSlot,
         m_driveFeedForward.calculate(rightSpeed));
   }
@@ -421,9 +452,9 @@ public class DriveSubsystem extends SubsystemBase {
   // function.
   public void driveToPosition(final double NewPosition) {
     m_backLeftPIDController.setReference(
-        NewPosition, CANSparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
+        NewPosition, SparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
     m_backRightPIDController.setReference(
-        NewPosition, CANSparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
+        NewPosition, SparkBase.ControlType.kPosition, DriveConstants.kDrivetrainPositionPIDSlot);
   }
 
   public Pose2d getPose() {
@@ -446,18 +477,36 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void SetBrakemode() {
-    m_backLeft.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    m_backRight.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    m_frontLeft.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    m_frontRight.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    m_backLeftConfig.idleMode(IdleMode.kBrake);
+    m_backRightConfig.idleMode(IdleMode.kBrake);
+    m_frontLeftConfig.idleMode(IdleMode.kBrake);
+    m_frontRightConfig.idleMode(IdleMode.kBrake);
+    // reburn configs during runtime
+    m_backLeft.configure(
+        m_backLeftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    m_frontLeft.configure(
+        m_frontLeftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    m_backRight.configure(
+        m_backRightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    m_frontRight.configure(
+        m_frontRightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     isBrakeMode = true;
   }
 
   public void SetCoastmode() {
-    m_backLeft.setIdleMode(CANSparkMax.IdleMode.kCoast);
-    m_backRight.setIdleMode(CANSparkMax.IdleMode.kCoast);
-    m_frontLeft.setIdleMode(CANSparkMax.IdleMode.kCoast);
-    m_frontRight.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_backLeftConfig.idleMode(IdleMode.kCoast);
+    m_backRightConfig.idleMode(IdleMode.kCoast);
+    m_frontLeftConfig.idleMode(IdleMode.kCoast);
+    m_frontRightConfig.idleMode(IdleMode.kCoast);
+    // reburn configs during runtime
+    m_backLeft.configure(
+        m_backLeftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    m_frontLeft.configure(
+        m_frontLeftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    m_backRight.configure(
+        m_backRightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    m_frontRight.configure(
+        m_frontRightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     isBrakeMode = false;
   }
 

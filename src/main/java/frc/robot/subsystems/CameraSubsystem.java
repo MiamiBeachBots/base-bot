@@ -55,22 +55,20 @@ public class CameraSubsystem extends SubsystemBase {
   /** Creates a new CameraSubsystem. */
   public CameraSubsystem(DriveSubsystem d_subsystem) {
     m_driveSubsystem = d_subsystem;
-    aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     frontCamera = new PhotonCamera(frontCameraName);
     frontCameraPoseEstimator =
         new PhotonPoseEstimator(
-            aprilTagFieldLayout,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            frontCamera,
-            frontCameraLocation);
+            aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCameraLocation);
   }
 
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-    return frontCameraPoseEstimator.update();
+    return frontCameraPoseEstimator.update(frontCameraResult);
   }
 
   @Override
   public void periodic() {
+    frontCameraResult = frontCamera.getLatestResult();
     Optional<EstimatedRobotPose> pose = getEstimatedGlobalPose();
     if (pose.isPresent()) {
       SmartDashboard.putBoolean("CameraConnnected", true);
@@ -79,9 +77,8 @@ public class CameraSubsystem extends SubsystemBase {
     } else {
       SmartDashboard.putBoolean("CameraConnnected", false);
     }
-    frontCameraResult = frontCamera.getLatestResult();
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Front Camera Latency", frontCameraResult.getLatencyMillis() / 1000.0);
+    SmartDashboard.putNumber("Front Camera Latency", frontCameraResult.getTimestampSeconds());
   }
 
   @Override
