@@ -6,9 +6,9 @@ name: Build & Format Check
 # events but only for the main branch.
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -22,22 +22,22 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: gradle/actions/setup-gradle@v3 # enables fancy caching.
-    - uses: actions/checkout@v4
-    - uses: gradle/actions/wrapper-validation@v3 # this validates the jar file
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: gradle/actions/setup-gradle@v3 # enables fancy caching.
+      - uses: actions/checkout@v4
+      - uses: gradle/actions/wrapper-validation@v3 # this validates the jar file
 
-    # Declares the repository safe and not under dubious ownership.
-    - name: Add repository to git safe directories
-      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      # Declares the repository safe and not under dubious ownership.
+      - name: Add repository to git safe directories
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    # Make gradlew executable
-    - name: Make grandlew executable
-      run: chmod +x gradlew
+      # Make gradlew executable
+      - name: Make grandlew executable
+        run: chmod +x gradlew
 
-    # build.
-    - name: Compile and run tests on robot code
-      run: ./gradlew build
+      # build.
+      - name: Compile and run tests on robot code
+        run: ./gradlew build
 
   Formatting:
     # The type of runner that the job will run on
@@ -48,19 +48,19 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: gradle/actions/setup-gradle@v3 # enables fancy caching.
-    - uses: actions/checkout@v4
-    - uses: gradle/actions/wrapper-validation@v3 # this validates the jar file
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: gradle/actions/setup-gradle@v3 # enables fancy caching.
+      - uses: actions/checkout@v4
+      - uses: gradle/actions/wrapper-validation@v3 # this validates the jar file
 
-    # Declares the repository safe and not under dubious ownership.
-    - name: Add repository to git safe directories
-      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      # Declares the repository safe and not under dubious ownership.
+      - name: Add repository to git safe directories
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    # Make gradlew executable
-    - name: Make grandlew executable
-      run: chmod +x gradlew
+      # Make gradlew executable
+      - name: Make grandlew executable
+        run: chmod +x gradlew
 
-    # check formatting.
-    - name: Validate Code is properly formatted
-      run: ./gradlew spotlessCheck
+      # check formatting.
+      - name: Validate Code is properly formatted
+        run: ./gradlew spotlessCheck
