@@ -7,6 +7,10 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPLTVController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -17,15 +21,12 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -34,9 +35,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
@@ -84,44 +85,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   // Odometry class for tracking robot pose (position on field)
   private final DifferentialDrivePoseEstimator m_driveOdometry;
-
-  // Angle PID / RotateToAngle
-  static final double turn_P = 0.1;
-  static final double turn_I = 0.00;
-  static final double turn_D = 0.00;
-  static final double MaxTurnRateDegPerS = 5;
-  static final double MaxTurnAccelerationDegPerSSquared = 5;
-  static final double TurnToleranceDeg = 10; // max diff in degrees
-  static final double TurnRateToleranceDegPerS = 10; // degrees per second
-  // false when inactive, true when active / a target is set.
-  private boolean turnControllerEnabled = false;
-  private double turnRotateToAngleRate; // This value will be updated by the PID Controller
-  // pid controller for "RotateToAngle"
-  private final ProfiledPIDController m_turnController =
-      new ProfiledPIDController(
-          turn_P,
-          turn_I,
-          turn_D,
-          new TrapezoidProfile.Constraints(MaxTurnRateDegPerS, MaxTurnAccelerationDegPerSSquared));
-
-  // Balance PID / AutoBalance
-  static final double balance_P = 0.0625; // 1/16
-  static final double balance_I = 0.00;
-  static final double balance_D = 0.00;
-  static final double MaxBalanceRateDegPerS = 10;
-  static final double MaxBalanceAccelerationDegPerSSquared = 20;
-  static final double BalanceToleranceDeg = 2; // max diff in degrees
-  // false when inactive, true when active / a target is set.
-  private boolean balanceControllerEnabled = false;
-  private double balanceThrottleRate; // This value will be updated by the PID Controller
-  // pid controller for balanceCorrection
-  private final ProfiledPIDController m_balanceController =
-      new ProfiledPIDController(
-          balance_P,
-          balance_I,
-          balance_D,
-          new TrapezoidProfile.Constraints(
-              MaxBalanceRateDegPerS, MaxBalanceAccelerationDegPerSSquared));
 
   // track robot field location for dashboard
   private Field2d field = new Field2d();
@@ -180,14 +143,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     // setup PID controllers
     configureMotorPIDControllers();
-
-    // Configure RIO PID Controllers
-    // config turn pid controller.
-    m_turnController.enableContinuousInput(-180.0f, 180.0f);
-    m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
-    // this is the target pitch/ tilt error.
-    m_balanceController.setGoal(0);
-    m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
 
     // configure Odemetry
     m_driveOdometry =
@@ -326,84 +281,42 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive.tankDrive(leftSpeed, rightSpeed);
   }
 
-  public void balanceResetPID() {
-    /** This should be run when stopping a pid command. */
-    balanceControllerEnabled = false;
-  }
-
-  public void balanceCorrection(double gyroPitchAngle) {
-    if (!balanceControllerEnabled) {
-      m_balanceController.reset(gyroPitchAngle);
-      balanceControllerEnabled = true;
-    }
-    balanceThrottleRate = MathUtil.clamp(m_balanceController.calculate(gyroPitchAngle), -1.0, 1.0);
-    if (!m_balanceController.atGoal()) {
-      // we reverse the values beacuse the robot was balancing in the wrong direction.
-      this.tankDrive(-balanceThrottleRate, -balanceThrottleRate);
-      System.out.println(balanceThrottleRate);
-    }
-  }
-
-  public void driveToRelativePosition(double targetPosition) {
-    if (Math.abs(targetPosition)
-        < 0.1) { // less then 0.1 meters, do nothing, pervents feedback loop
-      double totalPosition = this.AverageDistance() + targetPosition;
-      this.driveToPosition(totalPosition);
-    }
-  }
-
-  // these next 4 functions are for turning a set radius while using the gyro.
-  public void turnResetPID() {
-    /** This should be run when stopping a pid command. */
-    turnControllerEnabled = false;
-  }
-
-  public void turnSetGoal(double targetAngleDegrees) {
-    m_turnController.setGoal(targetAngleDegrees);
-  }
-
-  private void calcuateAngleRate(double gyroYawAngle, double targetAngleDegrees) {
-    if (!turnControllerEnabled) {
-      m_turnController.reset(gyroYawAngle);
-      m_turnController.setGoal(targetAngleDegrees);
-      turnControllerEnabled = true;
-    }
-    turnRotateToAngleRate = MathUtil.clamp(m_turnController.calculate(gyroYawAngle), -1.0, 1.0);
-  }
-
-  public void turnToAngle(double gyroYawAngle, double TargetAngleDegrees) {
-    /*
-     * When this function is activated, execute another command to rotate to target angle. Since a Tank drive
-     * system cannot move forward simultaneously while rotating, all joystick input
-     * is ignored until this button is released.
-     */
-    this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
-    double leftStickValue = turnRotateToAngleRate;
-    double rightStickValue = -turnRotateToAngleRate;
-    if (!m_turnController.atGoal()) {
-      this.tankDrive(leftStickValue, rightStickValue);
-    }
-  }
-
-  // magnitude = (joystickL + joystickR) / 2;
-  public void driveStraight(
-      double gyroYawAngle, double gyroAccumYawAngle, double joystickMagnitude) {
+  public Command driveStraight() {
     /*
      * WWhen this function is activated, the robot is in "drive straight" mode.
      * Whatever direction the robot was heading when "drive straight" mode was
-     * entered will be maintained. The average speed of both joysticks is the
-     * magnitude of motion.
+     * entered will be maintained. We use the current pose of the robot to determine the direction.
+     * The robot will continue to move in this direction until the function is canceled.
      */
-    this.calcuateAngleRate(gyroYawAngle, gyroAccumYawAngle);
-    double angleRate;
-    if (!m_turnController.atGoal()) {
-      angleRate = turnRotateToAngleRate;
-    } else {
-      angleRate = 0;
-    }
-    double leftStickValue = joystickMagnitude + angleRate;
-    double rightStickValue = joystickMagnitude - angleRate;
-    this.tankDrive((leftStickValue * Constants.MAX_SPEED), (rightStickValue * Constants.MAX_SPEED));
+    // get current pose
+    Pose2d currentPose = getPose();
+    // get current angle
+    double currentAngle = currentPose.getRotation().getDegrees();
+    // calculate wanted pose, add 2 meter to x value of current pose
+    Pose2d wantedPose =
+        new Pose2d(
+            currentPose.getTranslation().getX() + 10,
+            currentPose.getTranslation().getY(),
+            new Rotation2d(currentAngle));
+    // generate path
+    return GenerateOnTheFlyCommand(wantedPose);
+  }
+
+  public Command GenerateOnTheFlyCommand(Pose2d desiredPose) {
+    PathPlannerPath path = generateOnTheFlyPath(desiredPose);
+    return AutoBuilder.followPath(path);
+  }
+
+  private PathPlannerPath generateOnTheFlyPath(Pose2d desiredPose) {
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(desiredPose);
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
+            DriveConstants.OnTheFly.kPathConstraints,
+            new IdealStartingState(0, desiredPose.getRotation()),
+            new GoalEndState(0, desiredPose.getRotation()));
+    path.preventFlipping = true;
+    return path;
   }
 
   /*
@@ -473,8 +386,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderFrontRight.setPosition(0);
   }
 
-  public double AverageDistance() {
-    return (getPositionLeft() + getPositionRight()) / 2;
+  public double currentDistance() {
+    return getPose().getTranslation().getX();
   }
 
   public void SetBrakemode() {
@@ -583,7 +496,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Right Encoder Speed (M/s)", wheelSpeeds.rightMetersPerSecond);
     SmartDashboard.putNumber("Distance L", this.getPositionLeft());
     SmartDashboard.putNumber("Distance R", this.getPositionRight());
-    SmartDashboard.putNumber("Average Distance Traveled", AverageDistance());
+    SmartDashboard.putNumber("Average Distance Traveled", currentDistance());
     SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
     SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
     SmartDashboard.putBoolean("Gyro Calibrating", m_Gyro.isCalibrating());

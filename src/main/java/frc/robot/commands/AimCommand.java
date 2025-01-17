@@ -4,13 +4,14 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.Optional;
-import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -18,6 +19,10 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class AimCommand extends Command {
   private final DriveSubsystem m_driveSubsystem;
   private final CameraSubsystem m_cameraSubsystem;
+  private final Transform3d robotOffset = new Transform3d();
+  private final double toleranceMeters = 0.1;
+  private Pose2d robotToTarget2d = new Pose2d();
+  private Command resultingCommand;
 
   /**
    * Creates a new AimCommand.
@@ -41,6 +46,8 @@ public class AimCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // TODO: update offset here
+    // robotoffset = ....
     Optional<PhotonPipelineResult> CamResult = m_cameraSubsystem.frontCameraResult;
     // will not work if cam is defined incorrectly, but will not tell you
     CamResult.ifPresentOrElse(
@@ -51,36 +58,40 @@ public class AimCommand extends Command {
             PhotonTrackedTarget target = result.getBestTarget();
             // we can change this to be a certain april tag later
             // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
-            double angleGoal = m_driveSubsystem.getYaw() + target.getYaw();
-            SmartDashboard.putNumber("CameraTargetPitch", angleGoal);
-            double distanceFromTarget =
-                PhotonUtils.calculateDistanceToTargetMeters(
-                        m_cameraSubsystem.frontCameraHeightMeters,
-                        m_cameraSubsystem.frontCameraTargetHeightMeters,
-                        m_cameraSubsystem.frontCameraTargetPitchRadians,
-                        Units.degreesToRadians(target.getPitch()))
-                    - m_cameraSubsystem.frontCameraGoalRangeMeters;
-
-            // turn and move towards target.
-            // if within 0.5 pos or neg
-            if (Math.abs(target.getYaw()) > 0.5) {
-              m_driveSubsystem.turnSetGoal(angleGoal);
-            } else if (Math.abs(distanceFromTarget) > 0.1) {
-              m_driveSubsystem.driveToRelativePosition(distanceFromTarget);
+            // get the transform from the camera to the target
+            Transform3d cameraToTarget = target.getBestCameraToTarget();
+            // set offset of transform
+            Transform3d targetOffset = cameraToTarget.plus(robotOffset);
+            // get the pose of the robot
+            Pose3d robotPose = new Pose3d(m_driveSubsystem.getPose());
+            // add the offset to the robot pose
+            Pose3d robotToTarget = robotPose.plus(targetOffset);
+            // convert to a pose2d for the drive subsystem
+            Pose2d newTargetPose = robotToTarget.toPose2d();
+            // check if new pose within tolerance
+            if (robotToTarget2d.getTranslation().getDistance(newTargetPose.getTranslation())
+                > toleranceMeters) {
+              // update the pose
+              robotToTarget2d = newTargetPose;
+              // update the drive subsystem
+              resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(robotToTarget2d);
+              resultingCommand.initialize();
             }
           }
         },
         () -> {
           SmartDashboard.putBoolean("CameraTargetDetected", false);
           SmartDashboard.putNumber("CameraTargetPitch", 0.0);
-          m_driveSubsystem.tankDrive(0, 0);
         });
+    if (resultingCommand != null) {
+      resultingCommand.execute();
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.turnResetPID(); // we clear the PID turn controller.
+    resultingCommand.end(interrupted);
     m_driveSubsystem.stop(); // end execution of on board PID.
   }
 

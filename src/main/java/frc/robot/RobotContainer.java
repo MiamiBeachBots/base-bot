@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AimCommand;
-import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.FlywheelCommand;
 import frc.robot.commands.LifterCommand;
@@ -67,11 +66,9 @@ public class RobotContainer {
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
   private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_cameraSubsystem);
-  private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  private final StraightCommand m_straightCommand =
-      new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
+  private final StraightCommand m_straightCommand = new StraightCommand(m_driveSubsystem);
   private final FlywheelCommand m_shooterCommand =
       new FlywheelCommand(m_shooterSubsytem, m_shooterState);
   private final LifterCommand m_LeftLifterCommand = new LifterCommand(m_leftLifterSubsystem);
@@ -189,7 +186,6 @@ public class RobotContainer {
     // ex:
     // NamedCommands.registerCommand("A", new PathFollowingCommand(m_driveSubsystem,
     // pathGroup.get(0)));
-    NamedCommands.registerCommand("BalanceRobot", m_balanceCommand);
     NamedCommands.registerCommand(
         "BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     NamedCommands.registerCommand("ShooterCommand", m_shooterCommand);
