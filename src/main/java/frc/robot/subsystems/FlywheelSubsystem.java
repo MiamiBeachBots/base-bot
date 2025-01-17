@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -15,6 +16,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,8 +27,14 @@ import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
 
 public class FlywheelSubsystem extends SubsystemBase {
+  // Shooter Motors
   private final SparkMax m_ShooterMotorMain;
   private final SparkMax m_ShooterMotorSecondary;
+  // Create Simulated Motors
+  private final DCMotor m_MainGearbox;
+  private final DCMotor m_SecondaryGearbox;
+  private final SparkMaxSim m_MainSim;
+  private final SparkMaxSim m_SecondarySim;
 
   private final SparkMaxConfig m_MainConfig = new SparkMaxConfig(); // Motor Configuration
   private final SparkMaxConfig m_SecondaryConfig = new SparkMaxConfig(); // Motor Configuration
@@ -66,6 +74,11 @@ public class FlywheelSubsystem extends SubsystemBase {
         new SparkMax(CANConstants.MOTORSHOOTERLEFTID, SparkMax.MotorType.kBrushless);
     m_ShooterMotorSecondary =
         new SparkMax(CANConstants.MOTORSHOOTERRIGHTID, SparkMax.MotorType.kBrushless);
+    // Create simulated motors
+    m_MainGearbox = DCMotor.getNEO(1);
+    m_SecondaryGearbox = DCMotor.getNEO(1);
+    m_MainSim = new SparkMaxSim(m_ShooterMotorMain, m_MainGearbox);
+    m_SecondarySim = new SparkMaxSim(m_ShooterMotorSecondary, m_SecondaryGearbox);
 
     // set the idle mode to coast
     m_MainConfig.idleMode(IdleMode.kBrake);
