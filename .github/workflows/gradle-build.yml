@@ -23,9 +23,9 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: gradle/gradle-build-action # enables fancy caching.
-    - uses: actions/checkout
-    - uses: gradle/wrapper-validation-action # this validates the jar file
+    - uses: gradle/actions/setup-gradle@v3 # enables fancy caching.
+    - uses: actions/checkout@v4
+    - uses: gradle/actions/wrapper-validation@v3 # this validates the jar file
 
     # Declares the repository safe and not under dubious ownership.
     - name: Add repository to git safe directories
@@ -49,9 +49,9 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: gradle/gradle-build-action # enables fancy caching.
-    - uses: actions/checkout
-    - uses: gradle/wrapper-validation-action # this validates the jar file
+    - uses: gradle/actions/setup-gradle@v3 # enables fancy caching.
+    - uses: actions/checkout@v4
+    - uses: gradle/actions/wrapper-validation@v3 # this validates the jar file
 
     # Declares the repository safe and not under dubious ownership.
     - name: Add repository to git safe directories
