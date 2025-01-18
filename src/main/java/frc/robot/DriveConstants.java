@@ -37,8 +37,8 @@ public final class DriveConstants {
   public static final double ksDriveVolts = 0.19676;
   public static final double kvDriveVoltSecondsPerMeter = 2.2623;
   public static final double kaDriveVoltSecondsSquaredPerMeter = 0.43785;
-  public static final double kvDriveVoltSecondsPerMeterAngular = 1.8;
-  public static final double kaDriveVoltSecondsSquaredPerMeterAngular = 0.5;
+  public static final double kvDriveVoltSecondsPerMeterAngular = 1.2;
+  public static final double kaDriveVoltSecondsSquaredPerMeterAngular = 0.2;
   // Max speed Constants
   public static final double kMaxOutputDrive = 0.8;
   public static final double kMinOutputDrive = -0.8;
