@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.FlywheelCommand;
 import frc.robot.commands.LifterCommand;
 import frc.robot.commands.StraightCommand;
@@ -73,6 +74,7 @@ public class RobotContainer {
       new FlywheelCommand(m_shooterSubsytem, m_shooterState);
   private final LifterCommand m_LeftLifterCommand = new LifterCommand(m_leftLifterSubsystem);
   private final LifterCommand m_RightLifterCommand = new LifterCommand(m_rightLifterSubsystem);
+  private final ElevatorCommand m_ElevatorCommand = new ElevatorCommand(m_ElevatorSubsystem);
 
   // EX: these commands are used by autonomous only
   // private final AimAmpCommand m_AimAmpCommand = new AimAmpCommand(m_armSubsystem,
