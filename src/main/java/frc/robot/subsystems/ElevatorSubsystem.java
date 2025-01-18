@@ -14,8 +14,11 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -26,8 +29,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   // Motor
   private final SparkMax m_Motor;
   // Simulated Motor
-  private final DCMotor m_Gearbox;
-  private final SparkMaxSim m_MotorSim;
+  private final DCMotor m_simGearbox;
+  private final SparkMaxSim m_simMotor;
 
   // Motor Configs
   private final SparkMaxConfig m_MotorConfig = new SparkMaxConfig();
@@ -37,38 +40,66 @@ public class ElevatorSubsystem extends SubsystemBase {
   private RelativeEncoder m_ElevatorEncoder;
   // Simulated Encoder
   private final SparkRelativeEncoderSim m_ElevatorEncoderSim;
+  // Elevator Physics Engine
+  private final ElevatorSim m_ElevatorSim;
+
   // TODO: Update to accurate values
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
-  private final double kWheelDiameter = Units.inchesToMeters(4); // meters
-  private final double kGearRatio = 4; // TBD
+  private final double kGearRatio = 16; // TBD
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
-  private final double kPositionConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio;
+  private final double kPositionConversionRatio = Math.PI / kGearRatio;
   private final double kVelocityConversionRatio = kPositionConversionRatio / 60;
 
   // setup feedforward
-  private final double kS = 0.2063; // Static Friction (Volts)
-  private final double kG = 1.5611; // Inertia (Volts)
-  private final double kV = 0.1396; // Mass (Volts*Seconds / Meter)
-  private final double kA = 0.0; // Acceleration (Volts * Seconds^2 / Meter)
+  private final double kS = 0.1; // Static Friction (Volts)
+  private final double kG = 0.1; // Inertia (Volts)
+  private final double kV = 0.1; // Mass (Volts*Seconds / Meter)
+  private final double kA = 0.1; // Acceleration (Volts * Seconds^2 / Meter)
+
+  // other constants
+  private final double kMaxHeightMeters = 1.0; // TODO: Update
+  private final double kMinHeightMeters = 0.0; // TODO: Update
+  private final double kStartingHeightMeters = kMinHeightMeters + 0.0; // TODO: Update
 
   ElevatorFeedforward m_ElevatorFeedforward = new ElevatorFeedforward(kS, kG, kV, kA);
+
+  // setup trapezonidal motion profile
+  private final double kMaxVelocity = 0.1; // M/S TODO: Update
+  private final double kMaxAcceleration = 0.01; // M/S^2 TODO: Update
 
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
 
   // current limit
-  private final int k_CurrentLimit = 80;
+  private final int k_CurrentLimit = 60;
 
   public ElevatorSubsystem() {
     // Create elevator motor
     m_Motor = new SparkMax(CANConstants.MOTORELEVATORID, SparkMax.MotorType.kBrushless);
+
     // Create Simulated Motors
-    m_Gearbox = DCMotor.getNEO(1);
-    m_MotorSim = new SparkMaxSim(m_Motor, m_Gearbox);
+    m_simGearbox = DCMotor.getNEO(1);
+    m_simMotor = new SparkMaxSim(m_Motor, m_simGearbox);
+
+    // Create Simulated encoder
+    m_ElevatorEncoderSim = m_simMotor.getRelativeEncoderSim();
+
+    // Create Simulated Physics Engine
+    m_ElevatorSim =
+        new ElevatorSim(
+            kV,
+            kA,
+            m_simGearbox,
+            kMinHeightMeters,
+            kMaxHeightMeters,
+            true,
+            kStartingHeightMeters,
+            0.01,
+            0.0);
 
     // Set idle mode to coast
     m_MotorConfig.idleMode(IdleMode.kBrake);
@@ -80,24 +111,22 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // Allow us to read the encoder
     m_ElevatorEncoder = m_Motor.getEncoder();
-    // Simulated encoder
-    m_ElevatorEncoderSim = m_MotorSim.getRelativeEncoderSim();
 
     m_MotorConfig.encoder.positionConversionFactor(kPositionConversionRatio);
     m_MotorConfig.encoder.velocityConversionFactor(kVelocityConversionRatio);
 
     // PID coefficients
-    kP = 0.00013373;
+    kP = 0.0;
     kI = 0;
     kD = 0;
     kIz = 0;
-    kMaxOutput = 1;
-    kMinOutput = -1;
+    kMaxOutput = 0.8;
+    kMinOutput = -0.8;
     // set PID coefficients
-    m_MotorConfig.closedLoop.pid(kP, kI, kD, DriveConstants.kDrivetrainVelocityPIDSlot);
-    m_MotorConfig.closedLoop.iZone(kIz, DriveConstants.kDrivetrainVelocityPIDSlot);
+    m_MotorConfig.closedLoop.pid(kP, kI, kD, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_MotorConfig.closedLoop.iZone(kIz, DriveConstants.kDrivetrainPositionPIDSlot);
     m_MotorConfig.closedLoop.outputRange(
-        kMinOutput, kMaxOutput, DriveConstants.kDrivetrainVelocityPIDSlot);
+        kMinOutput, kMaxOutput, DriveConstants.kDrivetrainPositionPIDSlot);
     // setup SysID for auto profiling
     m_sysIdRoutine =
         new SysIdRoutine(
@@ -124,14 +153,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   /*
-   * Move elevator at a given speed (M/S)
+   * Move elevator to a specific height
    */
-  public void MoveElevator(double speed) {
+  public void MoveElevator(double meters) {
     m_ElevatorMainPIDController.setReference(
-        speed,
-        SparkBase.ControlType.kVelocity,
-        DriveConstants.kDrivetrainVelocityPIDSlot,
-        m_ElevatorFeedforward.calculate(speed));
+        meters,
+        SparkBase.ControlType.kPosition,
+        DriveConstants.kDrivetrainPositionPIDSlot,
+        m_ElevatorFeedforward.calculate(meters));
   }
 
   public void MoveAtFull() {
@@ -153,5 +182,22 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+    // Update the simulation of our elevator, set inputs
+    m_ElevatorSim.setInput(m_simMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+
+    // update simulation (20ms)
+    m_ElevatorSim.update(0.020);
+
+    // Iterate PID loops
+    m_simMotor.iterate(
+        m_ElevatorSim.getVelocityMetersPerSecond(), RoboRioSim.getVInVoltage(), 0.02);
+
+    // add load to battery
+    RoboRioSim.setVInVoltage(
+        BatterySim.calculateDefaultBatteryLoadedVoltage(m_simMotor.getMotorCurrent()));
+
+    // update encoder
+    m_ElevatorEncoderSim.setPosition(m_ElevatorSim.getPositionMeters());
+    m_ElevatorEncoderSim.setVelocity(m_ElevatorSim.getVelocityMetersPerSecond());
   }
 }
