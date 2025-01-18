@@ -62,9 +62,9 @@ public class ArmSubsystem extends SubsystemBase {
 
   // other constants
   private final double kMaxAngleRads = 1.0; // TODO: Update
-  private final double kMinAngleRads = 0.0;
-  private final double kStartingAngleRads = kMinAngleRads + 0.0;
-  private final double kArmLengthMeters = 0.0;
+  private final double kMinAngleRads = 0.01;
+  private final double kStartingAngleRads = kMinAngleRads + 0.01;
+  private final double kArmLengthMeters = 0.1;
   private final double kjKgMetersSquared =
       0.1; // The moment of inertia of the arm; can be calculated from CAD software.
 

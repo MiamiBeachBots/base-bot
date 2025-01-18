@@ -64,7 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   // other constants
   private final double kMaxHeightMeters = 1.0; // TODO: Update
   private final double kMinHeightMeters = 0.0; // TODO: Update
-  private final double kStartingHeightMeters = kMinHeightMeters + 0.0; // TODO: Update
+  private final double kStartingHeightMeters = kMinHeightMeters + 0.1; // TODO: Update
 
   ElevatorFeedforward m_ElevatorFeedforward = new ElevatorFeedforward(kS, kG, kV, kA);
 
