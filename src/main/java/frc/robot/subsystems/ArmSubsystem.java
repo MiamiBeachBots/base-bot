@@ -201,7 +201,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     // add load to battery
     RoboRioSim.setVInVoltage(
-        BatterySim.calculateDefaultBatteryLoadedVoltage(m_simMotor.getMotorCurrent()));
+        BatterySim.calculateDefaultBatteryLoadedVoltage(m_ArmSim.getCurrentDrawAmps()));
 
     // update encoder
     m_ArmEncoderSim.setPosition(m_ArmSim.getAngleRads());

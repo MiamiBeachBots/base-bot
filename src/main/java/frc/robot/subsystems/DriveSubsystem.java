@@ -583,8 +583,7 @@ public class DriveSubsystem extends SubsystemBase {
         m_driveTrainSim.getRightVelocityMetersPerSecond(), RoboRioSim.getVInVoltage(), 0.02);
     // add load to battery
     RoboRioSim.setVInVoltage(
-        BatterySim.calculateDefaultBatteryLoadedVoltage(
-            m_leftSim.getMotorCurrent() + m_rightSim.getMotorCurrent()));
+        BatterySim.calculateDefaultBatteryLoadedVoltage(m_driveTrainSim.getCurrentDrawAmps()));
     // update sensors
     SimGyroAngleHandler.set(-m_driveTrainSim.getHeading().getDegrees());
     m_leftEncoderSim.setPosition(m_driveTrainSim.getLeftPositionMeters());
