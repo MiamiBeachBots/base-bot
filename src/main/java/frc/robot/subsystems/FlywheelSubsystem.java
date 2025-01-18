@@ -79,6 +79,8 @@ public class FlywheelSubsystem extends SubsystemBase {
     m_SecondaryGearbox = DCMotor.getNEO(1);
     m_MainSim = new SparkMaxSim(m_ShooterMotorMain, m_MainGearbox);
     m_SecondarySim = new SparkMaxSim(m_ShooterMotorSecondary, m_SecondaryGearbox);
+    // Physics Simulation
+    // TODO: Add Simulation
 
     // set the idle mode to coast
     m_MainConfig.idleMode(IdleMode.kBrake);
