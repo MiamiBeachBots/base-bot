@@ -35,6 +35,8 @@ public final class Constants {
     public static final int MOTORLIFTERRIGHTID = 42;
     /// Elevator Motors
     public static final int MOTORELEVATORID = 51;
+    /// Turntable Motor
+    public static final int MOTORTURNTABLEID = 61;
   }
 
   public static final Mode simMode = Mode.SIM;

@@ -24,6 +24,7 @@ import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.FlywheelCommand;
 import frc.robot.commands.LifterCommand;
 import frc.robot.commands.StraightCommand;
+import frc.robot.commands.TurntableCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -31,6 +32,7 @@ import frc.robot.subsystems.DriverCameraSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.FlywheelSubsystem;
 import frc.robot.subsystems.LifterSubsystem;
+import frc.robot.subsystems.TurntableSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -66,6 +68,7 @@ public class RobotContainer {
   private final DriverCameraSubsystem m_DriverCameraSubsystem = new DriverCameraSubsystem();
   private final ElevatorSubsystem m_ElevatorSubsystem = new ElevatorSubsystem();
   private final ArmSubsystem m_ArmSubsystem = new ArmSubsystem();
+  private final TurntableSubsystem m_TurntableSubsystem = new TurntableSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -79,6 +82,7 @@ public class RobotContainer {
   private final LifterCommand m_RightLifterCommand = new LifterCommand(m_rightLifterSubsystem);
   private final ElevatorCommand m_ElevatorCommand = new ElevatorCommand(m_ElevatorSubsystem);
   private final ArmCommand m_ArmCommand = new ArmCommand(m_ArmSubsystem);
+  private final TurntableCommand m_TurntableCommand = new TurntableCommand(m_TurntableSubsystem);
 
   // EX: these commands are used by autonomous only
   // private final AimAmpCommand m_AimAmpCommand = new AimAmpCommand(m_armSubsystem,
