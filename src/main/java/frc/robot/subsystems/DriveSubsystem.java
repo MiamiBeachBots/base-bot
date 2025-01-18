@@ -48,6 +48,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
+import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -353,28 +354,35 @@ public class DriveSubsystem extends SubsystemBase {
     // get current angle
     double currentAngle = currentPose.getRotation().getDegrees();
     // calculate wanted pose, add 2 meter to x value of current pose
-    Pose2d wantedPose =
+    List<Pose2d> wantedPoses = new ArrayList<Pose2d>();
+    wantedPoses.add(currentPose);
+    wantedPoses.add(
+        new Pose2d(
+            currentPose.getTranslation().getX() + 5,
+            currentPose.getTranslation().getY(),
+            new Rotation2d(currentAngle)));
+    wantedPoses.add(
         new Pose2d(
             currentPose.getTranslation().getX() + 10,
             currentPose.getTranslation().getY(),
-            new Rotation2d(currentAngle));
+            new Rotation2d(currentAngle)));
     // generate path
-    return GenerateOnTheFlyCommand(wantedPose);
+    return GenerateOnTheFlyCommand(wantedPoses);
   }
 
-  public Command GenerateOnTheFlyCommand(Pose2d desiredPose) {
-    PathPlannerPath path = generateOnTheFlyPath(desiredPose);
+  public Command GenerateOnTheFlyCommand(List<Pose2d> desiredPoses) {
+    PathPlannerPath path = generateOnTheFlyPath(desiredPoses);
     return AutoBuilder.followPath(path);
   }
 
-  private PathPlannerPath generateOnTheFlyPath(Pose2d desiredPose) {
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(desiredPose);
+  private PathPlannerPath generateOnTheFlyPath(List<Pose2d> desiredPoses) {
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(desiredPoses);
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
             DriveConstants.OnTheFly.kPathConstraints,
-            new IdealStartingState(0, desiredPose.getRotation()),
-            new GoalEndState(0, desiredPose.getRotation()));
+            new IdealStartingState(0, desiredPoses.get(0).getRotation()),
+            new GoalEndState(0, desiredPoses.get(desiredPoses.size() - 1).getRotation()));
     path.preventFlipping = true;
     return path;
   }
@@ -583,7 +591,8 @@ public class DriveSubsystem extends SubsystemBase {
         m_driveTrainSim.getRightVelocityMetersPerSecond(), RoboRioSim.getVInVoltage(), 0.02);
     // add load to battery
     RoboRioSim.setVInVoltage(
-        BatterySim.calculateDefaultBatteryLoadedVoltage(m_driveTrainSim.getCurrentDrawAmps()));
+        BatterySim.calculateDefaultBatteryLoadedVoltage(
+            m_leftSim.getMotorCurrent() + m_rightSim.getMotorCurrent()));
     // update sensors
     SimGyroAngleHandler.set(-m_driveTrainSim.getHeading().getDegrees());
     m_leftEncoderSim.setPosition(m_driveTrainSim.getLeftPositionMeters());

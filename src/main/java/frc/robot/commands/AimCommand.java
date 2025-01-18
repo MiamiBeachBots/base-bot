@@ -6,11 +6,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -73,8 +76,21 @@ public class AimCommand extends Command {
                 > toleranceMeters) {
               // update the pose
               robotToTarget2d = newTargetPose;
+              // Create list of target poses
+              // One at halfway to target, one at the target
+              List<Pose2d> targetPoses = new ArrayList<Pose2d>();
+              targetPoses.add(
+                  new Pose2d(
+                      robotToTarget2d.getTranslation().getX() / 2,
+                      robotToTarget2d.getTranslation().getY(),
+                      new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
+              targetPoses.add(
+                  new Pose2d(
+                      robotToTarget2d.getTranslation().getX(),
+                      robotToTarget2d.getTranslation().getY(),
+                      new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
               // update the drive subsystem
-              resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(robotToTarget2d);
+              resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(targetPoses);
               resultingCommand.initialize();
             }
           }

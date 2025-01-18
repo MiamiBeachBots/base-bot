@@ -104,7 +104,7 @@ public class CameraSubsystem extends SubsystemBase {
     poseCamera1Sim = new PhotonCameraSim(poseCamera1, PoseCameraProp);
     poseCamera2Sim = new PhotonCameraSim(poseCamera2, PoseCameraProp);
     targetingCamera1Sim = new PhotonCameraSim(targetingCamera1, TargetingCameraProp);
-    
+
     // Set Camera locations and add them to the vision simulation
     visionSim.addCamera(poseCamera1Sim, Constants.PoseCamera1.location);
     visionSim.addCamera(poseCamera2Sim, Constants.PoseCamera2.location);
@@ -123,8 +123,7 @@ public class CameraSubsystem extends SubsystemBase {
         // select last result with targets
         return Optional.of(result);
       }
-    }
-    else {
+    } else {
       SmartDashboard.putBoolean("CameraConnnected", false);
     }
     return Optional.empty();
