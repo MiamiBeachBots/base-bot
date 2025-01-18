@@ -25,6 +25,7 @@ import frc.robot.commands.StraightCommand;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.DriverCameraSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.FlywheelSubsystem;
 import frc.robot.subsystems.LifterSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
@@ -60,6 +61,7 @@ public class RobotContainer {
   private final LifterSubsystem m_rightLifterSubsystem =
       new LifterSubsystem(Constants.CANConstants.MOTORLIFTERRIGHTID);
   private final DriverCameraSubsystem m_DriverCameraSubsystem = new DriverCameraSubsystem();
+  private final ElevatorSubsystem m_ElevatorSubsystem = new ElevatorSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
