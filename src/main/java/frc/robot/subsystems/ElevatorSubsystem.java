@@ -12,7 +12,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
@@ -50,13 +50,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final double kVelocityConversionRatio = kPositionConversionRatio / 60;
 
   // setup feedforward
-  private final double ksShooterVolts = 0.2063;
-  private final double kvDriveVoltSecondsPerMeter = 1.5611;
-  private final double kaDriveVoltSecondsSquaredPerMeter = 0.1396;
+  private final double kS = 0.2063; // Static Friction (Volts)
+  private final double kG = 1.5611; // Inertia (Volts)
+  private final double kV = 0.1396; // Mass (Volts*Seconds / Meter)
+  private final double kA = 0.0; // Acceleration (Volts * Seconds^2 / Meter)
 
-  SimpleMotorFeedforward m_ElevatorFeedForward =
-      new SimpleMotorFeedforward(
-          ksShooterVolts, kvDriveVoltSecondsPerMeter, kaDriveVoltSecondsSquaredPerMeter);
+  ElevatorFeedforward m_ElevatorFeedforward = new ElevatorFeedforward(kS, kG, kV, kA);
 
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
@@ -132,7 +131,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         speed,
         SparkBase.ControlType.kVelocity,
         DriveConstants.kDrivetrainVelocityPIDSlot,
-        m_ElevatorFeedForward.calculate(speed));
+        m_ElevatorFeedforward.calculate(speed));
   }
 
   public void MoveAtFull() {
