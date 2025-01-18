@@ -48,11 +48,10 @@ public class ArmSubsystem extends SubsystemBase {
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
-  private final double kWheelDiameter = 1; // meters TODO: Figure out ratio
   private final double kGearRatio = 16; // TBD
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
-  private final double kPositionConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio;
+  private final double kPositionConversionRatio = (Math.PI *2 ) / kGearRatio;
   private final double kVelocityConversionRatio = kPositionConversionRatio / 60;
 
   // setup feedforward
@@ -67,14 +66,14 @@ public class ArmSubsystem extends SubsystemBase {
   private final double kStartingAngleRads = kMinAngleRads + 0.0;
   private final double kArmLengthMeters = 0.0;
   private final double kjKgMetersSquared =
-      0.0; // The moment of inertia of the arm; can be calculated from CAD software.
+      0.1; // The moment of inertia of the arm; can be calculated from CAD software.
 
   ArmFeedforward m_ArmFeedforward = new ArmFeedforward(kS, kG, kV, kA);
 
   // setup trapezoidal motion profile
-  private final double kMaxVelocity = 0.1; // M/S
-  private final double kMaxAcceleration = 0.01; // M/S^2
-  private final double kAllowedClosedLoopError = 0.01; // Meters
+  private final double kMaxVelocity = 0.2; // R/S
+  private final double kMaxAcceleration = 0.1; // R/S^2
+  private final double kAllowedClosedLoopError = 0.05; // Radians
 
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
@@ -105,7 +104,7 @@ public class ArmSubsystem extends SubsystemBase {
             true,
             kStartingAngleRads,
             0.01,
-            0.0);
+            0.001);
 
     // Set idle mode to coast
     m_MotorConfig.idleMode(IdleMode.kBrake);
@@ -180,7 +179,7 @@ public class ArmSubsystem extends SubsystemBase {
    * Lower the Arm
    */
   public void LowerArm() {
-    SetAngle(0);
+    SetAngle(kStartingAngleRads);
   }
 
   @Override
