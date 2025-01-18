@@ -18,12 +18,12 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
+import frc.robot.TurntableSim;
 
 public class TurntableSubsystem extends SubsystemBase {
   // Decalare Motor
@@ -41,7 +41,7 @@ public class TurntableSubsystem extends SubsystemBase {
   // Declare Simulated Encoder
   private final SparkRelativeEncoderSim m_TurntableEncoderSim;
   // Declare Turntable Physics Engine
-  private final LinearSystemSim m_TurntableSim;
+  private final TurntableSim m_TurntableSim;
 
   // TODO: Update to accurate values
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
@@ -60,10 +60,7 @@ public class TurntableSubsystem extends SubsystemBase {
   private final double kA = 0.1; // Acceleration Volts/(rad/s^2)
 
   // other constants
-  private final double kMaxAngleRads = 1.0; // TODO: Update
-  private final double kMinAngleRads = 0.01;
-  private final double kStartingAngleRads = kMinAngleRads + 0.01;
-  private final double kTurntableLengthMeters = 0.1;
+  private final double kStartingAngleRads = 0.0; // Starting angle of the Turntable
   private final double kjKgMetersSquared =
       0.1; // The moment of inertia of the Turntable; can be calculated from CAD software.
 
@@ -93,17 +90,7 @@ public class TurntableSubsystem extends SubsystemBase {
 
     // Create Simulated Physics Engine
     m_TurntableSim =
-        new LinearSystemSim(
-            m_simGearbox,
-            kGearRatio,
-            kjKgMetersSquared,
-            kTurntableLengthMeters,
-            kMinAngleRads,
-            kMaxAngleRads,
-            true,
-            kStartingAngleRads,
-            0.01,
-            0.001);
+        new TurntableSim(m_simGearbox, kGearRatio, kV, kA, kStartingAngleRads, 0.01, 0.001);
 
     // Set idle mode to coast
     m_MotorConfig.idleMode(IdleMode.kBrake);
