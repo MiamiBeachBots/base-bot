@@ -48,10 +48,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
+  private final double kWheelDiameter = 1; // meters TODO: Figure out ratio
   private final double kGearRatio = 16; // TBD
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
-  private final double kPositionConversionRatio = Math.PI / kGearRatio;
+  private final double kPositionConversionRatio = (Math.PI * kWheelDiameter) / kGearRatio;
   private final double kVelocityConversionRatio = kPositionConversionRatio / 60;
 
   // setup feedforward
@@ -67,9 +68,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   ElevatorFeedforward m_ElevatorFeedforward = new ElevatorFeedforward(kS, kG, kV, kA);
 
-  // setup trapezonidal motion profile
+  // setup trapezoidal motion profile
   private final double kMaxVelocity = 0.1; // M/S TODO: Update
   private final double kMaxAcceleration = 0.01; // M/S^2 TODO: Update
+  private final double kAllowedClosedLoopError = 0.01; // Meters
 
   // setup SysID for auto profiling
   private final SysIdRoutine m_sysIdRoutine;
@@ -127,6 +129,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_MotorConfig.closedLoop.iZone(kIz, DriveConstants.kDrivetrainPositionPIDSlot);
     m_MotorConfig.closedLoop.outputRange(
         kMinOutput, kMaxOutput, DriveConstants.kDrivetrainPositionPIDSlot);
+    // Smart Control Config
+    m_MotorConfig.closedLoop.maxMotion.maxVelocity(
+        kMaxVelocity, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_MotorConfig.closedLoop.maxMotion.maxAcceleration(
+        kMaxAcceleration, DriveConstants.kDrivetrainPositionPIDSlot);
+    m_MotorConfig.closedLoop.maxMotion.allowedClosedLoopError(
+        kAllowedClosedLoopError, DriveConstants.kDrivetrainPositionPIDSlot);
     // setup SysID for auto profiling
     m_sysIdRoutine =
         new SysIdRoutine(
@@ -155,23 +164,19 @@ public class ElevatorSubsystem extends SubsystemBase {
   /*
    * Move elevator to a specific height
    */
-  public void MoveElevator(double meters) {
+  public void SetHeight(double meters) {
     m_ElevatorMainPIDController.setReference(
         meters,
-        SparkBase.ControlType.kPosition,
+        SparkBase.ControlType.kMAXMotionPositionControl,
         DriveConstants.kDrivetrainPositionPIDSlot,
         m_ElevatorFeedforward.calculate(meters));
   }
 
-  public void MoveAtFull() {
-    MoveElevator(1);
-  }
-
   /*
-   * Stop the elevator
+   * Retract the elevator
    */
-  public void StopElevator() {
-    MoveElevator(0);
+  public void LowerElevator() {
+    SetHeight(0);
   }
 
   @Override
