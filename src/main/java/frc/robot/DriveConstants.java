@@ -17,7 +17,8 @@ public final class DriveConstants {
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
   public static final double WHEEL_DIAMETER = Units.inchesToMeters(6); // meters
-  public static final double kTrackwidthMeters = 0.60048;
+  public static final double WHEEL_RADIUS = WHEEL_DIAMETER / 2;
+  public static final double kTrackwidthMeters = 0.527; // TODO: Update
   // this is not used and is handled by the rev encoder.
   public static final double PULSES_PER_REV = 1;
   public static final double GEAR_RATIO = 8.46; // 8.46:1
@@ -36,6 +37,8 @@ public final class DriveConstants {
   public static final double ksDriveVolts = 0.19676;
   public static final double kvDriveVoltSecondsPerMeter = 2.2623;
   public static final double kaDriveVoltSecondsSquaredPerMeter = 0.43785;
+  public static final double kvDriveVoltSecondsPerMeterAngular = 1.8;
+  public static final double kaDriveVoltSecondsSquaredPerMeterAngular = 0.5;
   // Max speed Constants
   public static final double kMaxOutputDrive = 0.8;
   public static final double kMinOutputDrive = -0.8;

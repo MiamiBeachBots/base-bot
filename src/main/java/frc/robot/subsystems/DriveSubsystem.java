@@ -13,6 +13,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -24,6 +25,7 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,9 +33,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,6 +56,9 @@ public class DriveSubsystem extends SubsystemBase {
   // Gyro
   private final AHRS m_Gyro;
 
+  // simulation gyro
+  private final SimDouble SimGyroAngleHandler;
+
   // motors
   private final SparkMax m_backLeft; // Main / Master Motor for Left
   private final SparkMax m_frontLeft; // Slave Motor for Left (Follow Master)
@@ -59,6 +69,13 @@ public class DriveSubsystem extends SubsystemBase {
   private final DCMotor m_rightGearbox;
   private final SparkMaxSim m_leftSim;
   private final SparkMaxSim m_rightSim;
+
+  // Simulated Drive Train
+  DifferentialDrivetrainSim m_driveTrainSim;
+
+  // Simulated Encoders
+  SparkRelativeEncoderSim m_leftEncoderSim;
+  SparkRelativeEncoderSim m_rightEncoderSim;
 
   // Motor Configs
   private final SparkMaxConfig m_backLeftConfig = new SparkMaxConfig();
@@ -118,10 +135,37 @@ public class DriveSubsystem extends SubsystemBase {
     m_rightGearbox = DCMotor.getNEO(2);
     m_leftSim = new SparkMaxSim(m_backLeft, m_leftGearbox);
     m_rightSim = new SparkMaxSim(m_backRight, m_rightGearbox);
+
     // setup simulation for gyro
     int gyroID = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
-    SimDouble SimGyroAngle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(gyroID, "Yaw"));
-    // invert right side
+    SimGyroAngleHandler = new SimDouble(SimDeviceDataJNI.getSimValueHandle(gyroID, "Yaw"));
+
+    // Create the simulation model of our drivetrain.
+    m_driveTrainSim =
+        new DifferentialDrivetrainSim(
+            // Create a linear system from our identification gains.
+            // TODO: Update after profiling
+            LinearSystemId.identifyDrivetrainSystem(
+                DriveConstants.kvDriveVoltSecondsPerMeter,
+                DriveConstants.kaDriveVoltSecondsSquaredPerMeter,
+                DriveConstants.kvDriveVoltSecondsPerMeterAngular,
+                DriveConstants.kaDriveVoltSecondsSquaredPerMeterAngular),
+            DCMotor.getNEO(2), // 2 NEO motors on each side of the drivetrain.
+            DriveConstants.GEAR_RATIO, // x to 1 gearing reduction
+            DriveConstants.kTrackwidthMeters, // Track Width
+            DriveConstants.WHEEL_RADIUS, // Wheel Radius
+            // The standard deviations for measurement noise:
+            // x and y:          0.001 m
+            // heading:          0.001 rad
+            // l and r velocity: 0.1   m/s
+            // l and r position: 0.005 m
+            VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+
+    // setup simulated encoders
+    m_leftEncoderSim = new SparkRelativeEncoderSim(m_backLeft);
+    m_rightEncoderSim = new SparkRelativeEncoderSim(m_backRight);
+
+    // invert motors
     m_backRightConfig.inverted(true);
     m_frontRightConfig.inverted(true);
 
@@ -485,19 +529,19 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getVelocityLeft() {
-    return (m_encoderBackLeft.getVelocity() + m_encoderFrontLeft.getVelocity()) / 2;
+    return m_encoderBackLeft.getVelocity();
   }
 
   public double getVelocityRight() {
-    return (m_encoderBackRight.getVelocity() + m_encoderFrontRight.getVelocity()) / 2;
+    return m_encoderBackRight.getVelocity();
   }
 
   public double getPositionLeft() {
-    return (m_encoderBackLeft.getPosition() + m_encoderFrontLeft.getPosition()) / 2;
+    return m_encoderBackLeft.getPosition();
   }
 
   public double getPositionRight() {
-    return (m_encoderBackRight.getPosition() + m_encoderFrontRight.getPosition()) / 2;
+    return m_encoderBackRight.getPosition();
   }
 
   @Override
@@ -524,5 +568,28 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+    // link motors to simulation
+    m_driveTrainSim.setInputs(
+        m_leftSim.getAppliedOutput() * RobotController.getInputVoltage(),
+        -m_rightSim.getAppliedOutput() * RobotController.getInputVoltage());
+    // Advance the model by 20 ms. Note that if you are running this
+    // subsystem in a separate thread or have changed the nominal timestep
+    // of TimedRobot, this value needs to match it.
+    m_driveTrainSim.update(0.02);
+    // update spark maxes
+    m_leftSim.iterate(
+        m_driveTrainSim.getLeftVelocityMetersPerSecond(), RoboRioSim.getVInVoltage(), 0.02);
+    m_rightSim.iterate(
+        m_driveTrainSim.getRightVelocityMetersPerSecond(), RoboRioSim.getVInVoltage(), 0.02);
+    // add load to battery
+    RoboRioSim.setVInVoltage(
+        BatterySim.calculateDefaultBatteryLoadedVoltage(
+            m_leftSim.getMotorCurrent() + m_rightSim.getMotorCurrent()));
+    // update sensors
+    SimGyroAngleHandler.set(-m_driveTrainSim.getHeading().getDegrees());
+    m_leftEncoderSim.setPosition(m_driveTrainSim.getLeftPositionMeters());
+    m_leftEncoderSim.setVelocity(m_driveTrainSim.getLeftVelocityMetersPerSecond());
+    m_rightEncoderSim.setPosition(m_driveTrainSim.getRightPositionMeters());
+    m_rightEncoderSim.setVelocity(m_driveTrainSim.getRightVelocityMetersPerSecond());
   }
 }
