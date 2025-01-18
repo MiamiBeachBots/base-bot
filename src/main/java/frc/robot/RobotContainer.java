@@ -28,7 +28,6 @@ import frc.robot.commands.TurntableCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.DriverCameraSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.FlywheelSubsystem;
 import frc.robot.subsystems.LifterSubsystem;
@@ -65,7 +64,6 @@ public class RobotContainer {
       new LifterSubsystem(Constants.CANConstants.MOTORLIFTERLEFTID);
   private final LifterSubsystem m_rightLifterSubsystem =
       new LifterSubsystem(Constants.CANConstants.MOTORLIFTERRIGHTID);
-  private final DriverCameraSubsystem m_DriverCameraSubsystem = new DriverCameraSubsystem();
   private final ElevatorSubsystem m_ElevatorSubsystem = new ElevatorSubsystem();
   private final ArmSubsystem m_ArmSubsystem = new ArmSubsystem();
   private final TurntableSubsystem m_TurntableSubsystem = new TurntableSubsystem();
