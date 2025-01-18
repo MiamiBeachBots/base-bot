@@ -51,7 +51,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final double kGearRatio = 16; // TBD
   // basically converted from rotations to to radians to then meters using the wheel diameter.
   // the diameter is already *2 so we don't need to multiply by 2 again.
-  private final double kPositionConversionRatio = (Math.PI *2 ) / kGearRatio;
+  private final double kPositionConversionRatio = (Math.PI * 2) / kGearRatio;
   private final double kVelocityConversionRatio = kPositionConversionRatio / 60;
 
   // setup feedforward
