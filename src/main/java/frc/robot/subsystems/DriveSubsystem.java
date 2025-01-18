@@ -138,7 +138,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_rightSim = new SparkMaxSim(m_backRight, m_rightGearbox);
 
     // setup simulation for gyro
-    int gyroID = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
+    int gyroID = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[4]");
     SimGyroAngleHandler = new SimDouble(SimDeviceDataJNI.getSimValueHandle(gyroID, "Yaw"));
 
     // Create the simulation model of our drivetrain.
