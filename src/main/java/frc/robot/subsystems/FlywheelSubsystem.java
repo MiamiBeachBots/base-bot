@@ -75,9 +75,9 @@ public class FlywheelSubsystem extends SubsystemBase {
   public FlywheelSubsystem() {
     // create the shooter motors
     m_ShooterMotorMain =
-        new SparkMax(CANConstants.MOTORSHOOTERLEFTID, SparkMax.MotorType.kBrushless);
+        new SparkMax(CANConstants.MOTOR_SHOOTER_LEFT_ID, SparkMax.MotorType.kBrushless);
     m_ShooterMotorSecondary =
-        new SparkMax(CANConstants.MOTORSHOOTERRIGHTID, SparkMax.MotorType.kBrushless);
+        new SparkMax(CANConstants.MOTOR_SHOOTER_RIGHT_ID, SparkMax.MotorType.kBrushless);
     // Create simulated motors
     m_MainGearbox = DCMotor.getNEO(1);
     m_SecondaryGearbox = DCMotor.getNEO(1);

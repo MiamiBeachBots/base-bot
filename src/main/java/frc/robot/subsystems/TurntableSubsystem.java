@@ -79,7 +79,7 @@ public class TurntableSubsystem extends SubsystemBase {
 
   public TurntableSubsystem() {
     // Create Turntable motor
-    m_Motor = new SparkMax(CANConstants.MOTORTURNTABLEID, SparkMax.MotorType.kBrushless);
+    m_Motor = new SparkMax(CANConstants.MOTOR_TURNTABLE_ID, SparkMax.MotorType.kBrushless);
 
     // Create Simulated Motors
     m_simGearbox = DCMotor.getNEO(1);

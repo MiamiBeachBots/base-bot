@@ -127,10 +127,10 @@ public class DriveSubsystem extends SubsystemBase {
     m_Gyro = new AHRS(NavXComType.kMXP_SPI);
     // init motors
     // rio means built into the roboRIO
-    m_backLeft = new SparkMax(CANConstants.MOTORBACKLEFTID, SparkMax.MotorType.kBrushless);
-    m_frontLeft = new SparkMax(CANConstants.MOTORFRONTLEFTID, SparkMax.MotorType.kBrushless);
-    m_frontRight = new SparkMax(CANConstants.MOTORFRONTRIGHTID, SparkMax.MotorType.kBrushless);
-    m_backRight = new SparkMax(CANConstants.MOTORBACKRIGHTID, SparkMax.MotorType.kBrushless);
+    m_backLeft = new SparkMax(CANConstants.MOTOR_BACK_LEFT_ID, SparkMax.MotorType.kBrushless);
+    m_frontLeft = new SparkMax(CANConstants.MOTOR_FRONT_LEFT_ID, SparkMax.MotorType.kBrushless);
+    m_frontRight = new SparkMax(CANConstants.MOTOR_FRONT_RIGHT_ID, SparkMax.MotorType.kBrushless);
+    m_backRight = new SparkMax(CANConstants.MOTOR_BACK_RIGHT_ID, SparkMax.MotorType.kBrushless);
     // Create simulated motors
     m_leftGearbox = DCMotor.getNEO(2);
     m_rightGearbox = DCMotor.getNEO(2);

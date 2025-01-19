@@ -39,8 +39,8 @@ public class DefaultDrive extends Command {
   public void execute() {
     // we include a limit on the drivers speed for safety.
     // Additonally the axis's on the
-    if (!HelperFunctions.inDeadzone(m_left_y.getAsDouble(), Constants.CONTROLLERDEADZONE)
-        || !HelperFunctions.inDeadzone(m_right_y.getAsDouble(), Constants.CONTROLLERDEADZONE)) {
+    if (!HelperFunctions.inDeadzone(m_left_y.getAsDouble(), Constants.CONTROLLER_DEAD_ZONE)
+        || !HelperFunctions.inDeadzone(m_right_y.getAsDouble(), Constants.CONTROLLER_DEAD_ZONE)) {
       this.m_driveSubsystem.tankDrive(
           Constants.MAX_SPEED * m_left_y.getAsDouble(),
           Constants.MAX_SPEED * m_right_y.getAsDouble());

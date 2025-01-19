@@ -81,7 +81,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public ElevatorSubsystem() {
     // Create elevator motor
-    m_Motor = new SparkMax(CANConstants.MOTORELEVATORID, SparkMax.MotorType.kBrushless);
+    m_Motor = new SparkMax(CANConstants.MOTOR_ELEVATOR_ID, SparkMax.MotorType.kBrushless);
 
     // Create Simulated Motors
     m_simGearbox = DCMotor.getNEO(1);

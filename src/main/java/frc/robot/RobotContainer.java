@@ -47,23 +47,23 @@ public class RobotContainer {
 
   // Init joysticks
   private final CommandXboxController m_controller1 =
-      new CommandXboxController(Constants.CONTROLLERUSBINDEX);
-  private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICKUSBINDEX);
+      new CommandXboxController(Constants.CONTROLLER_USB_INDEX);
+  private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICK_USB_INDEX);
 
   // The robot's subsystems are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   // Init Gyro & ultrasonic
   private final UltrasonicSubsystem m_ultrasonicShooterSubsystem =
-      new UltrasonicSubsystem(Constants.ULTRASONICSHOOTERPORT);
+      new UltrasonicSubsystem(Constants.ULTRASONIC_SHOOTER_PORT);
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
   private final FlywheelSubsystem m_shooterSubsytem = new FlywheelSubsystem();
   private final LifterSubsystem m_leftLifterSubsystem =
-      new LifterSubsystem(Constants.CANConstants.MOTORLIFTERLEFTID);
+      new LifterSubsystem(Constants.CANConstants.MOTOR_LIFTER_LEFT_ID);
   private final LifterSubsystem m_rightLifterSubsystem =
-      new LifterSubsystem(Constants.CANConstants.MOTORLIFTERRIGHTID);
+      new LifterSubsystem(Constants.CANConstants.MOTOR_LIFTER_RIGHT_ID);
   private final ElevatorSubsystem m_ElevatorSubsystem = new ElevatorSubsystem();
   private final ArmSubsystem m_ArmSubsystem = new ArmSubsystem();
   private final TurntableSubsystem m_TurntableSubsystem = new TurntableSubsystem();
@@ -141,7 +141,7 @@ public class RobotContainer {
     m_lifterDirectionButton = m_controller1.a();
 
     // Joystick buttons
-    m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
+    m_aimButton = new JoystickButton(m_flightStick, Constants.AIM_BUTTON);
 
     // load and shoot buttons
     m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);

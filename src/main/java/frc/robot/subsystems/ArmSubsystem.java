@@ -83,7 +83,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   public ArmSubsystem() {
     // Create Arm motor
-    m_Motor = new SparkMax(CANConstants.MOTORARMMAINID, SparkMax.MotorType.kBrushless);
+    m_Motor = new SparkMax(CANConstants.MOTOR_ARM_MAIN_ID, SparkMax.MotorType.kBrushless);
 
     // Create Simulated Motors
     m_simGearbox = DCMotor.getNEO(1);
