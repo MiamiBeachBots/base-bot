@@ -82,7 +82,7 @@ public class AimCommand extends Command {
               targetPoses.add(
                   new Pose2d(
                       robotToTarget2d.getTranslation().getX() / 2,
-                      robotToTarget2d.getTranslation().getY(),
+                      robotToTarget2d.getTranslation().getY() / 2,
                       new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
               targetPoses.add(
                   new Pose2d(
