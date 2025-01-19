@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
-import frc.robot.TurntableSim;
+import frc.robot.simulations.TurntableSim;
 
 public class TurntableSubsystem extends SubsystemBase {
   // Decalare Motor
