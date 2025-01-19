@@ -39,8 +39,10 @@ public class CameraSubsystem extends SubsystemBase {
   private final PhotonPoseEstimator poseCamera2PoseEstimator;
 
   // Simulation Config
-  // A vision system sim labelled as "main" in NetworkTables
-  private final VisionSystemSim visionSim;
+  // A vision system sim labelled as "pose and targeting" in NetworkTables
+  private final VisionSystemSim poseVisionSim;
+  private final VisionSystemSim targetingVisionSim;
+
   // A 0.5 x 0.25 meter rectangular target
   private final TargetModel targetModel = new TargetModel(0.5, 0.25);
   // The pose of where the target is on the field.
@@ -79,9 +81,11 @@ public class CameraSubsystem extends SubsystemBase {
     poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
     // setup simulation for vision system
-    visionSim = new VisionSystemSim("main");
-    visionSim.addVisionTargets(visionTarget);
-    visionSim.addAprilTags(aprilTagFieldLayout);
+    poseVisionSim = new VisionSystemSim("pose");
+    poseVisionSim.addAprilTags(aprilTagFieldLayout);
+
+    targetingVisionSim = new VisionSystemSim("targeting");
+    targetingVisionSim.addVisionTargets(visionTarget);
 
     // Set the properties of the camera
     TargetingCameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(70));
@@ -106,9 +110,9 @@ public class CameraSubsystem extends SubsystemBase {
     targetingCamera1Sim = new PhotonCameraSim(targetingCamera1, TargetingCameraProp);
 
     // Set Camera locations and add them to the vision simulation
-    visionSim.addCamera(poseCamera1Sim, Constants.PoseCamera1.location);
-    visionSim.addCamera(poseCamera2Sim, Constants.PoseCamera2.location);
-    visionSim.addCamera(targetingCamera1Sim, Constants.TargetingCamera1.location);
+    poseVisionSim.addCamera(poseCamera1Sim, Constants.PoseCamera1.location);
+    poseVisionSim.addCamera(poseCamera2Sim, Constants.PoseCamera2.location);
+    targetingVisionSim.addCamera(targetingCamera1Sim, Constants.TargetingCamera1.location);
   }
 
   /**
@@ -169,6 +173,7 @@ public class CameraSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
     // Update with the simulated drivetrain pose. This should be called every loop in simulation.
-    visionSim.update(m_driveSubsystem.getPose());
+    poseVisionSim.update(m_driveSubsystem.getPose());
+    targetingVisionSim.update(m_driveSubsystem.getPose());
   }
 }

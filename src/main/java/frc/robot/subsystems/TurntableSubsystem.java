@@ -61,8 +61,6 @@ public class TurntableSubsystem extends SubsystemBase {
 
   // other constants
   private final double kStartingAngleRads = 0.0; // Starting angle of the Turntable
-  private final double kjKgMetersSquared =
-      0.1; // The moment of inertia of the Turntable; can be calculated from CAD software.
 
   SimpleMotorFeedforward m_TurntableFeedforward = new SimpleMotorFeedforward(kS, kV, kA);
 
