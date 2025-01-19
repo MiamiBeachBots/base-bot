@@ -117,14 +117,11 @@ public class CameraSubsystem extends SubsystemBase {
       // Camera processed a new frame since last
       // Get the last one in the list.
       var result = results.get(results.size() - 1);
-      SmartDashboard.putBoolean("CameraConnnected", true);
       SmartDashboard.putNumber("Front Camera Latency", result.getTimestampSeconds());
       if (result.hasTargets()) {
         // select last result with targets
         return Optional.of(result);
       }
-    } else {
-      SmartDashboard.putBoolean("CameraConnnected", false);
     }
     return Optional.empty();
   }
@@ -150,6 +147,10 @@ public class CameraSubsystem extends SubsystemBase {
     // update the pose estimators
     updateGlobalPose(poseCamera1Result, poseCamera1PoseEstimator);
     updateGlobalPose(poseCamera2Result, poseCamera2PoseEstimator);
+    // Update dashboard
+    SmartDashboard.putBoolean("poseCamera1Connected", poseCamera1.isConnected());
+    SmartDashboard.putBoolean("poseCamera2Connected", poseCamera2.isConnected());
+    SmartDashboard.putBoolean("TargetingCamera1Connnected", targetingCamera1.isConnected());
   }
 
   @Override

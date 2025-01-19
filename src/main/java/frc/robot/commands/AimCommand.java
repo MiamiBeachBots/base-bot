@@ -46,7 +46,47 @@ public class AimCommand extends Command {
   @Override
   public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
+  private void processResult(PhotonPipelineResult result) {
+    SmartDashboard.putBoolean("CameraTargetDetected", true);
+    // find target we want, we can change later
+    PhotonTrackedTarget target = result.getBestTarget();
+    // we can change this to be a certain april tag later
+    // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
+    // get the transform from the camera to the target
+    Transform3d cameraToTarget = target.getBestCameraToTarget();
+    // set offset of transform
+    Transform3d targetOffset = cameraToTarget.plus(robotOffset);
+    // get the pose of the robot
+    Pose3d robotPose = new Pose3d(m_driveSubsystem.getPose());
+    // add the offset to the robot pose
+    Pose3d robotToTarget = robotPose.plus(targetOffset);
+    // convert to a pose2d for the drive subsystem
+    Pose2d newTargetPose = robotToTarget.toPose2d();
+    // check if new pose within tolerance
+    if (robotToTarget2d.getTranslation().getDistance(newTargetPose.getTranslation())
+        > toleranceMeters) {
+      // update the pose
+      robotToTarget2d = newTargetPose;
+      // Create list of target poses
+      // One at halfway to target, one at the target
+      List<Pose2d> targetPoses = new ArrayList<Pose2d>();
+      targetPoses.add(
+          new Pose2d(
+              robotToTarget2d.getTranslation().getX() / 2,
+              robotToTarget2d.getTranslation().getY() / 2,
+              new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
+      targetPoses.add(
+          new Pose2d(
+              robotToTarget2d.getTranslation().getX(),
+              robotToTarget2d.getTranslation().getY(),
+              new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
+      // update the drive subsystem
+      resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(targetPoses);
+      resultingCommand.initialize();
+    }
+  }
+
+  // Called every time the cheduler runs while the command is scheduled.
   @Override
   public void execute() {
     // TODO: update offset here
@@ -56,43 +96,7 @@ public class AimCommand extends Command {
     CamResult.ifPresentOrElse(
         result -> {
           if (result.hasTargets()) {
-            SmartDashboard.putBoolean("CameraTargetDetected", true);
-            // find target we want, we can change later
-            PhotonTrackedTarget target = result.getBestTarget();
-            // we can change this to be a certain april tag later
-            // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
-            // get the transform from the camera to the target
-            Transform3d cameraToTarget = target.getBestCameraToTarget();
-            // set offset of transform
-            Transform3d targetOffset = cameraToTarget.plus(robotOffset);
-            // get the pose of the robot
-            Pose3d robotPose = new Pose3d(m_driveSubsystem.getPose());
-            // add the offset to the robot pose
-            Pose3d robotToTarget = robotPose.plus(targetOffset);
-            // convert to a pose2d for the drive subsystem
-            Pose2d newTargetPose = robotToTarget.toPose2d();
-            // check if new pose within tolerance
-            if (robotToTarget2d.getTranslation().getDistance(newTargetPose.getTranslation())
-                > toleranceMeters) {
-              // update the pose
-              robotToTarget2d = newTargetPose;
-              // Create list of target poses
-              // One at halfway to target, one at the target
-              List<Pose2d> targetPoses = new ArrayList<Pose2d>();
-              targetPoses.add(
-                  new Pose2d(
-                      robotToTarget2d.getTranslation().getX() / 2,
-                      robotToTarget2d.getTranslation().getY() / 2,
-                      new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
-              targetPoses.add(
-                  new Pose2d(
-                      robotToTarget2d.getTranslation().getX(),
-                      robotToTarget2d.getTranslation().getY(),
-                      new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
-              // update the drive subsystem
-              resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(targetPoses);
-              resultingCommand.initialize();
-            }
+            processResult(result);
           }
         },
         () -> {
