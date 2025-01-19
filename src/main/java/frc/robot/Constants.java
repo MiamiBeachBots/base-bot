@@ -82,9 +82,9 @@ public final class Constants {
   public static final class PoseCamera1 {
     public static final String name = "pose1";
     // XYZ
-    private static final double XLocation = Units.inchesToMeters(6);
-    private static final double YLocation = Units.inchesToMeters(9.3);
-    private static final double ZLocation = Units.inchesToMeters(10.5);
+    private static final double xLocation = Units.inchesToMeters(6);
+    private static final double yLocation = Units.inchesToMeters(9.3);
+    private static final double zLocation = Units.inchesToMeters(10.5);
     // ROTATION
     public static final double roll = Units.degreesToRadians(90);
     public static final double pitch = Units.degreesToRadians(0.0);
@@ -92,7 +92,7 @@ public final class Constants {
 
     public static final Transform3d location =
         new Transform3d(
-            new Translation3d(XLocation, YLocation, ZLocation), new Rotation3d(roll, pitch, yaw));
+            new Translation3d(xLocation, yLocation, zLocation), new Rotation3d(roll, pitch, yaw));
   }
 
   public static final class PoseCamera2 {
