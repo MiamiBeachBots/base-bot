@@ -46,6 +46,11 @@ public class AimCommand extends Command {
   @Override
   public void initialize() {}
 
+  /**
+   * Takes pipeline result from camera, follows path based on those results.
+   *
+   * @param result Camera pipeline result
+   */
   private void processResult(PhotonPipelineResult result) {
     SmartDashboard.putBoolean("CameraTargetDetected", true);
     // find target we want, we can change later

@@ -161,9 +161,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     return m_sysIdRoutine.dynamic(direction);
   }
 
-  /*
-   * Move elevator to a specific height
-   */
+  /** Move elevator to a specific height */
   public void SetHeight(double meters) {
     m_ElevatorMainPIDController.setReference(
         meters,
@@ -172,9 +170,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_ElevatorFeedforward.calculate(meters));
   }
 
-  /*
-   * Retract the elevator
-   */
+  /** Retract the elevator */
   public void LowerElevator() {
     SetHeight(0);
   }

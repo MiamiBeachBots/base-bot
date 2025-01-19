@@ -111,6 +111,12 @@ public class CameraSubsystem extends SubsystemBase {
     visionSim.addCamera(targetingCamera1Sim, Constants.TargetingCamera1.location);
   }
 
+  /**
+   * Gets the last procesesd frame captured by camera
+   *
+   * @param camera Desired camera to get result from
+   * @return Targets in the frame.
+   */
   private Optional<PhotonPipelineResult> getPipelineResults(PhotonCamera camera) {
     var results = camera.getAllUnreadResults();
     if (!results.isEmpty()) {
@@ -126,6 +132,12 @@ public class CameraSubsystem extends SubsystemBase {
     return Optional.empty();
   }
 
+  /**
+   * Update estaimated robot pose based on given pipeline result.
+   *
+   * @param result Camera pipeline result
+   * @param poseEstimator Pose estimator
+   */
   private void updateGlobalPose(
       Optional<PhotonPipelineResult> result, PhotonPoseEstimator poseEstimator) {
     if (result.isPresent()) {

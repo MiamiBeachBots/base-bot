@@ -150,8 +150,10 @@ public class TurntableSubsystem extends SubsystemBase {
     return m_sysIdRoutine.dynamic(direction);
   }
 
-  /*
+  /**
    * Move Turntable to a specific angle
+   *
+   * @param radians Angle in radians which we want to move the turntable to
    */
   public void SetAngle(double radians) {
     m_TurntableMainPIDController.setReference(
@@ -161,9 +163,7 @@ public class TurntableSubsystem extends SubsystemBase {
         m_TurntableFeedforward.calculate(radians, m_TurntableEncoder.getVelocity()));
   }
 
-  /*
-   * Reset the Turntable
-   */
+  /** Reset the Turntable */
   public void ResetTurntable() {
     SetAngle(kStartingAngleRads);
   }

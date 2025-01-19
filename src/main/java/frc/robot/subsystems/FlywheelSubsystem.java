@@ -144,9 +144,7 @@ public class FlywheelSubsystem extends SubsystemBase {
     return m_sysIdRoutine.dynamic(direction);
   }
 
-  /*
-   * Spin shooter at a given Speed (M/S)
-   */
+  /** Spin shooter at a given Speed (M/S) */
   public void SpinShooter(double speed) {
     m_ShooterMainPIDController.setReference(
         speed,
@@ -159,16 +157,12 @@ public class FlywheelSubsystem extends SubsystemBase {
     SpinShooter(1);
   }
 
-  /*
-   * Stop the shooter
-   */
+  /** Stop the shooter */
   public void StopShooter() {
     SpinShooter(0);
   }
 
-  /*
-   * Check if shooter is at a given Speed
-   */
+  /** Check if shooter is at a given Speed */
   public Boolean isAtSpeedTolerance(double speed) {
     return (m_ShooterMainEncoder.getVelocity() > speed - 0.1
         && m_ShooterMainEncoder.getVelocity() < speed + 0.1);

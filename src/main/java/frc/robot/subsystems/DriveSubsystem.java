@@ -342,13 +342,14 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive.tankDrive(leftSpeed, rightSpeed);
   }
 
+  /**
+   * When this function is activated, the robot is in "drive straight" mode. Whatever direction the
+   * robot was heading when "drive straight" mode was entered will be maintained. We use the current
+   * pose of the robot to determine the direction. The robot will continue to move in this direction
+   * until the function is canceled.
+   */
   public Command driveStraight() {
-    /*
-     * WWhen this function is activated, the robot is in "drive straight" mode.
-     * Whatever direction the robot was heading when "drive straight" mode was
-     * entered will be maintained. We use the current pose of the robot to determine the direction.
-     * The robot will continue to move in this direction until the function is canceled.
-     */
+
     // get current pose
     Pose2d currentPose = getPose();
     // get current angle
@@ -370,38 +371,57 @@ public class DriveSubsystem extends SubsystemBase {
     return GenerateOnTheFlyCommand(wantedPoses);
   }
 
+  /**
+   * Builds a command to follow a path based on a given list of desired poses
+   *
+   * @param desiredPoses A list of poses for the robot to move to
+   * @return The command to follow created path
+   */
   public Command GenerateOnTheFlyCommand(List<Pose2d> desiredPoses) {
+    // Creates the path to follow
     PathPlannerPath path = generateOnTheFlyPath(desiredPoses);
+    // Returns built command following the path
     return AutoBuilder.followPath(path);
   }
 
+  /**
+   * Creates a path based on a given list of desired poses
+   *
+   * @param desiredPoses A list of poses for the robot to move to. Requires atleast 2 poses.
+   * @return The path with the poses to go to.
+   */
   private PathPlannerPath generateOnTheFlyPath(List<Pose2d> desiredPoses) {
+    // Turn poses into waypoints
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(desiredPoses);
+    // Create path with waypoints
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
             DriveConstants.OnTheFly.kPathConstraints,
             new IdealStartingState(0, desiredPoses.get(0).getRotation()),
             new GoalEndState(0, desiredPoses.get(desiredPoses.size() - 1).getRotation()));
+    // Disables the path being mirrored based on which alliance we are on
     path.preventFlipping = true;
     return path;
   }
 
-  /*
-   * This function can return our robots DiffernentialDriveWheelSpeeds, which is the speed of each side of the robot.
+  /**
+   * This function can return our robots DiffernentialDriveWheelSpeeds, which is the speed of each
+   * side of the robot.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(getVelocityLeft(), getVelocityRight());
   }
 
-  /*
-   * This function can return our robots ChassisSpeeds, which is vx (m/s), vy (m/s), and omega (rad/s).
+  /**
+   * This function can return our robots ChassisSpeeds, which is vx (m/s), vy (m/s), and omega
+   * (rad/s).
    */
   public ChassisSpeeds getSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(getWheelSpeeds());
   }
 
-  /*
+  /**
    * This function can set our robots ChassisSpeeds, which is vx (m/s), vy (m/s), and omega (rad/s).
    * vy is always 0 as we are not strafing.
    */
@@ -409,8 +429,9 @@ public class DriveSubsystem extends SubsystemBase {
     setWheelVelocities(DriveConstants.kDriveKinematics.toWheelSpeeds(speeds));
   }
 
-  /*
-   * This function can set our robots DifferentialDriveWheelSpeeds, which is the speed of each side of the robot.
+  /**
+   * This function can set our robots DifferentialDriveWheelSpeeds, which is the speed of each side
+   * of the robot.
    */
   public void setWheelVelocities(DifferentialDriveWheelSpeeds speeds) {
     // get left and right speeds in m/s, and run through feedforward to get feedforward voltage

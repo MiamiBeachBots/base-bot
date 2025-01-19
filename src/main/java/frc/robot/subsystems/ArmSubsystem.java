@@ -164,8 +164,10 @@ public class ArmSubsystem extends SubsystemBase {
     return m_sysIdRoutine.dynamic(direction);
   }
 
-  /*
+  /**
    * Move Arm to a specific angle
+   *
+   * @param radians Angle in radians to move the arm to
    */
   public void SetAngle(double radians) {
     m_ArmMainPIDController.setReference(
@@ -175,9 +177,7 @@ public class ArmSubsystem extends SubsystemBase {
         m_ArmFeedforward.calculate(radians, m_ArmEncoder.getVelocity()));
   }
 
-  /*
-   * Lower the Arm
-   */
+  /** Lower the Arm */
   public void LowerArm() {
     SetAngle(kStartingAngleRads);
   }
