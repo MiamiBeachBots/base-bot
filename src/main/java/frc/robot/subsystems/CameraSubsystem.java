@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -31,8 +32,6 @@ public class CameraSubsystem extends SubsystemBase {
   private final PhotonCamera poseCamera2;
   private final PhotonCamera targetingCamera1;
 
-  public Optional<PhotonPipelineResult> poseCamera1Result;
-  public Optional<PhotonPipelineResult> poseCamera2Result;
   public Optional<PhotonPipelineResult> targetingCamera1Result;
 
   private final PhotonPoseEstimator poseCamera1PoseEstimator;
@@ -40,8 +39,8 @@ public class CameraSubsystem extends SubsystemBase {
 
   // Simulation Config
   // A vision system sim labelled as "pose and targeting" in NetworkTables
-  private final VisionSystemSim poseVisionSim;
-  private final VisionSystemSim targetingVisionSim;
+  private VisionSystemSim poseVisionSim;
+  private VisionSystemSim targetingVisionSim;
 
   // A 0.5 x 0.25 meter rectangular target
   private final TargetModel targetModel = new TargetModel(0.5, 0.25);
@@ -54,9 +53,9 @@ public class CameraSubsystem extends SubsystemBase {
   // setup cameras
   private final SimCameraProperties PoseCameraProp = new SimCameraProperties();
   private final SimCameraProperties TargetingCameraProp = new SimCameraProperties();
-  private final PhotonCameraSim poseCamera1Sim;
-  private final PhotonCameraSim poseCamera2Sim;
-  private final PhotonCameraSim targetingCamera1Sim;
+  private PhotonCameraSim poseCamera1Sim;
+  private PhotonCameraSim poseCamera2Sim;
+  private PhotonCameraSim targetingCamera1Sim;
 
   /** Creates a new CameraSubsystem. */
   public CameraSubsystem(DriveSubsystem d_subsystem) {
@@ -80,6 +79,12 @@ public class CameraSubsystem extends SubsystemBase {
     poseCamera1PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
+    if (Robot.isSimulation()) {
+      simulationInit();
+    }
+  }
+
+  private void simulationInit() {
     // setup simulation for vision system
     poseVisionSim = new VisionSystemSim("pose");
     poseVisionSim.addAprilTags(aprilTagFieldLayout);
@@ -139,13 +144,12 @@ public class CameraSubsystem extends SubsystemBase {
   /**
    * Update estaimated robot pose based on given pipeline result.
    *
-   * @param result Camera pipeline result
+   * @param camera Pose Camera
    * @param poseEstimator Pose estimator
    */
-  private void updateGlobalPose(
-      Optional<PhotonPipelineResult> result, PhotonPoseEstimator poseEstimator) {
-    if (result.isPresent()) {
-      Optional<EstimatedRobotPose> curPose = poseEstimator.update(result.get());
+  private void updateGlobalPose(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {
+    for (var result : camera.getAllUnreadResults()) {
+      Optional<EstimatedRobotPose> curPose = poseEstimator.update(result);
       if (curPose.isPresent()) {
         m_driveSubsystem.updateVisionPose(
             curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
@@ -156,13 +160,11 @@ public class CameraSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // update the pipeline results
-    poseCamera1Result = getPipelineResults(poseCamera1);
-    poseCamera2Result = getPipelineResults(poseCamera2);
+    // update the pipeline result for targeting cameras
     targetingCamera1Result = getPipelineResults(targetingCamera1);
     // update the pose estimators
-    updateGlobalPose(poseCamera1Result, poseCamera1PoseEstimator);
-    updateGlobalPose(poseCamera2Result, poseCamera2PoseEstimator);
+    updateGlobalPose(poseCamera1, poseCamera1PoseEstimator);
+    updateGlobalPose(poseCamera2, poseCamera2PoseEstimator);
     // Update dashboard
     SmartDashboard.putBoolean("poseCamera1Connected", poseCamera1.isConnected());
     SmartDashboard.putBoolean("poseCamera2Connected", poseCamera2.isConnected());
