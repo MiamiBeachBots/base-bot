@@ -6,26 +6,19 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
-import java.util.function.DoubleSupplier;
 
 /** An example command that uses an example subsystem. */
 public class StraightCommand extends Command {
   private final DriveSubsystem m_driveSubsystem;
-  private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
-  private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
+  private Command resultingCommand;
 
   /**
    * Creates a new StraightCommand.
    *
    * @param d_subsystem The drive subsystem used by this command.
-   * @param xbox_left_y A function that returns the value of the left y axis for the joystick.
-   * @param xbox_right_y A function that returns the value of the right Y axis for the joystick.
    */
-  public StraightCommand(
-      DriveSubsystem d_subsystem, DoubleSupplier xbox_left_y, DoubleSupplier xbox_right_y) {
+  public StraightCommand(DriveSubsystem d_subsystem) {
     m_driveSubsystem = d_subsystem;
-    m_left_y = xbox_left_y;
-    m_right_y = xbox_right_y;
 
     // Change this to match the name of your camera
     // Use addRequirements() here to declare subsystem dependencies.
@@ -36,21 +29,21 @@ public class StraightCommand extends Command {
   @Override
   public void initialize() {
     System.out.println("Starting 'StraightCommand.");
+    resultingCommand = m_driveSubsystem.driveStraight();
+    resultingCommand.initialize();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveSubsystem.driveStraight(
-        m_driveSubsystem.getYaw(),
-        m_driveSubsystem.getAccumYaw(),
-        (m_left_y.getAsDouble() + m_right_y.getAsDouble()) / 2);
+    // generate new command every 100ms
+    resultingCommand.execute();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.turnResetPID(); // we make sure to clear the PID angle
+    resultingCommand.end(interrupted);
     System.out.println("Ending 'StraightCommand.");
   }
 

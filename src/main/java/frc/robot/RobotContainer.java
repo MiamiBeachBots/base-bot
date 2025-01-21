@@ -6,13 +6,10 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -21,17 +18,22 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AimCommand;
-import frc.robot.commands.BalanceCommand;
+import frc.robot.commands.ArmCommand;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.FlywheelCommand;
 import frc.robot.commands.LifterCommand;
 import frc.robot.commands.StraightCommand;
+import frc.robot.commands.TurntableCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.DriverCameraSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.FlywheelSubsystem;
 import frc.robot.subsystems.LifterSubsystem;
+import frc.robot.subsystems.TurntableSubsystem;
 import frc.robot.subsystems.UltrasonicSubsystem;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,37 +47,40 @@ public class RobotContainer {
 
   // Init joysticks
   private final CommandXboxController m_controller1 =
-      new CommandXboxController(Constants.CONTROLLERUSBINDEX);
-  private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICKUSBINDEX);
+      new CommandXboxController(Constants.CONTROLLER_USB_INDEX);
+  private final Joystick m_flightStick = new Joystick(Constants.FLIGHTSTICK_USB_INDEX);
 
   // The robot's subsystems are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   // Init Gyro & ultrasonic
   private final UltrasonicSubsystem m_ultrasonicShooterSubsystem =
-      new UltrasonicSubsystem(Constants.ULTRASONICSHOOTERPORT);
+      new UltrasonicSubsystem(Constants.ULTRASONIC_SHOOTER_PORT);
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
   private final FlywheelSubsystem m_shooterSubsytem = new FlywheelSubsystem();
   private final LifterSubsystem m_leftLifterSubsystem =
-      new LifterSubsystem(Constants.CANConstants.MOTORLIFTERLEFTID);
+      new LifterSubsystem(Constants.CANConstants.MOTOR_LIFTER_LEFT_ID);
   private final LifterSubsystem m_rightLifterSubsystem =
-      new LifterSubsystem(Constants.CANConstants.MOTORLIFTERRIGHTID);
-  private final DriverCameraSubsystem m_DriverCameraSubsystem = new DriverCameraSubsystem();
+      new LifterSubsystem(Constants.CANConstants.MOTOR_LIFTER_RIGHT_ID);
+  private final ElevatorSubsystem m_ElevatorSubsystem = new ElevatorSubsystem();
+  private final ArmSubsystem m_ArmSubsystem = new ArmSubsystem();
+  private final TurntableSubsystem m_TurntableSubsystem = new TurntableSubsystem();
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
   private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_cameraSubsystem);
-  private final BalanceCommand m_balanceCommand = new BalanceCommand(m_driveSubsystem);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
-  private final StraightCommand m_straightCommand =
-      new StraightCommand(m_driveSubsystem, this::getControllerLeftY, this::getControllerRightY);
+  private final StraightCommand m_straightCommand = new StraightCommand(m_driveSubsystem);
   private final FlywheelCommand m_shooterCommand =
       new FlywheelCommand(m_shooterSubsytem, m_shooterState);
   private final LifterCommand m_LeftLifterCommand = new LifterCommand(m_leftLifterSubsystem);
   private final LifterCommand m_RightLifterCommand = new LifterCommand(m_rightLifterSubsystem);
+  private final ElevatorCommand m_ElevatorCommand = new ElevatorCommand(m_ElevatorSubsystem);
+  private final ArmCommand m_ArmCommand = new ArmCommand(m_ArmSubsystem);
+  private final TurntableCommand m_TurntableCommand = new TurntableCommand(m_TurntableSubsystem);
 
   // EX: these commands are used by autonomous only
   // private final AimAmpCommand m_AimAmpCommand = new AimAmpCommand(m_armSubsystem,
@@ -95,7 +100,9 @@ public class RobotContainer {
   private JoystickButton m_aimButton;
   private JoystickButton m_shooterTrigger;
   // Init For Autonomous
-  private SendableChooser<String> autoDashboardChooser = new SendableChooser<String>();
+  private LoggedDashboardChooser<String> autoDashboardChooser =
+      new LoggedDashboardChooser<String>("AutoMode");
+
   public final boolean enableAutoProfiling = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -134,7 +141,7 @@ public class RobotContainer {
     m_lifterDirectionButton = m_controller1.a();
 
     // Joystick buttons
-    m_aimButton = new JoystickButton(m_flightStick, Constants.AIMBUTTON);
+    m_aimButton = new JoystickButton(m_flightStick, Constants.AIM_BUTTON);
 
     // load and shoot buttons
     m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
@@ -178,16 +185,15 @@ public class RobotContainer {
 
   private void initializeAutonomous() {
     // Network Table Routine Options
-    autoDashboardChooser.setDefaultOption("SFR", "SFR");
+    autoDashboardChooser.addDefaultOption("SFR", "SFR");
     autoDashboardChooser.addOption("DriveForward", "DriveForward");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
-    SmartDashboard.putData(autoDashboardChooser);
+    SmartDashboard.putData(autoDashboardChooser.getSendableChooser());
 
     // Named Commands
     // ex:
     // NamedCommands.registerCommand("A", new PathFollowingCommand(m_driveSubsystem,
     // pathGroup.get(0)));
-    NamedCommands.registerCommand("BalanceRobot", m_balanceCommand);
     NamedCommands.registerCommand(
         "BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     NamedCommands.registerCommand("ShooterCommand", m_shooterCommand);
@@ -196,9 +202,7 @@ public class RobotContainer {
   }
 
   private void configureTeleopPaths() {
-    // Limits for all Paths
-    PathConstraints constraints =
-        new PathConstraints(3.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+    // TODO: Write new paths
     // EX
     // PathPlannerPath ampPath = PathPlannerPath.fromPathFile("TeleopAmpPath");
 
@@ -240,7 +244,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // get the name of the auto from network tables, as the rest is preconfigured by the drive
     // subsystem.
-    String autoName = autoDashboardChooser.getSelected();
+    String autoName = autoDashboardChooser.get();
     return new PathPlannerAuto(autoName);
   }
 }

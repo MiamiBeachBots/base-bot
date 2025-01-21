@@ -4,18 +4,28 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import org.photonvision.PhotonUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 /** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends Command {
   private final DriveSubsystem m_driveSubsystem;
   private final CameraSubsystem m_cameraSubsystem;
+  private final Transform3d robotOffset = new Transform3d();
+  private final double toleranceMeters = 0.1;
+  private Pose2d robotToTarget2d = new Pose2d();
+  private Command resultingCommand;
 
   /**
    * Creates a new AimCommand.
@@ -36,37 +46,77 @@ public class AimCommand extends Command {
   @Override
   public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
+  /**
+   * Takes pipeline result from camera, follows path based on those results.
+   *
+   * @param result Camera pipeline result
+   */
+  private void processResult(PhotonPipelineResult result) {
+    SmartDashboard.putBoolean("CameraTargetDetected", true);
+    // find target we want, we can change later
+    PhotonTrackedTarget target = result.getBestTarget();
+    // we can change this to be a certain april tag later
+    // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
+    // get the transform from the camera to the target
+    Transform3d cameraToTarget = target.getBestCameraToTarget();
+    // set offset of transform
+    Transform3d targetOffset = cameraToTarget.plus(robotOffset);
+    // get the pose of the robot
+    Pose3d robotPose = new Pose3d(m_driveSubsystem.getPose());
+    // add the offset to the robot pose
+    Pose3d robotToTarget = robotPose.plus(targetOffset);
+    // convert to a pose2d for the drive subsystem
+    Pose2d newTargetPose = robotToTarget.toPose2d();
+    // check if new pose within tolerance
+    if (robotToTarget2d.getTranslation().getDistance(newTargetPose.getTranslation())
+        > toleranceMeters) {
+      // update the pose
+      robotToTarget2d = newTargetPose;
+      // Create list of target poses
+      // One at halfway to target, one at the target
+      List<Pose2d> targetPoses = new ArrayList<Pose2d>();
+      targetPoses.add(
+          new Pose2d(
+              robotToTarget2d.getTranslation().getX() / 2,
+              robotToTarget2d.getTranslation().getY() / 2,
+              new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
+      targetPoses.add(
+          new Pose2d(
+              robotToTarget2d.getTranslation().getX(),
+              robotToTarget2d.getTranslation().getY(),
+              new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
+      // update the drive subsystem
+      resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(targetPoses);
+      resultingCommand.initialize();
+    }
+  }
+
+  // Called every time the cheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    PhotonPipelineResult CamResult = m_cameraSubsystem.frontCameraResult;
+    // TODO: update offset here
+    // robotoffset = ....
+    Optional<PhotonPipelineResult> CamResult = m_cameraSubsystem.targetingCamera1Result;
     // will not work if cam is defined incorrectly, but will not tell you
-    if (CamResult.hasTargets()) {
-      SmartDashboard.putBoolean("CameraTargetDetected", true);
-      double angleGoal = m_driveSubsystem.getYaw() + CamResult.getBestTarget().getYaw();
-      SmartDashboard.putNumber("CameraTargetPitch", angleGoal);
-      double distanceFromTarget =
-          PhotonUtils.calculateDistanceToTargetMeters(
-                  m_cameraSubsystem.frontCameraHeightMeters,
-                  m_cameraSubsystem.frontCameraTargetHeightMeters,
-                  m_cameraSubsystem.frontCameraTargetPitchRadians,
-                  Units.degreesToRadians(CamResult.getBestTarget().getPitch()))
-              - m_cameraSubsystem.frontCameraGoalRangeMeters;
-      // turn and move towards target.
-      // m_driveSubsystem.driveAndTurn(m_driveSubsystem.getYaw(), angleGoal, distanceFromTarget);
-      // we reset the angle everytime as the target could change / move.
-      m_driveSubsystem.turnSetGoal(angleGoal);
-    } else {
-      SmartDashboard.putBoolean("CameraTargetDetected", false);
-      SmartDashboard.putNumber("CameraTargetPitch", 0.0);
-      m_driveSubsystem.tankDrive(0, 0);
+    CamResult.ifPresentOrElse(
+        result -> {
+          if (result.hasTargets()) {
+            processResult(result);
+          }
+        },
+        () -> {
+          SmartDashboard.putBoolean("CameraTargetDetected", false);
+          SmartDashboard.putNumber("CameraTargetPitch", 0.0);
+        });
+    if (resultingCommand != null) {
+      resultingCommand.execute();
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveSubsystem.turnResetPID(); // we clear the PID turn controller.
+    resultingCommand.end(interrupted);
     m_driveSubsystem.stop(); // end execution of on board PID.
   }
 

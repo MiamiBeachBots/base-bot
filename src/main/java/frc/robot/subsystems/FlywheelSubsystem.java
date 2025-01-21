@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -15,6 +17,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,14 +28,23 @@ import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
 
 public class FlywheelSubsystem extends SubsystemBase {
+  // Shooter Motors
   private final SparkMax m_ShooterMotorMain;
   private final SparkMax m_ShooterMotorSecondary;
+  // Create Simulated Motors
+  private final DCMotor m_MainGearbox;
+  private final DCMotor m_SecondaryGearbox;
+  private final SparkMaxSim m_ShooterMainSim;
+  private final SparkMaxSim m_ShooterSecondarySim;
 
   private final SparkMaxConfig m_MainConfig = new SparkMaxConfig(); // Motor Configuration
   private final SparkMaxConfig m_SecondaryConfig = new SparkMaxConfig(); // Motor Configuration
 
   private final SparkClosedLoopController m_ShooterMainPIDController;
   private RelativeEncoder m_ShooterMainEncoder;
+  private RelativeEncoder m_ShooterSecondaryEncoder;
+  private SparkRelativeEncoderSim m_ShooterMainEncoderSim;
+  private SparkRelativeEncoderSim m_ShooterSecondaryEncoderSim;
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
@@ -63,9 +75,16 @@ public class FlywheelSubsystem extends SubsystemBase {
   public FlywheelSubsystem() {
     // create the shooter motors
     m_ShooterMotorMain =
-        new SparkMax(CANConstants.MOTORSHOOTERLEFTID, SparkMax.MotorType.kBrushless);
+        new SparkMax(CANConstants.MOTOR_SHOOTER_LEFT_ID, SparkMax.MotorType.kBrushless);
     m_ShooterMotorSecondary =
-        new SparkMax(CANConstants.MOTORSHOOTERRIGHTID, SparkMax.MotorType.kBrushless);
+        new SparkMax(CANConstants.MOTOR_SHOOTER_RIGHT_ID, SparkMax.MotorType.kBrushless);
+    // Create simulated motors
+    m_MainGearbox = DCMotor.getNEO(1);
+    m_SecondaryGearbox = DCMotor.getNEO(1);
+    m_ShooterMainSim = new SparkMaxSim(m_ShooterMotorMain, m_MainGearbox);
+    m_ShooterSecondarySim = new SparkMaxSim(m_ShooterMotorSecondary, m_SecondaryGearbox);
+    // Physics Simulation
+    // TODO: Add Simulation
 
     // set the idle mode to coast
     m_MainConfig.idleMode(IdleMode.kBrake);
@@ -81,6 +100,10 @@ public class FlywheelSubsystem extends SubsystemBase {
 
     // allow us to read the encoder
     m_ShooterMainEncoder = m_ShooterMotorMain.getEncoder();
+    m_ShooterSecondaryEncoder = m_ShooterMotorSecondary.getEncoder();
+    // Create simulated encoder
+    m_ShooterMainEncoderSim = m_ShooterMainSim.getRelativeEncoderSim();
+    m_ShooterSecondaryEncoderSim = m_ShooterSecondarySim.getRelativeEncoderSim();
     m_MainConfig.encoder.positionConversionFactor(kPositionConversionRatio);
     m_MainConfig.encoder.velocityConversionFactor(kVelocityConversionRatio);
     // PID coefficients
@@ -121,9 +144,7 @@ public class FlywheelSubsystem extends SubsystemBase {
     return m_sysIdRoutine.dynamic(direction);
   }
 
-  /*
-   * Spin shooter at a given Speed (M/S)
-   */
+  /** Spin shooter at a given Speed (M/S) */
   public void SpinShooter(double speed) {
     m_ShooterMainPIDController.setReference(
         speed,
@@ -133,19 +154,15 @@ public class FlywheelSubsystem extends SubsystemBase {
   }
 
   public void SpinAtFull() {
-    m_ShooterMotorMain.set(1);
+    SpinShooter(1);
   }
 
-  /*
-   * Stop the shooter
-   */
+  /** Stop the shooter */
   public void StopShooter() {
     SpinShooter(0);
   }
 
-  /*
-   * Check if shooter is at a given Speed
-   */
+  /** Check if shooter is at a given Speed */
   public Boolean isAtSpeedTolerance(double speed) {
     return (m_ShooterMainEncoder.getVelocity() > speed - 0.1
         && m_ShooterMainEncoder.getVelocity() < speed + 0.1);

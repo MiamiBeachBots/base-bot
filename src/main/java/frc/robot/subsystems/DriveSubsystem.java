@@ -7,7 +7,13 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPLTVController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -17,26 +23,33 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
+import java.util.ArrayList;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 /** This Subsystem is what allows the code to interact with the drivetrain of the robot. */
@@ -44,11 +57,26 @@ public class DriveSubsystem extends SubsystemBase {
   // Gyro
   private final AHRS m_Gyro;
 
+  // simulation gyro
+  private final SimDouble SimGyroAngleHandler;
+
   // motors
   private final SparkMax m_backLeft; // Main / Master Motor for Left
   private final SparkMax m_frontLeft; // Slave Motor for Left (Follow Master)
   private final SparkMax m_backRight; // Main / Master Motor for Right
   private final SparkMax m_frontRight; // Slave Motor for Right (Follow Master)
+  // Simulated Motors
+  private final DCMotor m_leftGearbox;
+  private final DCMotor m_rightGearbox;
+  private final SparkMaxSim m_leftSim;
+  private final SparkMaxSim m_rightSim;
+
+  // Simulated Drive Train
+  DifferentialDrivetrainSim m_driveTrainSim;
+
+  // Simulated Encoders
+  SparkRelativeEncoderSim m_leftEncoderSim;
+  SparkRelativeEncoderSim m_rightEncoderSim;
 
   // Motor Configs
   private final SparkMaxConfig m_backLeftConfig = new SparkMaxConfig();
@@ -85,44 +113,6 @@ public class DriveSubsystem extends SubsystemBase {
   // Odometry class for tracking robot pose (position on field)
   private final DifferentialDrivePoseEstimator m_driveOdometry;
 
-  // Angle PID / RotateToAngle
-  static final double turn_P = 0.1;
-  static final double turn_I = 0.00;
-  static final double turn_D = 0.00;
-  static final double MaxTurnRateDegPerS = 5;
-  static final double MaxTurnAccelerationDegPerSSquared = 5;
-  static final double TurnToleranceDeg = 10; // max diff in degrees
-  static final double TurnRateToleranceDegPerS = 10; // degrees per second
-  // false when inactive, true when active / a target is set.
-  private boolean turnControllerEnabled = false;
-  private double turnRotateToAngleRate; // This value will be updated by the PID Controller
-  // pid controller for "RotateToAngle"
-  private final ProfiledPIDController m_turnController =
-      new ProfiledPIDController(
-          turn_P,
-          turn_I,
-          turn_D,
-          new TrapezoidProfile.Constraints(MaxTurnRateDegPerS, MaxTurnAccelerationDegPerSSquared));
-
-  // Balance PID / AutoBalance
-  static final double balance_P = 0.0625; // 1/16
-  static final double balance_I = 0.00;
-  static final double balance_D = 0.00;
-  static final double MaxBalanceRateDegPerS = 10;
-  static final double MaxBalanceAccelerationDegPerSSquared = 20;
-  static final double BalanceToleranceDeg = 2; // max diff in degrees
-  // false when inactive, true when active / a target is set.
-  private boolean balanceControllerEnabled = false;
-  private double balanceThrottleRate; // This value will be updated by the PID Controller
-  // pid controller for balanceCorrection
-  private final ProfiledPIDController m_balanceController =
-      new ProfiledPIDController(
-          balance_P,
-          balance_I,
-          balance_D,
-          new TrapezoidProfile.Constraints(
-              MaxBalanceRateDegPerS, MaxBalanceAccelerationDegPerSSquared));
-
   // track robot field location for dashboard
   private Field2d field = new Field2d();
 
@@ -137,12 +127,46 @@ public class DriveSubsystem extends SubsystemBase {
     m_Gyro = new AHRS(NavXComType.kMXP_SPI);
     // init motors
     // rio means built into the roboRIO
-    m_backLeft = new SparkMax(CANConstants.MOTORBACKLEFTID, SparkMax.MotorType.kBrushless);
-    m_frontLeft = new SparkMax(CANConstants.MOTORFRONTLEFTID, SparkMax.MotorType.kBrushless);
-    m_frontRight = new SparkMax(CANConstants.MOTORFRONTRIGHTID, SparkMax.MotorType.kBrushless);
-    m_backRight = new SparkMax(CANConstants.MOTORBACKRIGHTID, SparkMax.MotorType.kBrushless);
+    m_backLeft = new SparkMax(CANConstants.MOTOR_BACK_LEFT_ID, SparkMax.MotorType.kBrushless);
+    m_frontLeft = new SparkMax(CANConstants.MOTOR_FRONT_LEFT_ID, SparkMax.MotorType.kBrushless);
+    m_frontRight = new SparkMax(CANConstants.MOTOR_FRONT_RIGHT_ID, SparkMax.MotorType.kBrushless);
+    m_backRight = new SparkMax(CANConstants.MOTOR_BACK_RIGHT_ID, SparkMax.MotorType.kBrushless);
+    // Create simulated motors
+    m_leftGearbox = DCMotor.getNEO(2);
+    m_rightGearbox = DCMotor.getNEO(2);
+    m_leftSim = new SparkMaxSim(m_backLeft, m_leftGearbox);
+    m_rightSim = new SparkMaxSim(m_backRight, m_rightGearbox);
 
-    // invert right side
+    // setup simulation for gyro
+    int gyroID = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[4]");
+    SimGyroAngleHandler = new SimDouble(SimDeviceDataJNI.getSimValueHandle(gyroID, "Yaw"));
+
+    // Create the simulation model of our drivetrain.
+    m_driveTrainSim =
+        new DifferentialDrivetrainSim(
+            // Create a linear system from our identification gains.
+            // TODO: Update after profiling
+            LinearSystemId.identifyDrivetrainSystem(
+                DriveConstants.kvDriveVoltSecondsPerMeter,
+                DriveConstants.kaDriveVoltSecondsSquaredPerMeter,
+                DriveConstants.kvDriveVoltSecondsPerMeterAngular,
+                DriveConstants.kaDriveVoltSecondsSquaredPerMeterAngular),
+            DCMotor.getNEO(2), // 2 NEO motors on each side of the drivetrain.
+            DriveConstants.GEAR_RATIO, // x to 1 gearing reduction
+            DriveConstants.kTrackwidthMeters, // Track Width
+            DriveConstants.WHEEL_RADIUS, // Wheel Radius
+            // The standard deviations for measurement noise:
+            // x and y:          0.001 m
+            // heading:          0.001 rad
+            // l and r velocity: 0.1   m/s
+            // l and r position: 0.005 m
+            VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+
+    // setup simulated encoders
+    m_leftEncoderSim = new SparkRelativeEncoderSim(m_backLeft);
+    m_rightEncoderSim = new SparkRelativeEncoderSim(m_backRight);
+
+    // invert motors
     m_backRightConfig.inverted(true);
     m_frontRightConfig.inverted(true);
 
@@ -180,14 +204,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     // setup PID controllers
     configureMotorPIDControllers();
-
-    // Configure RIO PID Controllers
-    // config turn pid controller.
-    m_turnController.enableContinuousInput(-180.0f, 180.0f);
-    m_turnController.setTolerance(TurnToleranceDeg, TurnRateToleranceDegPerS);
-    // this is the target pitch/ tilt error.
-    m_balanceController.setGoal(0);
-    m_balanceController.setTolerance(BalanceToleranceDeg); // max error in degrees
 
     // configure Odemetry
     m_driveOdometry =
@@ -326,100 +342,86 @@ public class DriveSubsystem extends SubsystemBase {
     m_ddrive.tankDrive(leftSpeed, rightSpeed);
   }
 
-  public void balanceResetPID() {
-    /** This should be run when stopping a pid command. */
-    balanceControllerEnabled = false;
+  /**
+   * When this function is activated, the robot is in "drive straight" mode. Whatever direction the
+   * robot was heading when "drive straight" mode was entered will be maintained. We use the current
+   * pose of the robot to determine the direction. The robot will continue to move in this direction
+   * until the function is canceled.
+   */
+  public Command driveStraight() {
+
+    // get current pose
+    Pose2d currentPose = getPose();
+    // get current angle
+    double currentAngle = currentPose.getRotation().getDegrees();
+    // calculate wanted pose, add 2 meter to x value of current pose
+    List<Pose2d> wantedPoses = new ArrayList<Pose2d>();
+    wantedPoses.add(currentPose);
+    wantedPoses.add(
+        new Pose2d(
+            currentPose.getTranslation().getX() + 5,
+            currentPose.getTranslation().getY(),
+            new Rotation2d(currentAngle)));
+    wantedPoses.add(
+        new Pose2d(
+            currentPose.getTranslation().getX() + 10,
+            currentPose.getTranslation().getY(),
+            new Rotation2d(currentAngle)));
+    // generate path
+    return GenerateOnTheFlyCommand(wantedPoses);
   }
 
-  public void balanceCorrection(double gyroPitchAngle) {
-    if (!balanceControllerEnabled) {
-      m_balanceController.reset(gyroPitchAngle);
-      balanceControllerEnabled = true;
-    }
-    balanceThrottleRate = MathUtil.clamp(m_balanceController.calculate(gyroPitchAngle), -1.0, 1.0);
-    if (!m_balanceController.atGoal()) {
-      // we reverse the values beacuse the robot was balancing in the wrong direction.
-      this.tankDrive(-balanceThrottleRate, -balanceThrottleRate);
-      System.out.println(balanceThrottleRate);
-    }
+  /**
+   * Builds a command to follow a path based on a given list of desired poses
+   *
+   * @param desiredPoses A list of poses for the robot to move to
+   * @return The command to follow created path
+   */
+  public Command GenerateOnTheFlyCommand(List<Pose2d> desiredPoses) {
+    // Creates the path to follow
+    PathPlannerPath path = generateOnTheFlyPath(desiredPoses);
+    // Returns built command following the path
+    return AutoBuilder.followPath(path);
   }
 
-  public void driveToRelativePosition(double targetPosition) {
-    if (targetPosition < 0.1) { // less then 0.1 meters, do nothing, pervents feedback loop
-      double totalPosition = this.AverageDistance() + targetPosition;
-      this.driveToPosition(totalPosition);
-    }
+  /**
+   * Creates a path based on a given list of desired poses
+   *
+   * @param desiredPoses A list of poses for the robot to move to. Requires atleast 2 poses.
+   * @return The path with the poses to go to.
+   */
+  private PathPlannerPath generateOnTheFlyPath(List<Pose2d> desiredPoses) {
+    // Turn poses into waypoints
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(desiredPoses);
+    // Create path with waypoints
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
+            DriveConstants.OnTheFly.kPathConstraints,
+            new IdealStartingState(0, desiredPoses.get(0).getRotation()),
+            new GoalEndState(0, desiredPoses.get(desiredPoses.size() - 1).getRotation()));
+    // Disables the path being mirrored based on which alliance we are on
+    path.preventFlipping = true;
+    return path;
   }
 
-  // these next 4 functions are for turning a set radius while using the gyro.
-  public void turnResetPID() {
-    /** This should be run when stopping a pid command. */
-    turnControllerEnabled = false;
-  }
-
-  public void turnSetGoal(double targetAngleDegrees) {
-    m_turnController.setGoal(targetAngleDegrees);
-  }
-
-  private void calcuateAngleRate(double gyroYawAngle, double targetAngleDegrees) {
-    if (!turnControllerEnabled) {
-      m_turnController.reset(gyroYawAngle);
-      m_turnController.setGoal(targetAngleDegrees);
-      turnControllerEnabled = true;
-    }
-    turnRotateToAngleRate = MathUtil.clamp(m_turnController.calculate(gyroYawAngle), -1.0, 1.0);
-  }
-
-  public void turnToAngle(double gyroYawAngle, double TargetAngleDegrees) {
-    /*
-     * When this function is activated, execute another command to rotate to target angle. Since a Tank drive
-     * system cannot move forward simultaneously while rotating, all joystick input
-     * is ignored until this button is released.
-     */
-    this.calcuateAngleRate(gyroYawAngle, TargetAngleDegrees);
-    double leftStickValue = turnRotateToAngleRate;
-    double rightStickValue = -turnRotateToAngleRate;
-    if (!m_turnController.atGoal()) {
-      this.tankDrive(leftStickValue, rightStickValue);
-    }
-  }
-
-  // magnitude = (joystickL + joystickR) / 2;
-  public void driveStraight(
-      double gyroYawAngle, double gyroAccumYawAngle, double joystickMagnitude) {
-    /*
-     * WWhen this function is activated, the robot is in "drive straight" mode.
-     * Whatever direction the robot was heading when "drive straight" mode was
-     * entered will be maintained. The average speed of both joysticks is the
-     * magnitude of motion.
-     */
-    this.calcuateAngleRate(gyroYawAngle, gyroAccumYawAngle);
-    double angleRate;
-    if (!m_turnController.atGoal()) {
-      angleRate = turnRotateToAngleRate;
-    } else {
-      angleRate = 0;
-    }
-    double leftStickValue = joystickMagnitude + angleRate;
-    double rightStickValue = joystickMagnitude - angleRate;
-    this.tankDrive((leftStickValue * Constants.MAX_SPEED), (rightStickValue * Constants.MAX_SPEED));
-  }
-
-  /*
-   * This function can return our robots DiffernentialDriveWheelSpeeds, which is the speed of each side of the robot.
+  /**
+   * This function can return our robots DiffernentialDriveWheelSpeeds, which is the speed of each
+   * side of the robot.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(getVelocityLeft(), getVelocityRight());
   }
 
-  /*
-   * This function can return our robots ChassisSpeeds, which is vx (m/s), vy (m/s), and omega (rad/s).
+  /**
+   * This function can return our robots ChassisSpeeds, which is vx (m/s), vy (m/s), and omega
+   * (rad/s).
    */
   public ChassisSpeeds getSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(getWheelSpeeds());
   }
 
-  /*
+  /**
    * This function can set our robots ChassisSpeeds, which is vx (m/s), vy (m/s), and omega (rad/s).
    * vy is always 0 as we are not strafing.
    */
@@ -427,8 +429,9 @@ public class DriveSubsystem extends SubsystemBase {
     setWheelVelocities(DriveConstants.kDriveKinematics.toWheelSpeeds(speeds));
   }
 
-  /*
-   * This function can set our robots DifferentialDriveWheelSpeeds, which is the speed of each side of the robot.
+  /**
+   * This function can set our robots DifferentialDriveWheelSpeeds, which is the speed of each side
+   * of the robot.
    */
   public void setWheelVelocities(DifferentialDriveWheelSpeeds speeds) {
     // get left and right speeds in m/s, and run through feedforward to get feedforward voltage
@@ -472,8 +475,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_encoderFrontRight.setPosition(0);
   }
 
-  public double AverageDistance() {
-    return (getPositionLeft() + getPositionRight()) / 2;
+  public double currentDistance() {
+    return getPose().getTranslation().getX();
   }
 
   public void SetBrakemode() {
@@ -555,19 +558,19 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getVelocityLeft() {
-    return (m_encoderBackLeft.getVelocity() + m_encoderFrontLeft.getVelocity()) / 2;
+    return m_encoderBackLeft.getVelocity();
   }
 
   public double getVelocityRight() {
-    return (m_encoderBackRight.getVelocity() + m_encoderFrontRight.getVelocity()) / 2;
+    return m_encoderBackRight.getVelocity();
   }
 
   public double getPositionLeft() {
-    return (m_encoderBackLeft.getPosition() + m_encoderFrontLeft.getPosition()) / 2;
+    return m_encoderBackLeft.getPosition();
   }
 
   public double getPositionRight() {
-    return (m_encoderBackRight.getPosition() + m_encoderFrontRight.getPosition()) / 2;
+    return m_encoderBackRight.getPosition();
   }
 
   @Override
@@ -582,7 +585,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Right Encoder Speed (M/s)", wheelSpeeds.rightMetersPerSecond);
     SmartDashboard.putNumber("Distance L", this.getPositionLeft());
     SmartDashboard.putNumber("Distance R", this.getPositionRight());
-    SmartDashboard.putNumber("Average Distance Traveled", AverageDistance());
+    SmartDashboard.putNumber("Average Distance Traveled", currentDistance());
     SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
     SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
     SmartDashboard.putBoolean("Gyro Calibrating", m_Gyro.isCalibrating());
@@ -594,5 +597,27 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+    // link motors to simulation
+    m_driveTrainSim.setInputs(
+        m_leftSim.getAppliedOutput() * RobotController.getInputVoltage(),
+        -m_rightSim.getAppliedOutput() * RobotController.getInputVoltage());
+    // Advance the model by 20 ms. Note that if you are running this
+    // subsystem in a separate thread or have changed the nominal timestep
+    // of TimedRobot, this value needs to match it.
+    m_driveTrainSim.update(0.02);
+    // update spark maxes
+    m_leftSim.iterate(
+        m_driveTrainSim.getLeftVelocityMetersPerSecond(), RoboRioSim.getVInVoltage(), 0.02);
+    m_rightSim.iterate(
+        m_driveTrainSim.getRightVelocityMetersPerSecond(), RoboRioSim.getVInVoltage(), 0.02);
+    // add load to battery
+    RoboRioSim.setVInVoltage(
+        BatterySim.calculateDefaultBatteryLoadedVoltage(m_driveTrainSim.getCurrentDrawAmps()));
+    // update sensors
+    SimGyroAngleHandler.set(-m_driveTrainSim.getHeading().getDegrees());
+    m_leftEncoderSim.setPosition(m_driveTrainSim.getLeftPositionMeters());
+    m_leftEncoderSim.setVelocity(m_driveTrainSim.getLeftVelocityMetersPerSecond());
+    m_rightEncoderSim.setPosition(m_driveTrainSim.getRightPositionMeters());
+    m_rightEncoderSim.setVelocity(m_driveTrainSim.getRightVelocityMetersPerSecond());
   }
 }

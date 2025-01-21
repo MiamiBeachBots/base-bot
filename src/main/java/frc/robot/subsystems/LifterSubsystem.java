@@ -4,26 +4,33 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class LifterSubsystem extends SubsystemBase {
   private final SparkMax m_motor; // Motor
   private final SparkMaxConfig m_motorConfig = new SparkMaxConfig(); // Motor Configuration
-  private double kCurrentSpeed = Constants.LIFTERSPEED;
+  // Simulated motor
+  private final DCMotor m_gearbox;
+  private final SparkMaxSim m_motorSim;
+  private double kCurrentSpeed = Constants.LIFTER_SPEED;
   private int motorID;
 
   /** Creates a new LifterSubsystem. */
   public LifterSubsystem(int motor_ID) {
     motorID = motor_ID;
-
+    // Create motor
     m_motor = new SparkMax(motorID, SparkMax.MotorType.kBrushless);
-
+    // Create simulated motor
+    m_gearbox = DCMotor.getNEO(1);
+    m_motorSim = new SparkMaxSim(m_motor, m_gearbox);
     m_motorConfig.idleMode(IdleMode.kBrake);
     m_motorConfig.inverted(false);
     m_motorConfig.smartCurrentLimit(50);

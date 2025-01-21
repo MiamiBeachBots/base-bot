@@ -6,83 +6,176 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Robot;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.estimation.TargetModel;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.simulation.VisionTargetSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 public class CameraSubsystem extends SubsystemBase {
   private final DriveSubsystem m_driveSubsystem;
   public final AprilTagFieldLayout aprilTagFieldLayout;
-  private final String frontCameraName = "cam";
-  private final PhotonCamera frontCamera;
-  public PhotonPipelineResult frontCameraResult;
-  // Physical location of camera relative to center
-  private final double CameraLocationXMeters = Units.inchesToMeters(6);
-  private final double CameraLocationYMeters = Units.inchesToMeters(9.3);
-  private final double CameraLocationZMeters = Units.inchesToMeters(10.5);
-  // angle of camera / orientation
+  private final PhotonCamera poseCamera1;
+  private final PhotonCamera poseCamera2;
+  private final PhotonCamera targetingCamera1;
 
-  // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-  private final double CameraRollRadians = Units.degreesToRadians(90);
-  private final double CameraPitchRadians = Units.degreesToRadians(0.0);
-  private final double CameraYawRadians = Units.degreesToRadians(0);
+  public Optional<PhotonPipelineResult> targetingCamera1Result;
 
-  private final Transform3d frontCameraLocation =
-      new Transform3d(
-          new Translation3d(CameraLocationXMeters, CameraLocationYMeters, CameraLocationZMeters),
-          new Rotation3d(CameraRollRadians, CameraPitchRadians, CameraYawRadians));
+  private final PhotonPoseEstimator poseCamera1PoseEstimator;
+  private final PhotonPoseEstimator poseCamera2PoseEstimator;
 
-  private final PhotonPoseEstimator frontCameraPoseEstimator;
-  // Constants such as camera and target height stored. Change per robot and goal!
-  public final double frontCameraHeightMeters = Units.inchesToMeters(24);
+  // Simulation Config
+  // A vision system sim labelled as "pose and targeting" in NetworkTables
+  private VisionSystemSim poseVisionSim;
+  private VisionSystemSim targetingVisionSim;
 
-  // Target Configruation for the front camera
-  public final double frontCameraTargetHeightMeters = Units.feetToMeters(0.5);
-  // Angle between horizontal and the camera.
-  public final double frontCameraTargetPitchRadians = Units.degreesToRadians(0);
-  // How far from the target we want to be
-  public final double frontCameraGoalRangeMeters = Units.feetToMeters(3);
+  // A 0.5 x 0.25 meter rectangular target
+  private final TargetModel targetModel = new TargetModel(0.5, 0.25);
+  // The pose of where the target is on the field.
+  // Its rotation determines where "forward" or the target x-axis points.
+  // Let's say this target is flat against the far wall center, facing the blue driver stations.
+  private final Pose3d targetPose = new Pose3d(16, 4, 2, new Rotation3d(0, 0, Math.PI));
+  // The given target model at the given pose
+  private final VisionTargetSim visionTarget = new VisionTargetSim(targetPose, targetModel);
+  // setup cameras
+  private final SimCameraProperties PoseCameraProp = new SimCameraProperties();
+  private final SimCameraProperties TargetingCameraProp = new SimCameraProperties();
+  private PhotonCameraSim poseCamera1Sim;
+  private PhotonCameraSim poseCamera2Sim;
+  private PhotonCameraSim targetingCamera1Sim;
 
   /** Creates a new CameraSubsystem. */
   public CameraSubsystem(DriveSubsystem d_subsystem) {
     m_driveSubsystem = d_subsystem;
     aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    frontCamera = new PhotonCamera(frontCameraName);
-    frontCameraPoseEstimator =
+
+    poseCamera1 = new PhotonCamera(Constants.PoseCamera1.name);
+    poseCamera2 = new PhotonCamera(Constants.PoseCamera2.name);
+    targetingCamera1 = new PhotonCamera(Constants.TargetingCamera1.name);
+
+    poseCamera1PoseEstimator =
         new PhotonPoseEstimator(
-            aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCameraLocation);
+            aprilTagFieldLayout,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            Constants.PoseCamera1.location);
+    poseCamera2PoseEstimator =
+        new PhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            Constants.PoseCamera2.location);
+    poseCamera1PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+    if (Robot.isSimulation()) {
+      simulationInit();
+    }
   }
 
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-    return frontCameraPoseEstimator.update(frontCameraResult);
+  private void simulationInit() {
+    // setup simulation for vision system
+    poseVisionSim = new VisionSystemSim("pose");
+    poseVisionSim.addAprilTags(aprilTagFieldLayout);
+
+    targetingVisionSim = new VisionSystemSim("targeting");
+    targetingVisionSim.addVisionTargets(visionTarget);
+
+    // Set the properties of the camera
+    TargetingCameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(70));
+    PoseCameraProp.setCalibration(1280, 720, Rotation2d.fromDegrees(70));
+
+    // Approximate detection noise with average and standard deviation error in pixels.
+    TargetingCameraProp.setCalibError(0.25, 0.08);
+    PoseCameraProp.setCalibError(0.25, 0.08);
+    // Set the camera image capture framerate (Note: this is limited by robot loop rate).
+    TargetingCameraProp.setFPS(50);
+    PoseCameraProp.setFPS(50);
+
+    // The average and standard deviation in milliseconds of image data latency.
+    TargetingCameraProp.setAvgLatencyMs(35);
+    PoseCameraProp.setAvgLatencyMs(35);
+    TargetingCameraProp.setLatencyStdDevMs(5);
+    PoseCameraProp.setLatencyStdDevMs(5);
+
+    // initialize the cameras
+    poseCamera1Sim = new PhotonCameraSim(poseCamera1, PoseCameraProp);
+    poseCamera2Sim = new PhotonCameraSim(poseCamera2, PoseCameraProp);
+    targetingCamera1Sim = new PhotonCameraSim(targetingCamera1, TargetingCameraProp);
+
+    // Set Camera locations and add them to the vision simulation
+    poseVisionSim.addCamera(poseCamera1Sim, Constants.PoseCamera1.location);
+    poseVisionSim.addCamera(poseCamera2Sim, Constants.PoseCamera2.location);
+    targetingVisionSim.addCamera(targetingCamera1Sim, Constants.TargetingCamera1.location);
+  }
+
+  /**
+   * Gets the last procesesd frame captured by camera
+   *
+   * @param camera Desired camera to get result from
+   * @return Targets in the frame.
+   */
+  private Optional<PhotonPipelineResult> getPipelineResults(PhotonCamera camera) {
+    var results = camera.getAllUnreadResults();
+    if (!results.isEmpty()) {
+      // Camera processed a new frame since last
+      // Get the last one in the list.
+      var result = results.get(results.size() - 1);
+      SmartDashboard.putNumber("Front Camera Latency", result.getTimestampSeconds());
+      if (result.hasTargets()) {
+        // select last result with targets
+        return Optional.of(result);
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Update estaimated robot pose based on given pipeline result.
+   *
+   * @param camera Pose Camera
+   * @param poseEstimator Pose estimator
+   */
+  private void updateGlobalPose(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {
+    for (var result : camera.getAllUnreadResults()) {
+      Optional<EstimatedRobotPose> curPose = poseEstimator.update(result);
+      if (curPose.isPresent()) {
+        m_driveSubsystem.updateVisionPose(
+            curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
+      }
+    }
   }
 
   @Override
   public void periodic() {
-    frontCameraResult = frontCamera.getLatestResult();
-    Optional<EstimatedRobotPose> pose = getEstimatedGlobalPose();
-    if (pose.isPresent()) {
-      SmartDashboard.putBoolean("CameraConnnected", true);
-      m_driveSubsystem.updateVisionPose(
-          pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
-    } else {
-      SmartDashboard.putBoolean("CameraConnnected", false);
-    }
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Front Camera Latency", frontCameraResult.getTimestampSeconds());
+    // update the pipeline result for targeting cameras
+    targetingCamera1Result = getPipelineResults(targetingCamera1);
+    // update the pose estimators
+    updateGlobalPose(poseCamera1, poseCamera1PoseEstimator);
+    updateGlobalPose(poseCamera2, poseCamera2PoseEstimator);
+    // Update dashboard
+    SmartDashboard.putBoolean("poseCamera1Connected", poseCamera1.isConnected());
+    SmartDashboard.putBoolean("poseCamera2Connected", poseCamera2.isConnected());
+    SmartDashboard.putBoolean("TargetingCamera1Connnected", targetingCamera1.isConnected());
   }
 
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+    // Update with the simulated drivetrain pose. This should be called every loop in simulation.
+    poseVisionSim.update(m_driveSubsystem.getPose());
+    targetingVisionSim.update(m_driveSubsystem.getPose());
   }
 }
