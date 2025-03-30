@@ -45,6 +45,11 @@ public class DefaultDrive extends Command {
   public void execute() {
     // we include a limit on the drivers speed for safety.
     // Additonally the axis's on the
+    if (m_shooterState.isElevatorLowered) {
+      m_driveSubsystem.setReducedSpeed(false);
+    } else {
+      m_driveSubsystem.setReducedSpeed(true);
+    }
     if (!HelperFunctions.inDeadzone(m_left_y.getAsDouble(), Constants.CONTROLLER_DEAD_ZONE)
         || !HelperFunctions.inDeadzone(m_right_y.getAsDouble(), Constants.CONTROLLER_DEAD_ZONE)) {
       if (m_shooterState.isElevatorLowered) {

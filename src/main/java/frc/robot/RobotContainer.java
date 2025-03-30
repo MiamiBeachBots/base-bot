@@ -68,7 +68,8 @@ public class RobotContainer {
   // The robots commands are defined here..
   // private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_cameraSubsystem);
+  private final AimCommand m_aimCommand =
+      new AimCommand(m_driveSubsystem, m_cameraSubsystem, m_shooterState);
   private final DefaultDrive m_defaultDrive =
       new DefaultDrive(
           m_driveSubsystem, m_shooterState, this::getControllerLeftY, this::getControllerRightY);

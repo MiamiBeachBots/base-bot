@@ -89,4 +89,20 @@ public final class DriveConstants {
             kMaxAngularAcceleration,
             kNominalVoltage);
   }
+
+  public final class OnTheFlyReduced {
+    // On the fly path planning constants
+    public static final double kMaxVelocity = 1; // m/s
+    public static final double kMaxAcceleration = 0.5; // m/s^2
+    public static final double kMaxAngularVelocity = 540; // deg/s
+    public static final double kMaxAngularAcceleration = 720; // deg/s^2
+    public static final double kNominalVoltage = 12; // V
+    public static final PathConstraints kPathConstraints =
+        new PathConstraints(
+            kMaxVelocity,
+            kMaxAcceleration,
+            kMaxAngularVelocity,
+            kMaxAngularAcceleration,
+            kNominalVoltage);
+  }
 }

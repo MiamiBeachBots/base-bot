@@ -97,6 +97,9 @@ public class DriveSubsystem extends SubsystemBase {
   private final SparkClosedLoopController m_backLeftPIDController;
   private final SparkClosedLoopController m_backRightPIDController;
 
+  // Pathing Constraints
+  private boolean reduceOnTheFlySpeed;
+
   // Current Idle mode
   private boolean isBrakeMode;
 
@@ -264,6 +267,9 @@ public class DriveSubsystem extends SubsystemBase {
         m_backRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_frontRight.configure(
         m_frontRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // Set on the fly pathing constraints
+    reduceOnTheFlySpeed = false;
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -406,12 +412,18 @@ public class DriveSubsystem extends SubsystemBase {
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
-            DriveConstants.OnTheFly.kPathConstraints,
+            (reduceOnTheFlySpeed)
+                ? DriveConstants.OnTheFlyReduced.kPathConstraints
+                : DriveConstants.OnTheFly.kPathConstraints,
             new IdealStartingState(0, desiredPoses.get(0).getRotation()),
             new GoalEndState(0, desiredPoses.get(desiredPoses.size() - 1).getRotation()));
     // Disables the path being mirrored based on which alliance we are on
     path.preventFlipping = true;
     return path;
+  }
+
+  public void setReducedSpeed(boolean reduceOnTheFlySpeed) {
+    this.reduceOnTheFlySpeed = reduceOnTheFlySpeed;
   }
 
   /**
