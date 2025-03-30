@@ -91,6 +91,16 @@ public class ShooterState {
     queuedMode = newMode;
   }
 
+  public void switchModes() {
+    ShooterMode t_current = getCurrentMode();
+    setCurrentMode(queuedMode);
+    setQueuedMode(t_current);
+  }
+
+  public void defaultOverride() {
+    setCurrentMode(ShooterModes.DEFAULT);
+  }
+
   public void setArmResting(boolean isResting) {
     this.isArmResting = isResting;
   }

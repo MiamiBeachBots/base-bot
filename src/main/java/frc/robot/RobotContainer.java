@@ -91,12 +91,14 @@ public class RobotContainer {
   // private Trigger m_balanceButton;
   private Trigger m_straightButton;
   private Trigger m_toggleBrakeButton;
-  private Trigger m_lifterRightButton;
-  private Trigger m_lifterLeftButton;
+  private Trigger m_aimButton;
+  private Trigger m_switchQueuedButton;
+  private Trigger m_defaultButton_driver;
+  // private Trigger m_lifterRightButton;
+  // private Trigger m_lifterLeftButton;
   // private Trigger m_driveToAmpButton;
-  private Trigger m_lifterDirectionButton;
+  // private Trigger m_lifterDirectionButton;
   // joystick buttons
-  private JoystickButton m_aimButton;
   private JoystickButton m_defaultButton;
   private JoystickButton m_troughButton;
   private JoystickButton m_bargeButton;
@@ -144,12 +146,15 @@ public class RobotContainer {
    */
   private void setupTriggers() {
     // Controller buttons
-    m_toggleBrakeButton = m_controller1.x();
+    m_toggleBrakeButton = m_controller1.b();
     m_straightButton = m_controller1.rightBumper();
-    m_lifterRightButton = m_controller1.rightTrigger();
-    m_lifterLeftButton = m_controller1.leftTrigger();
+    m_aimButton = m_controller1.leftBumper();
+    m_switchQueuedButton = m_controller1.y();
+    m_defaultButton_driver = m_controller1.a();
+    // m_lifterRightButton = m_controller1.rightTrigger();
+    // m_lifterLeftButton = m_controller1.leftTrigger();
     // m_driveToAmpButton= m_controller1.y();
-    m_lifterDirectionButton = m_controller1.a();
+    // m_lifterDirectionButton = m_controller1.a();
 
     // Joystick buttons
     m_defaultButton = new JoystickButton(m_flightStick, Constants.DEFAULT_BUTTON);
@@ -159,8 +164,6 @@ public class RobotContainer {
     m_reefT2Button = new JoystickButton(m_flightStick, Constants.REEFT2_BUTTON);
     m_reefT3Button = new JoystickButton(m_flightStick, Constants.REEFT3_BUTTON);
     m_reefT4Button = new JoystickButton(m_flightStick, Constants.REEFT4_BUTTON);
-    m_aimButton = new JoystickButton(m_flightStick, Constants.AIM_BUTTON);
-
     // load and shoot buttons
     m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
   }
@@ -169,8 +172,10 @@ public class RobotContainer {
     // commands
     // m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
+    m_switchQueuedButton.whileTrue(new InstantCommand(() -> m_shooterState.switchModes()));
     m_defaultButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.DEFAULT)));
+    m_defaultButton_driver.whileTrue(new InstantCommand(() -> m_shooterState.defaultOverride()));
     m_troughButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.TROUGH)));
     m_bargeButton.whileTrue(
