@@ -356,17 +356,24 @@ public class DriveSubsystem extends SubsystemBase {
     Pose2d currentPose = getPose();
     // get current angle
     double currentAngle = currentPose.getRotation().getDegrees();
+    // get current direction (velocity)
+    double currentDirection = getSpeeds().vxMetersPerSecond;
+    if (currentDirection < 0) {
+      currentDirection = -1;
+    } else {
+      currentDirection = 1;
+    }
     // calculate wanted pose, add 2 meter to x value of current pose
     List<Pose2d> wantedPoses = new ArrayList<Pose2d>();
     wantedPoses.add(currentPose);
     wantedPoses.add(
         new Pose2d(
-            currentPose.getTranslation().getX() + 5,
+            currentPose.getTranslation().getX() + 5 * currentDirection,
             currentPose.getTranslation().getY(),
             new Rotation2d(currentAngle)));
     wantedPoses.add(
         new Pose2d(
-            currentPose.getTranslation().getX() + 10,
+            currentPose.getTranslation().getX() + 10 * currentDirection,
             currentPose.getTranslation().getY(),
             new Rotation2d(currentAngle)));
     // generate path
