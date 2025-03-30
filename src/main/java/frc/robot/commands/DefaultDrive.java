@@ -4,6 +4,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.ShooterState;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.utils.HelperFunctions;
 import java.util.function.DoubleSupplier;
@@ -11,6 +12,7 @@ import java.util.function.DoubleSupplier;
 /** The default drive command that uses the drive subsystem. */
 public class DefaultDrive extends Command {
   private final DriveSubsystem m_driveSubsystem;
+  private final ShooterState m_shooterState;
   private final DoubleSupplier m_left_y; // this gives us the left y axis for current controller
   private final DoubleSupplier m_right_y; // this gives us the right y axis for current controller
 
@@ -22,8 +24,9 @@ public class DefaultDrive extends Command {
    * @param xbox_right_y A function that returns the value of the right Y axis for the joystick.
    */
   public DefaultDrive(
-      DriveSubsystem d_subsystem, DoubleSupplier xbox_left_y, DoubleSupplier xbox_right_y) {
+      DriveSubsystem d_subsystem, ShooterState shooterState, DoubleSupplier xbox_left_y, DoubleSupplier xbox_right_y) {
     m_driveSubsystem = d_subsystem;
+    m_shooterState = shooterState;
     m_left_y = xbox_left_y;
     m_right_y = xbox_right_y;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -41,9 +44,15 @@ public class DefaultDrive extends Command {
     // Additonally the axis's on the
     if (!HelperFunctions.inDeadzone(m_left_y.getAsDouble(), Constants.CONTROLLER_DEAD_ZONE)
         || !HelperFunctions.inDeadzone(m_right_y.getAsDouble(), Constants.CONTROLLER_DEAD_ZONE)) {
-      this.m_driveSubsystem.tankDrive(
-          Constants.MAX_SPEED * m_left_y.getAsDouble(),
-          Constants.MAX_SPEED * m_right_y.getAsDouble());
+      if(m_shooterState.isLowered){
+        this.m_driveSubsystem.tankDrive(
+            Constants.MAX_SPEED * m_left_y.getAsDouble(),
+            Constants.MAX_SPEED * m_right_y.getAsDouble());
+      } else {
+        this.m_driveSubsystem.tankDrive(
+            Constants.MAX_EXTENDED_SPEED * m_left_y.getAsDouble(),
+            Constants.MAX_EXTENDED_SPEED * m_right_y.getAsDouble());
+      }
     }
   }
 
