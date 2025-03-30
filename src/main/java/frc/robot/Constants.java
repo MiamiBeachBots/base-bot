@@ -156,8 +156,8 @@ public final class Constants {
 
   public static final class AlgaeCamOffset {
     // XYZ, should all be negative so that we dont run over ball
-    private static final double X_Location = Units.inchesToMeters(-9);
-    private static final double Y_Location = Units.inchesToMeters(-4.75);
+    private static final double X_Location = Units.inchesToMeters(-1);
+    private static final double Y_Location = Units.inchesToMeters(-24.25);
     private static final double Z_Location = Units.inchesToMeters(0);
     // ROTATION
     private static final double ROLL = Units.degreesToRadians(0);
