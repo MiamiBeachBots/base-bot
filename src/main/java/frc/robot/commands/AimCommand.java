@@ -10,6 +10,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.ShooterState;
+import frc.robot.ShooterState.ShooterMode;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.ArrayList;
@@ -22,7 +25,8 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class AimCommand extends Command {
   private final DriveSubsystem m_driveSubsystem;
   private final CameraSubsystem m_cameraSubsystem;
-  private final Transform3d robotOffset = new Transform3d();
+  private final Transform3d camOffset;
+  private final Transform3d targetingOffset;
   private final double toleranceMeters = 0.1;
   private Pose2d robotToTarget2d = new Pose2d();
   private Command resultingCommand;
@@ -40,6 +44,13 @@ public class AimCommand extends Command {
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(d_subsystem, c_subsystem);
+
+    // The first offset takes the camera location and converts to center of robot
+    ShooterMode intakeMode = ShooterState.ShooterModes.INTAKE;
+    camOffset = Constants.TargetingCamera1.modifiedTransform(intakeMode.height, intakeMode.angle);
+    // this offset takes the center of robot and tells it to move back so that we dont just run over
+    // the ball
+    targetingOffset = camOffset.plus(Constants.AlgaeCamOffset.location);
   }
 
   // Called when the command is initially scheduled.
@@ -55,16 +66,22 @@ public class AimCommand extends Command {
     SmartDashboard.putBoolean("CameraTargetDetected", true);
     // find target we want, we can change later
     PhotonTrackedTarget target = result.getBestTarget();
+
     // we can change this to be a certain april tag later
     // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
     // get the transform from the camera to the target
     Transform3d cameraToTarget = target.getBestCameraToTarget();
-    // set offset of transform
-    Transform3d targetOffset = cameraToTarget.plus(robotOffset);
+
+    // Now take target transform and apply to target coords
+    // This essentially makes them relative to robot pose, then relative to intake
+    Transform3d targetOffset = cameraToTarget.plus(targetingOffset);
+
     // get the pose of the robot
     Pose3d robotPose = new Pose3d(m_driveSubsystem.getPose());
-    // add the offset to the robot pose
+
+    // add the offset to the robot pose (now relative to field)
     Pose3d robotToTarget = robotPose.plus(targetOffset);
+
     // convert to a pose2d for the drive subsystem
     Pose2d newTargetPose = robotToTarget.toPose2d();
     // check if new pose within tolerance

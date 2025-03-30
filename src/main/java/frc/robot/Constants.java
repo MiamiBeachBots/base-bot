@@ -100,9 +100,9 @@ public final class Constants {
     private static final double Y_LOCATION = Units.inchesToMeters(2);
     private static final double Z_LOCATION = Units.inchesToMeters(33.875);
     // ROTATION
-    public static final double ROLL = Units.degreesToRadians(90);
-    public static final double PITCH = Units.degreesToRadians(0.0);
-    public static final double YAW = Units.degreesToRadians(17.5);
+    private static final double ROLL = Units.degreesToRadians(90);
+    private static final double PITCH = Units.degreesToRadians(0.0);
+    private static final double YAW = Units.degreesToRadians(17.5);
 
     public static final Transform3d LOCATION =
         new Transform3d(
@@ -117,9 +117,9 @@ public final class Constants {
     private static final double Y_Location = Units.inchesToMeters(4.75);
     private static final double Z_Location = Units.inchesToMeters(33.25);
     // ROTATION
-    public static final double ROLL = Units.degreesToRadians(90);
-    public static final double PITCH = Units.degreesToRadians(0.0);
-    public static final double YAW = Units.degreesToRadians(12.5);
+    private static final double ROLL = Units.degreesToRadians(90);
+    private static final double PITCH = Units.degreesToRadians(0.0);
+    private static final double YAW = Units.degreesToRadians(12.5);
 
     public static final Transform3d location =
         new Transform3d(
@@ -134,13 +134,38 @@ public final class Constants {
     private static final double Y_LOCATION = Units.inchesToMeters(9.3);
     private static final double Z_LOCATION = Units.inchesToMeters(10.5);
     // ROTATION
-    public static final double ROLL = Units.degreesToRadians(90);
-    public static final double PITCH = Units.degreesToRadians(0.0);
-    public static final double YAW = Units.degreesToRadians(0);
+    private static final double ROLL = Units.degreesToRadians(90);
+    private static final double PITCH = Units.degreesToRadians(0.0);
+    private static final double YAW = Units.degreesToRadians(0);
 
     public static final Transform3d location =
         new Transform3d(
             new Translation3d(X_LOCATION, Y_LOCATION, Z_LOCATION),
+            new Rotation3d(ROLL, PITCH, YAW));
+
+    public static Transform3d modifiedTransform(double elevatorHeight, double armPitch) {
+      return new Transform3d(
+          new Translation3d(
+              TargetingCamera1.X_LOCATION,
+              TargetingCamera1.Y_LOCATION,
+              TargetingCamera1.Z_LOCATION),
+          new Rotation3d(TargetingCamera1.ROLL, TargetingCamera1.PITCH, TargetingCamera1.YAW));
+    }
+  }
+
+  public static final class AlgaeCamOffset {
+    // XYZ, should all be negative so that we dont run over ball
+    private static final double X_Location = Units.inchesToMeters(-9);
+    private static final double Y_Location = Units.inchesToMeters(-4.75);
+    private static final double Z_Location = Units.inchesToMeters(0);
+    // ROTATION
+    private static final double ROLL = Units.degreesToRadians(0);
+    private static final double PITCH = Units.degreesToRadians(0.0);
+    private static final double YAW = Units.degreesToRadians(0);
+
+    public static final Transform3d location =
+        new Transform3d(
+            new Translation3d(X_Location, Y_Location, Z_Location),
             new Rotation3d(ROLL, PITCH, YAW));
   }
 }
