@@ -98,7 +98,8 @@ public class ShooterState {
   }
 
   public void defaultOverride() {
-    setCurrentMode(ShooterModes.DEFAULT);
+    setQueuedMode(ShooterModes.DEFAULT);
+    switchModes();
   }
 
   public void setArmResting(boolean isResting) {
