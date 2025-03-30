@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
+import frc.robot.utils.HelperFunctions;
 import org.littletonrobotics.junction.Logger;
 
 public class ElevatorSubsystem extends SubsystemBase {
@@ -222,6 +223,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_goal = new TrapezoidProfile.State(meters, 0); // Set the goal to the requested height
   }
 
+  public double GetHeight() {
+    return m_elevatorEncoderLeft.getPosition();
+  }
+
+  public boolean atGoal() {
+    return HelperFunctions.inRange(m_requestedHeight, GetHeight(), kAllowedClosedLoopError);
+  }
+
   /** Retract the elevator */
   public void LowerElevator() {
     SetHeight(0);
@@ -233,6 +242,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     Logger.recordOutput("ElevatorMotorPositionRotations", m_elevatorEncoderLeft.getPosition());
     Logger.recordOutput("ElevatorMotorVelocityRPM", m_elevatorEncoderLeft.getVelocity());
     Logger.recordOutput("ElevatorRequestedHeight", m_requestedHeight);
+
     // do the trapezoidal motion profile
     m_setpoint = m_profile.calculate(0.02, m_setpoint, m_goal);
     if (m_PIDEnabled) {

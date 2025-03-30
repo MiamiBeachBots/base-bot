@@ -61,10 +61,9 @@ public class ShooterState {
   }
   ;
 
-  public final boolean isSensing = false;
   public boolean isLoaded = true;
-  public boolean isLowered = true; // Elevator & Carriage all the way lowered
-  public boolean isResting = true; // Starting position
+  public boolean isElevatorLowered = true;
+  public boolean isArmResting = true; // Starting position
   public boolean isShooting = false;
   public boolean axisEnabled = false;
   public ShooterMode mode = ShooterModes.DEFAULT;
@@ -75,12 +74,16 @@ public class ShooterState {
     isLoaded = true;
   }
 
+  public void setUnloaded() {
+    isLoaded = false;
+  }
+
   public void setMode(ShooterMode newMode) {
     mode = newMode;
   }
 
-  public void setResting() {
-    isResting = true;
+  public void setArmResting(boolean isResting) {
+    this.isArmResting = isResting;
   }
 
   public void startShooting() {
@@ -89,8 +92,10 @@ public class ShooterState {
 
   public void stopShooting() {
     isShooting = false;
+    // If intaking, and shooter is loaded, go to default
     if (mode == ShooterModes.INTAKE && isLoaded) {
       mode = ShooterModes.DEFAULT;
+      // After we finish shooting, go to default
     } else if (mode != ShooterModes.INTAKE && !isLoaded) {
       mode = ShooterModes.DEFAULT;
     }
@@ -100,9 +105,8 @@ public class ShooterState {
     axisEnabled = !axisEnabled;
   }
 
-  public void setLowered() {
-    isLowered = true;
-    mode = ShooterModes.DEFAULT;
+  public void setElevatorLowered(boolean isElevatorLowered) {
+    this.isElevatorLowered = isElevatorLowered;
   }
 
   public double getShooterSpeed() {
@@ -116,18 +120,19 @@ public class ShooterState {
    * whether the arm is lowered, and whether the arm is shooting. It also adds things to the logs
    */
   public void StatePeriodic() {
+    // Update SmartDashboard
     SmartDashboard.putBoolean("Manual Arm Mode Enabled", axisEnabled);
     SmartDashboard.putString("Arm Mode", mode.name);
     SmartDashboard.putBoolean("Loaded", isLoaded);
-    SmartDashboard.putBoolean("Lowered", isLowered);
-    SmartDashboard.putBoolean("Resting", isResting);
+    SmartDashboard.putBoolean("Elevator Lowered", isElevatorLowered);
+    SmartDashboard.putBoolean("Resting", isArmResting);
     SmartDashboard.putBoolean("Arm Shooting", isShooting);
     // Add to log
     Logger.recordOutput("ArmStateManual", axisEnabled);
     Logger.recordOutput("ArmStateMode", mode.name);
     Logger.recordOutput("ArmStateLoaded", isLoaded);
-    Logger.recordOutput("ArmStateLowered", isLowered);
-    Logger.recordOutput("ArmStateResting", isResting);
+    Logger.recordOutput("ArmStateResting", isArmResting);
     Logger.recordOutput("ArmStateShooting", isShooting);
+    Logger.recordOutput("ElevatorStateIsLowered", isElevatorLowered);
   }
 }

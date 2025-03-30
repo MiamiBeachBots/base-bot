@@ -70,7 +70,8 @@ public class RobotContainer {
 
   private final AimCommand m_aimCommand = new AimCommand(m_driveSubsystem, m_cameraSubsystem);
   private final DefaultDrive m_defaultDrive =
-      new DefaultDrive(m_driveSubsystem, m_shooterState, this::getControllerLeftY, this::getControllerRightY);
+      new DefaultDrive(
+          m_driveSubsystem, m_shooterState, this::getControllerLeftY, this::getControllerRightY);
   private final StraightCommand m_straightCommand = new StraightCommand(m_driveSubsystem);
   private final FlywheelCommand m_shooterCommand =
       new FlywheelCommand(m_shooterSubsytem, m_shooterState);

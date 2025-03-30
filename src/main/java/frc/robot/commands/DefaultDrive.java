@@ -24,7 +24,10 @@ public class DefaultDrive extends Command {
    * @param xbox_right_y A function that returns the value of the right Y axis for the joystick.
    */
   public DefaultDrive(
-      DriveSubsystem d_subsystem, ShooterState shooterState, DoubleSupplier xbox_left_y, DoubleSupplier xbox_right_y) {
+      DriveSubsystem d_subsystem,
+      ShooterState shooterState,
+      DoubleSupplier xbox_left_y,
+      DoubleSupplier xbox_right_y) {
     m_driveSubsystem = d_subsystem;
     m_shooterState = shooterState;
     m_left_y = xbox_left_y;
@@ -44,7 +47,7 @@ public class DefaultDrive extends Command {
     // Additonally the axis's on the
     if (!HelperFunctions.inDeadzone(m_left_y.getAsDouble(), Constants.CONTROLLER_DEAD_ZONE)
         || !HelperFunctions.inDeadzone(m_right_y.getAsDouble(), Constants.CONTROLLER_DEAD_ZONE)) {
-      if(m_shooterState.isLowered){
+      if (m_shooterState.isElevatorLowered) {
         this.m_driveSubsystem.tankDrive(
             Constants.MAX_SPEED * m_left_y.getAsDouble(),
             Constants.MAX_SPEED * m_right_y.getAsDouble());

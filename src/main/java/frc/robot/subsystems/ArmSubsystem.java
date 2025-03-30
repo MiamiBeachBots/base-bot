@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
+import frc.robot.utils.HelperFunctions;
 import org.littletonrobotics.junction.Logger;
 
 public class ArmSubsystem extends SubsystemBase {
@@ -219,6 +220,14 @@ public class ArmSubsystem extends SubsystemBase {
   public void SetAngle(double radians) {
     m_requestedAngle = radians;
     m_goal = new TrapezoidProfile.State(m_requestedAngle, 0);
+  }
+
+  public double GetAngle() {
+    return m_ArmAbsoluteEncoder.getPosition();
+  }
+
+  public boolean atGoal() {
+    return HelperFunctions.inRange(m_requestedAngle, GetAngle(), kAllowedClosedLoopError);
   }
 
   /** Lower the Arm */

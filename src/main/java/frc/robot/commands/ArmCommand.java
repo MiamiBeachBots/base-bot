@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.ShooterState;
+import frc.robot.ShooterState.ShooterModes;
 import frc.robot.subsystems.ArmSubsystem;
 
 /** An Arm command that uses the Arm subsystem. */
@@ -22,6 +23,14 @@ public class ArmCommand extends Command {
     addRequirements(a_Subsystem);
   }
 
+  // Update the states of the arm
+  public void updateStates() {
+    // Update lowered state of the arm
+    // if the arm is at the goal and the arm is completely lowered, set lowered to true.
+    m_shooterState.setArmResting(
+        m_ArmSubsystem.atGoal() && m_shooterState.mode.angle == ShooterModes.DEFAULT.angle);
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
@@ -30,6 +39,7 @@ public class ArmCommand extends Command {
   @Override
   public void execute() {
     m_ArmSubsystem.SetAngle(m_shooterState.mode.angle);
+    updateStates();
   }
 
   // Called once the command ends or is interrupted.
