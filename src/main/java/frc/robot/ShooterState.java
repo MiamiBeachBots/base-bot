@@ -66,7 +66,8 @@ public class ShooterState {
   public boolean isArmResting = true; // Starting position
   public boolean isShooting = false;
   public boolean axisEnabled = false;
-  public ShooterMode currentMode = ShooterModes.DEFAULT;
+  private ShooterMode currentMode = ShooterModes.DEFAULT;
+  public ShooterMode queuedMode = ShooterModes.DEFAULT;
 
   public ShooterState() {}
 
@@ -78,8 +79,16 @@ public class ShooterState {
     isLoaded = false;
   }
 
-  public void setCurrentMode(ShooterMode newMode) {
+  public ShooterMode getCurrentMode() {
+    return currentMode;
+  }
+
+  private void setCurrentMode(ShooterMode newMode) {
     currentMode = newMode;
+  }
+
+  public void setQueuedMode(ShooterMode newMode) {
+    queuedMode = newMode;
   }
 
   public void setArmResting(boolean isResting) {
@@ -93,11 +102,11 @@ public class ShooterState {
   public void stopShooting() {
     isShooting = false;
     // If intaking, and shooter is loaded, go to default
-    if (currentMode == ShooterModes.INTAKE && isLoaded) {
-      currentMode = ShooterModes.DEFAULT;
+    if (getCurrentMode() == ShooterModes.INTAKE && isLoaded) {
+      setCurrentMode(ShooterModes.DEFAULT);
       // After we finish shooting, go to default
-    } else if (currentMode != ShooterModes.INTAKE && !isLoaded) {
-      currentMode = ShooterModes.DEFAULT;
+    } else if (getCurrentMode() != ShooterModes.INTAKE && !isLoaded) {
+      setCurrentMode(ShooterModes.DEFAULT);
     }
   }
 
@@ -122,14 +131,16 @@ public class ShooterState {
   public void StatePeriodic() {
     // Update SmartDashboard
     SmartDashboard.putBoolean("Manual Arm Mode Enabled", axisEnabled);
-    SmartDashboard.putString("Arm Mode", currentMode.name);
+    SmartDashboard.putString("Current Mode", currentMode.name);
+    SmartDashboard.putString("Queued Mode", queuedMode.name);
     SmartDashboard.putBoolean("Loaded", isLoaded);
     SmartDashboard.putBoolean("Elevator Lowered", isElevatorLowered);
     SmartDashboard.putBoolean("Resting", isArmResting);
     SmartDashboard.putBoolean("Arm Shooting", isShooting);
     // Add to log
     Logger.recordOutput("ArmStateManual", axisEnabled);
-    Logger.recordOutput("ArmStateMode", currentMode.name);
+    Logger.recordOutput("ArmStateCurrentMode", currentMode.name);
+    Logger.recordOutput("ArmStateQueuedMode", queuedMode.name);
     Logger.recordOutput("ArmStateLoaded", isLoaded);
     Logger.recordOutput("ArmStateResting", isArmResting);
     Logger.recordOutput("ArmStateShooting", isShooting);

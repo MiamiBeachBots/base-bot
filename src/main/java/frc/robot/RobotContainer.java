@@ -170,13 +170,19 @@ public class RobotContainer {
     // m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_defaultButton.whileTrue(
-        new InstantCommand(() -> m_shooterState.setCurrentMode(ShooterModes.DEFAULT)));
-    m_troughButton.whileTrue(new InstantCommand(() -> m_shooterState.setCurrentMode(ShooterModes.TROUGH)));
-    m_bargeButton.whileTrue(new InstantCommand(() -> m_shooterState.setCurrentMode(ShooterModes.BARGE)));
-    m_intakeButton.whileTrue(new InstantCommand(() -> m_shooterState.setCurrentMode(ShooterModes.INTAKE)));
-    m_reefT2Button.whileTrue(new InstantCommand(() -> m_shooterState.setCurrentMode(ShooterModes.REEFT2)));
-    m_reefT3Button.whileTrue(new InstantCommand(() -> m_shooterState.setCurrentMode(ShooterModes.REEFT3)));
-    m_reefT4Button.whileTrue(new InstantCommand(() -> m_shooterState.setCurrentMode(ShooterModes.REEFT4)));
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.DEFAULT)));
+    m_troughButton.whileTrue(
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.TROUGH)));
+    m_bargeButton.whileTrue(
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.BARGE)));
+    m_intakeButton.whileTrue(
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.INTAKE)));
+    m_reefT2Button.whileTrue(
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.REEFT2)));
+    m_reefT3Button.whileTrue(
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.REEFT3)));
+    m_reefT4Button.whileTrue(
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.REEFT4)));
 
     m_aimButton.whileTrue(m_aimCommand);
 
