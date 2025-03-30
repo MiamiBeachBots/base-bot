@@ -28,7 +28,7 @@ public class ArmCommand extends Command {
     // Update lowered state of the arm
     // if the arm is at the goal and the arm is completely lowered, set lowered to true.
     m_shooterState.setArmResting(
-        m_ArmSubsystem.atGoal() && m_shooterState.mode.angle == ShooterModes.DEFAULT.angle);
+        m_ArmSubsystem.atGoal() && m_shooterState.currentMode.angle == ShooterModes.DEFAULT.angle);
   }
 
   // Called when the command is initially scheduled.
@@ -38,7 +38,7 @@ public class ArmCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_ArmSubsystem.SetAngle(m_shooterState.mode.angle);
+    m_ArmSubsystem.SetAngle(m_shooterState.currentMode.angle);
     updateStates();
   }
 

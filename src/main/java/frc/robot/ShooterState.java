@@ -66,7 +66,7 @@ public class ShooterState {
   public boolean isArmResting = true; // Starting position
   public boolean isShooting = false;
   public boolean axisEnabled = false;
-  public ShooterMode mode = ShooterModes.DEFAULT;
+  public ShooterMode currentMode = ShooterModes.DEFAULT;
 
   public ShooterState() {}
 
@@ -78,8 +78,8 @@ public class ShooterState {
     isLoaded = false;
   }
 
-  public void setMode(ShooterMode newMode) {
-    mode = newMode;
+  public void setCurrentMode(ShooterMode newMode) {
+    currentMode = newMode;
   }
 
   public void setArmResting(boolean isResting) {
@@ -93,11 +93,11 @@ public class ShooterState {
   public void stopShooting() {
     isShooting = false;
     // If intaking, and shooter is loaded, go to default
-    if (mode == ShooterModes.INTAKE && isLoaded) {
-      mode = ShooterModes.DEFAULT;
+    if (currentMode == ShooterModes.INTAKE && isLoaded) {
+      currentMode = ShooterModes.DEFAULT;
       // After we finish shooting, go to default
-    } else if (mode != ShooterModes.INTAKE && !isLoaded) {
-      mode = ShooterModes.DEFAULT;
+    } else if (currentMode != ShooterModes.INTAKE && !isLoaded) {
+      currentMode = ShooterModes.DEFAULT;
     }
   }
 
@@ -110,7 +110,7 @@ public class ShooterState {
   }
 
   public double getShooterSpeed() {
-    return mode.speed;
+    return currentMode.speed;
   }
 
   /**
@@ -122,14 +122,14 @@ public class ShooterState {
   public void StatePeriodic() {
     // Update SmartDashboard
     SmartDashboard.putBoolean("Manual Arm Mode Enabled", axisEnabled);
-    SmartDashboard.putString("Arm Mode", mode.name);
+    SmartDashboard.putString("Arm Mode", currentMode.name);
     SmartDashboard.putBoolean("Loaded", isLoaded);
     SmartDashboard.putBoolean("Elevator Lowered", isElevatorLowered);
     SmartDashboard.putBoolean("Resting", isArmResting);
     SmartDashboard.putBoolean("Arm Shooting", isShooting);
     // Add to log
     Logger.recordOutput("ArmStateManual", axisEnabled);
-    Logger.recordOutput("ArmStateMode", mode.name);
+    Logger.recordOutput("ArmStateMode", currentMode.name);
     Logger.recordOutput("ArmStateLoaded", isLoaded);
     Logger.recordOutput("ArmStateResting", isArmResting);
     Logger.recordOutput("ArmStateShooting", isShooting);

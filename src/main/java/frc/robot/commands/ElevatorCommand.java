@@ -27,7 +27,7 @@ public class ElevatorCommand extends Command {
     // Update lowered state of the elevator
     // if the elevator is at the goal and the elevator is completely lowered, set lowered to true.
     m_ShooterState.setElevatorLowered(
-        m_ElevatorSubsystem.atGoal() && m_ShooterState.mode.height == ShooterModes.DEFAULT.height);
+        m_ElevatorSubsystem.atGoal() && m_ShooterState.currentMode.height == ShooterModes.DEFAULT.height);
   }
 
   // Called when the command is initially scheduled.
@@ -37,7 +37,7 @@ public class ElevatorCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_ElevatorSubsystem.SetHeight(m_ShooterState.mode.height);
+    m_ElevatorSubsystem.SetHeight(m_ShooterState.currentMode.height);
     updateStates();
   }
 
