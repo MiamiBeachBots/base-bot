@@ -96,13 +96,13 @@ public final class Constants {
   public static final class PoseCamera1 {
     public static final String NAME = "Pose1";
     // XYZ
-    private static final double X_LOCATION = Units.inchesToMeters(6);
-    private static final double Y_LOCATION = Units.inchesToMeters(9.3);
-    private static final double Z_LOCATION = Units.inchesToMeters(10.5);
+    private static final double X_LOCATION = Units.inchesToMeters(10.25);
+    private static final double Y_LOCATION = Units.inchesToMeters(2);
+    private static final double Z_LOCATION = Units.inchesToMeters(33.875);
     // ROTATION
     public static final double ROLL = Units.degreesToRadians(90);
     public static final double PITCH = Units.degreesToRadians(0.0);
-    public static final double YAW = Units.degreesToRadians(0);
+    public static final double YAW = Units.degreesToRadians(17.5);
 
     public static final Transform3d LOCATION =
         new Transform3d(
@@ -113,13 +113,13 @@ public final class Constants {
   public static final class PoseCamera2 {
     public static final String NAME = "Pose2";
     // XYZ
-    private static final double X_Location = Units.inchesToMeters(6);
-    private static final double Y_Location = Units.inchesToMeters(9.3);
-    private static final double Z_Location = Units.inchesToMeters(10.5);
+    private static final double X_Location = Units.inchesToMeters(9);
+    private static final double Y_Location = Units.inchesToMeters(4.75);
+    private static final double Z_Location = Units.inchesToMeters(33.25);
     // ROTATION
     public static final double ROLL = Units.degreesToRadians(90);
     public static final double PITCH = Units.degreesToRadians(0.0);
-    public static final double YAW = Units.degreesToRadians(0);
+    public static final double YAW = Units.degreesToRadians(12.5);
 
     public static final Transform3d location =
         new Transform3d(
