@@ -72,16 +72,16 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final double kA = 2.1775; // Acceleration (Volts * Seconds^2 / Meter)
 
   // other constants
-  private final double kMaxHeightMeters = 1.88; // TODO: Update
+  private final double kMaxHeightMeters = Constants.ELEVATOR_MAX_HEIGHT;
   private final double kMinHeightMeters = 0.0;
   private final double kStartingHeightMeters =
-      kMinHeightMeters + Constants.ELEVATOR_OFFSET; // TODO: Update
+      kMinHeightMeters + Constants.ELEVATOR_STARTING_HEIGHT;
 
   ElevatorFeedforward m_ElevatorFeedforward = new ElevatorFeedforward(kS, kG, kV, kA);
 
   // setup trapezoidal motion profile
-  private final double kMaxVelocity = 1.00; // M/S TODO: Update
-  private final double kMaxAcceleration = 0.5; // M/S^2 TODO: Update
+  private final double kMaxVelocity = 1.00; // M/S
+  private final double kMaxAcceleration = 0.5; // M/S^2
   private final double kAllowedClosedLoopError = 0.01; // Meters
 
   private final TrapezoidProfile m_profile =

@@ -59,11 +59,17 @@ public final class Constants {
   // Max speeds
   public static final double MAX_SPEED = 0.8;
   public static final double MAX_EXTENDED_SPEED = 0.3;
-  public static final double MAX_SHOOTER_SPEED = 0.8;
+  public static final double MAX_SHOOTER_SPEED = 0.9;
   public static final double LIFTER_SPEED = 0.5;
 
-  public static final double ARM_ANGLE_OFFSET = Units.degreesToRadians(105);
-  public static final double ELEVATOR_OFFSET = Units.inchesToMeters(13);
+  public static final double ARM_ANGLE_OFFSET = Units.degreesToRadians(180); // Also max angle
+  public static final double ELEVATOR_STARTING_HEIGHT_INCHES = 13;
+  public static final double ELEVATOR_STARTING_HEIGHT =
+      Units.inchesToMeters(ELEVATOR_STARTING_HEIGHT_INCHES);
+  public static final double ELEVATOR_MAX_HEIGHT = 1.88; // METERS
+  public static final double ARM_START_OFFSET =
+      0.245; // Radians (based on sensor) (starting angle straight down)
+  public static final double ARM_ZERO_OFFSET = 0.5872441; // Touching frame
 
   // USB Devices
   public static final int CONTROLLER_USB_INDEX = 0;

@@ -73,8 +73,8 @@ public class ArmSubsystem extends SubsystemBase {
   private final double kA = 0.27366; // Acceleration Volts/(rad/s^2)
 
   // other constants
-  private final double kMaxAngleRads = Units.degreesToRadians(180); // TODO: Update
-  private final double kMinAngleRads = Units.degreesToRadians(0);
+  private final double kMinAngleRads = Constants.ARM_START_OFFSET;
+  private final double kMaxAngleRads = kMinAngleRads + Constants.ARM_ANGLE_OFFSET;
   private final double kArmLengthMeters = 0.1;
   private final double kjKgMetersSquared =
       0.1; // The moment of inertia of the arm; can be calculated from CAD software.
@@ -150,6 +150,9 @@ public class ArmSubsystem extends SubsystemBase {
     m_MotorConfig.encoder.velocityConversionFactor(kVelocityConversionRatio);
     m_MotorConfig.absoluteEncoder.positionConversionFactor(kPositionConversionRatioAbsolute);
     m_MotorConfig.absoluteEncoder.velocityConversionFactor(kVelocityConversionRatioAbsolute);
+
+    // set absolute encoder zero offset
+    m_MotorConfig.absoluteEncoder.zeroOffset(Constants.ARM_ZERO_OFFSET);
 
     // PID coefficients
     kP = 0.65298;

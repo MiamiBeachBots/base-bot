@@ -54,7 +54,7 @@ public class RobotContainer {
 
   // Init Gyro & ultrasonic
   private final UltrasonicSubsystem m_ultrasonicShooterSubsystem =
-      new UltrasonicSubsystem(Constants.ULTRASONIC_SHOOTER_PORT);
+      new UltrasonicSubsystem(Constants.ULTRASONIC_SHOOTER_PORT); // TODO: Color sensor
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);
@@ -192,7 +192,6 @@ public class RobotContainer {
 
     m_aimButton.whileTrue(m_aimCommand);
 
-    // m_driveToAmpButton.whileTrue(m_driveToAmp); // TODO: Need to bind button
     // m_lifterRightButton.whileTrue(m_RightLifterCommand);
     // m_lifterLeftButton.whileTrue(m_LeftLifterCommand);
     // m_lifterDirectionButton.whileTrue(

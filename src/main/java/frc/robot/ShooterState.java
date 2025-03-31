@@ -19,23 +19,19 @@ public class ShooterState {
 
     /**
      * @param Name Which preset is it
-     * @param Speed m/s
-     * @param Height inches
-     * @param Angle degrees
+     * @param Speed motor speed
+     * @param Height inches from ground
+     * @param Angle degrees from angle offset (180)
      */
     public ShooterMode(String Name, double Speed, double Height, double Angle) {
       name = Name;
       speed = Speed;
-      if (Height == 0) {
-        height = 0;
-      } else {
-        height = Units.inchesToMeters(Height) - Constants.ELEVATOR_OFFSET;
-      }
-
-      if (Angle == 0) {
-        angle = 0;
-      } else {
-        angle = Units.degreesToRadians(Angle) - Constants.ARM_ANGLE_OFFSET;
+      height = Units.inchesToMeters(Height) - Constants.ELEVATOR_STARTING_HEIGHT;
+      angle = Units.degreesToRadians(Angle) + Constants.ARM_ANGLE_OFFSET;
+      if (height < 0 || angle < 0) {
+        throw new RuntimeException("You Broke the state system -angle or -height");
+      } else if (height > Constants.ELEVATOR_MAX_HEIGHT || angle > Constants.ARM_ANGLE_OFFSET) {
+        throw new RuntimeException("Height and or Angle exceeds soft limits");
       }
     }
   }
@@ -43,11 +39,17 @@ public class ShooterState {
   // TODO: Numbers
   public static class ShooterModes {
     public static final ShooterMode DEFAULT =
-        new ShooterMode("Default", Constants.MAX_SHOOTER_SPEED, 0, 105);
+        new ShooterMode(
+            "Default", Constants.MAX_SHOOTER_SPEED, Constants.ELEVATOR_STARTING_HEIGHT_INCHES, 0);
     public static final ShooterMode INTAKE =
-        new ShooterMode("Intake", -Constants.MAX_SHOOTER_SPEED, 0, -30);
+        new ShooterMode(
+            "Intake", -Constants.MAX_SHOOTER_SPEED, Constants.ELEVATOR_STARTING_HEIGHT_INCHES, -30);
     public static final ShooterMode PROCESSOR =
-        new ShooterMode("Processor", Constants.MAX_SHOOTER_SPEED * 0.25, 0, -15);
+        new ShooterMode(
+            "Processor",
+            Constants.MAX_SHOOTER_SPEED * 0.25,
+            Constants.ELEVATOR_STARTING_HEIGHT_INCHES,
+            -90);
     public static final ShooterMode TROUGH =
         new ShooterMode("Trough", Constants.MAX_SHOOTER_SPEED, 19, -15);
     public static final ShooterMode REEFT2 =
@@ -57,7 +59,7 @@ public class ShooterState {
     public static final ShooterMode REEFT4 =
         new ShooterMode("ReefT4", Constants.MAX_SHOOTER_SPEED, 71.87, -60);
     public static final ShooterMode BARGE =
-        new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.25, 83, 0);
+        new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.25, 83, -45);
   }
   ;
 

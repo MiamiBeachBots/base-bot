@@ -18,7 +18,7 @@ public final class DriveConstants {
   // https://sciencing.com/convert-rpm-linear-speed-8232280.html
   public static final double WHEEL_DIAMETER = Units.inchesToMeters(6); // meters
   public static final double WHEEL_RADIUS = WHEEL_DIAMETER / 2;
-  public static final double kTrackwidthMeters = 0.527; // TODO: Update
+  public static final double kTrackwidthMeters = 0.527;
   // this is not used and is handled by the rev encoder.
   public static final double PULSES_PER_REV = 1;
   public static final double GEAR_RATIO = 8.46; // 8.46:1

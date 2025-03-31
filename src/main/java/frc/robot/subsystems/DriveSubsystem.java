@@ -148,7 +148,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_driveTrainSim =
         new DifferentialDrivetrainSim(
             // Create a linear system from our identification gains.
-            // TODO: Update after profiling
             LinearSystemId.identifyDrivetrainSystem(
                 DriveConstants.kvDriveVoltSecondsPerMeter,
                 DriveConstants.kaDriveVoltSecondsSquaredPerMeter,
