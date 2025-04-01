@@ -159,9 +159,9 @@ public class ArmSubsystem extends SubsystemBase {
     m_MotorConfig.absoluteEncoder.zeroOffset(Constants.ARM_ZERO_ENCODER_OFFSET);
 
     // PID coefficients
-    kP = 0.65298;
+    kP = 0.64545;
     kI = 0;
-    kD = 0.11024;
+    kD = 0.5;
     kIz = 0;
     kMaxOutput = 0.5;
     kMinOutput = -0.5;
