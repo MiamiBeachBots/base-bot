@@ -29,7 +29,7 @@ public class AimCommand extends Command {
   private final Transform3d camOffset;
   private final Transform3d targetingOffset;
   private final double toleranceMeters = 0.1;
-  private Pose2d robotToTarget2d = new Pose2d();
+  private Pose2d lastRobotToTarget2d = new Pose2d();
   private Command resultingCommand;
 
   /**
@@ -58,7 +58,9 @@ public class AimCommand extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    lastRobotToTarget2d = new Pose2d();
+  }
 
   /**
    * Takes pipeline result from camera, follows path based on those results.
@@ -88,23 +90,22 @@ public class AimCommand extends Command {
     // convert to a pose2d for the drive subsystem
     Pose2d newTargetPose = robotToTarget.toPose2d();
     // check if new pose within tolerance
-    if (robotToTarget2d.getTranslation().getDistance(newTargetPose.getTranslation())
+    if (lastRobotToTarget2d.getTranslation().getDistance(newTargetPose.getTranslation())
         > toleranceMeters) {
-      // update the pose
-      robotToTarget2d = newTargetPose;
       // Create list of target poses
       // One at halfway to target, one at the target
       List<Pose2d> targetPoses = new ArrayList<Pose2d>();
       targetPoses.add(
           new Pose2d(
-              robotToTarget2d.getTranslation().getX() / 2,
-              robotToTarget2d.getTranslation().getY() / 2,
-              new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
+              newTargetPose.getTranslation().getX() / 2,
+              newTargetPose.getTranslation().getY() / 2,
+              new Rotation2d(newTargetPose.getRotation().getDegrees())));
       targetPoses.add(
           new Pose2d(
-              robotToTarget2d.getTranslation().getX(),
-              robotToTarget2d.getTranslation().getY(),
-              new Rotation2d(robotToTarget2d.getRotation().getDegrees())));
+              newTargetPose.getTranslation().getX(),
+              newTargetPose.getTranslation().getY(),
+              new Rotation2d(newTargetPose.getRotation().getDegrees())));
+
       // update the drive subsystem
       if (m_shooterState.isElevatorLowered) {
         m_driveSubsystem.setReducedSpeed(false);
@@ -113,6 +114,8 @@ public class AimCommand extends Command {
       }
       resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(targetPoses);
       resultingCommand.initialize();
+      // update the pose
+      lastRobotToTarget2d = newTargetPose;
     }
   }
 
