@@ -12,10 +12,9 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -103,9 +102,6 @@ public class ArmSubsystem extends SubsystemBase {
 
   // disable PID when profiling
   private boolean m_PIDEnabled = true;
-
-  // angle calibration wait
-  private boolean m_armCalibrated = false;
 
   public ArmSubsystem() {
     // Create Arm motor
@@ -204,11 +200,6 @@ public class ArmSubsystem extends SubsystemBase {
     SetAngle(Constants.ARM_ANGLE_OFFSET); // Set arm initial goal to fully up
   }
 
-  /** Matches the position of the main encoder with the absolute encoder. */
-  public void matchEncoders() {
-    m_ArmEncoder.setPosition(m_ArmAbsoluteEncoder.getPosition());
-  }
-
   public void setVoltage(Voltage voltage) {
     m_Motor.setVoltage(voltage.in(Volts));
   }
@@ -246,22 +237,13 @@ public class ArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (!m_armCalibrated) { // on first run, update encoders.
-      matchEncoders();
-      m_armCalibrated = true;
-    }
     // This method will be called once per scheduler run
     Logger.recordOutput("ArmStartingOffsetDegrees", Units.radiansToDegrees(kMinAngleRads));
-    Logger.recordOutput("ArmMotorPositionRadians", m_ArmEncoder.getPosition());
-    Logger.recordOutput("ArmMotorVelocityRPM", m_ArmEncoder.getVelocity());
     Logger.recordOutput("ArmAbsolutePositionRadians", m_ArmAbsoluteEncoder.getPosition());
     Logger.recordOutput("ArmAbsoluteVelocityRPM", m_ArmAbsoluteEncoder.getVelocity());
     Logger.recordOutput("ArmRequestedAngle", m_requestedAngle);
     Logger.recordOutput(
         "ArmRequestedAngleDegreesWO", Units.radiansToDegrees(m_requestedAngle - kMinAngleRads));
-    Logger.recordOutput(
-        "ArmRelativeEncoderDegreesWO",
-        Units.radiansToDegrees(m_ArmEncoder.getPosition() - kMinAngleRads));
     Logger.recordOutput(
         "ArmAbsoluteEnoderDegreesWO",
         Units.radiansToDegrees(m_ArmAbsoluteEncoder.getPosition() - kMinAngleRads));
