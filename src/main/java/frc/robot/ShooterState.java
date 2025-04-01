@@ -46,7 +46,7 @@ public class ShooterState {
             "Intake",
             -Constants.MAX_SHOOTER_SPEED,
             Constants.ELEVATOR_STARTING_HEIGHT_INCHES,
-            -110);
+            -100);
     public static final ShooterMode PROCESSOR =
         new ShooterMode(
             "Processor",
