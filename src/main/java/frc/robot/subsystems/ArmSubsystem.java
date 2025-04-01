@@ -82,8 +82,8 @@ public class ArmSubsystem extends SubsystemBase {
   ArmFeedforward m_ArmFeedforward = new ArmFeedforward(kS, kG, kV, kA);
 
   // setup trapezoidal motion profile
-  private final double kMaxVelocity = Units.degreesToRadians(45); // R/S
-  private final double kMaxAcceleration = Units.degreesToRadians(30); // R/S^2
+  private final double kMaxVelocity = Units.degreesToRadians(90); // R/S
+  private final double kMaxAcceleration = Units.degreesToRadians(60); // R/S^2
   private final double kAllowedClosedLoopError = 0.35; // Radians (about 2 degrees)
 
   private final TrapezoidProfile m_profile =

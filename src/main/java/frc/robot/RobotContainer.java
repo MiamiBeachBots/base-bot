@@ -148,8 +148,8 @@ public class RobotContainer {
   private void setupTriggers() {
     // Controller buttons
     m_toggleBrakeButton = m_controller1.b();
-    m_straightButton = m_controller1.rightBumper();
-    m_aimButton = m_controller1.leftBumper();
+    m_straightButton = m_controller1.leftBumper();
+    m_aimButton = m_controller1.rightBumper();
     m_switchQueuedButton = m_controller1.y();
     m_defaultButton_driver = m_controller1.a();
     // m_lifterRightButton = m_controller1.rightTrigger();

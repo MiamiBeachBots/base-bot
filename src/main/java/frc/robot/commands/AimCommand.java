@@ -7,7 +7,9 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
@@ -18,6 +20,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -60,6 +63,7 @@ public class AimCommand extends Command {
   @Override
   public void initialize() {
     lastRobotToTarget2d = new Pose2d();
+    resultingCommand = null;
   }
 
   /**
@@ -75,17 +79,41 @@ public class AimCommand extends Command {
     // we can change this to be a certain april tag later
     // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
     // get the transform from the camera to the target
-    Transform3d cameraToTarget = target.getBestCameraToTarget();
+    double yaw = target.getYaw();
+    double area = target.getArea();
+
+    Logger.recordOutput("AimTargetYaw", yaw);
+    Logger.recordOutput("AimTargetArea", area);
+
+
+    // if area less then 10% do 1.5 meter otherwise do 0.5
+    double targetDistance;
+    if (area < 0.1) {
+      targetDistance = 1.5;
+    }
+    else if (area > 0.7) {
+      targetDistance = 0;
+    }
+    else {
+      targetDistance = 0.5;
+    }
+    Transform3d cameraToTarget =
+        new Transform3d(new Translation3d(0, targetDistance, 0), new Rotation3d(0, 0, yaw));
 
     // Now take target transform and apply to target coords
     // This essentially makes them relative to robot pose, then relative to intake
     Transform3d targetOffset = cameraToTarget.plus(targetingOffset);
+
+    Logger.recordOutput("AimTargetRelRobotPose", targetOffset);
 
     // get the pose of the robot
     Pose3d robotPose = new Pose3d(m_driveSubsystem.getPose());
 
     // add the offset to the robot pose (now relative to field)
     Pose3d robotToTarget = robotPose.plus(targetOffset);
+
+    // Log ball pose
+    Logger.recordOutput("AimNavRelPose", robotToTarget);
 
     // convert to a pose2d for the drive subsystem
     Pose2d newTargetPose = robotToTarget.toPose2d();
@@ -122,30 +150,30 @@ public class AimCommand extends Command {
   // Called every time the cheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO: update offset here
-    // robotoffset = ....
-    Optional<PhotonPipelineResult> CamResult = m_cameraSubsystem.targetingCamera1Result;
-    // will not work if cam is defined incorrectly, but will not tell you
-    CamResult.ifPresentOrElse(
-        result -> {
-          if (result.hasTargets()) {
-            processResult(result);
-          }
-        },
-        () -> {
-          SmartDashboard.putBoolean("CameraTargetDetected", false);
-          SmartDashboard.putNumber("CameraTargetPitch", 0.0);
-        });
     if (resultingCommand != null) {
       resultingCommand.execute();
+    } else {
+      Optional<PhotonPipelineResult> CamResult = m_cameraSubsystem.targetingCamera1Result;
+      // will not work if cam is defined incorrectly, but will not tell you
+      CamResult.ifPresentOrElse(
+          result -> {
+            if (result.hasTargets()) {
+              processResult(result);
+            }
+          },
+          () -> {
+            SmartDashboard.putBoolean("CameraTargetDetected", false);
+            SmartDashboard.putNumber("CameraTargetPitch", 0.0);
+          });
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    resultingCommand.end(interrupted);
-    m_driveSubsystem.stop(); // end execution of on board PID.
+    if (resultingCommand != null) {
+      resultingCommand.end(interrupted);
+    }
   }
 
   // Returns true when the command should end.

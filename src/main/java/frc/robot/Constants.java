@@ -141,7 +141,7 @@ public final class Constants {
     private static final double Y_LOCATION = Units.inchesToMeters(9.3);
     private static final double Z_LOCATION = Units.inchesToMeters(10.5);
     // ROTATION
-    private static final double ROLL = Units.degreesToRadians(90);
+    private static final double ROLL = Units.degreesToRadians(0);
     private static final double PITCH = Units.degreesToRadians(0.0);
     private static final double YAW = Units.degreesToRadians(0);
 
