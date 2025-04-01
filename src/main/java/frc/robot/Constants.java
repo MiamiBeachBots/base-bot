@@ -83,12 +83,12 @@ public final class Constants {
   // Joystick buttons
   public static final int TRIGGER = 1;
   public static final int DEFAULT_BUTTON = 2;
-  public static final int TROUGH_BUTTON = 8;
-  public static final int REEFT2_BUTTON = 7;
+  public static final int TROUGH_BUTTON = 7;
+  public static final int REEFT2_BUTTON = 8;
   public static final int REEFT3_BUTTON = 9;
-  public static final int REEFT4_BUTTON = 11;
-  public static final int BARGE_BUTTON = 10;
-  public static final int INTAKE_BUTTON = 12;
+  public static final int REEFT4_BUTTON = 10;
+  public static final int BARGE_BUTTON = 12;
+  public static final int INTAKE_BUTTON = 11;
   public static final int AIM_BUTTON = 3;
 
   // Analog Ports
