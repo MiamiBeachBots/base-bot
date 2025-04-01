@@ -67,9 +67,9 @@ public final class Constants {
   public static final double ELEVATOR_STARTING_HEIGHT =
       Units.inchesToMeters(ELEVATOR_STARTING_HEIGHT_INCHES);
   public static final double ELEVATOR_MAX_HEIGHT = 1.88; // METERS
-  public static final double ARM_START_OFFSET =
-      0.245; // Radians (based on sensor) (starting angle straight down)
-  public static final double ARM_ZERO_OFFSET = 0.5872441; // Touching frame
+  // Radians (based on sensor) (starting angle straight down)
+  public static final double ARM_START_OFFSET = 0.245;
+  public static final double ARM_ZERO_ENCODER_OFFSET = 0.5872441; // Touching frame
 
   // USB Devices
   public static final int CONTROLLER_USB_INDEX = 0;

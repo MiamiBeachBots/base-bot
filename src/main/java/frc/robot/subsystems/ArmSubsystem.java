@@ -14,6 +14,8 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -52,7 +54,6 @@ public class ArmSubsystem extends SubsystemBase {
   // Declare Arm Physics Engine
   private final SingleJointedArmSim m_ArmSim;
 
-  // TODO: Update to accurate values
   private final double kP, kI, kD, kIz, kMaxOutput, kMinOutput;
   // general drive constants
   // https://www.chiefdelphi.com/t/encoders-velocity-to-m-s/390332/2
@@ -103,6 +104,9 @@ public class ArmSubsystem extends SubsystemBase {
   // disable PID when profiling
   private boolean m_PIDEnabled = true;
 
+  // angle calibration wait
+  private boolean m_armCalibrated = false;
+
   public ArmSubsystem() {
     // Create Arm motor
     m_Motor = new SparkMax(CANConstants.MOTOR_ARM_MAIN_ID, SparkMax.MotorType.kBrushless);
@@ -152,7 +156,7 @@ public class ArmSubsystem extends SubsystemBase {
     m_MotorConfig.absoluteEncoder.velocityConversionFactor(kVelocityConversionRatioAbsolute);
 
     // set absolute encoder zero offset
-    m_MotorConfig.absoluteEncoder.zeroOffset(Constants.ARM_ZERO_OFFSET);
+    m_MotorConfig.absoluteEncoder.zeroOffset(Constants.ARM_ZERO_ENCODER_OFFSET);
 
     // PID coefficients
     kP = 0.65298;
@@ -166,6 +170,8 @@ public class ArmSubsystem extends SubsystemBase {
     m_MotorConfig.closedLoop.iZone(kIz, DriveConstants.kDrivetrainPositionPIDSlot);
     m_MotorConfig.closedLoop.outputRange(
         kMinOutput, kMaxOutput, DriveConstants.kDrivetrainPositionPIDSlot);
+    // use absolute encoder for pid
+    m_MotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     // Smart Control Config
     m_MotorConfig.closedLoop.maxMotion.maxVelocity(
         kMaxVelocity, DriveConstants.kDrivetrainPositionPIDSlot);
@@ -195,7 +201,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     m_Motor.configure(
         m_MotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    matchEncoders();
+    SetAngle(Constants.ARM_ANGLE_OFFSET); // Set arm initial goal to fully up
   }
 
   /** Matches the position of the main encoder with the absolute encoder. */
@@ -221,7 +227,7 @@ public class ArmSubsystem extends SubsystemBase {
    * @param radians Angle in radians to move the arm to
    */
   public void SetAngle(double radians) {
-    m_requestedAngle = radians;
+    m_requestedAngle = radians + kMinAngleRads; // 90 degree down offset
     m_goal = new TrapezoidProfile.State(m_requestedAngle, 0);
   }
 
@@ -240,17 +246,25 @@ public class ArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (!m_armCalibrated) { // on first run, update encoders.
+      matchEncoders();
+      m_armCalibrated = true;
+    }
     // This method will be called once per scheduler run
-    Logger.recordOutput("ArmMotorPositionRotations", m_ArmEncoder.getPosition());
+    Logger.recordOutput("ArmStartingOffsetDegrees", Units.radiansToDegrees(kMinAngleRads));
+    Logger.recordOutput("ArmMotorPositionRadians", m_ArmEncoder.getPosition());
     Logger.recordOutput("ArmMotorVelocityRPM", m_ArmEncoder.getVelocity());
-    Logger.recordOutput("ArmAbsolutePositionRotation", m_ArmAbsoluteEncoder.getPosition());
+    Logger.recordOutput("ArmAbsolutePositionRadians", m_ArmAbsoluteEncoder.getPosition());
     Logger.recordOutput("ArmAbsoluteVelocityRPM", m_ArmAbsoluteEncoder.getVelocity());
     Logger.recordOutput("ArmRequestedAngle", m_requestedAngle);
-    Logger.recordOutput("ArmRequestedAngleDegrees", Units.radiansToDegrees(m_requestedAngle));
     Logger.recordOutput(
-        "ArmRelativeEncoderDegrees", Units.radiansToDegrees(m_ArmEncoder.getPosition()));
+        "ArmRequestedAngleDegreesWO", Units.radiansToDegrees(m_requestedAngle - kMinAngleRads));
     Logger.recordOutput(
-        "ArmAbsoluteEnoderDegrees", Units.radiansToDegrees(m_ArmAbsoluteEncoder.getPosition()));
+        "ArmRelativeEncoderDegreesWO",
+        Units.radiansToDegrees(m_ArmEncoder.getPosition() - kMinAngleRads));
+    Logger.recordOutput(
+        "ArmAbsoluteEnoderDegreesWO",
+        Units.radiansToDegrees(m_ArmAbsoluteEncoder.getPosition() - kMinAngleRads));
     m_setpoint = m_profile.calculate(0.02, m_setpoint, m_goal);
     if (m_PIDEnabled) {
       m_ArmMainPIDController.setReference(
