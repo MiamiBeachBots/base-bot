@@ -103,7 +103,7 @@ public final class Constants {
   public static final class PoseCamera1 {
     public static final String NAME = "Pose1";
     // XYZ
-    private static final double X_LOCATION = Units.inchesToMeters(10.25);
+    private static final double X_LOCATION = Units.inchesToMeters(-10.25);
     private static final double Y_LOCATION = Units.inchesToMeters(2);
     private static final double Z_LOCATION = Units.inchesToMeters(33.875);
     // ROTATION
@@ -137,9 +137,9 @@ public final class Constants {
   public static final class TargetingCamera1 {
     public static final String NAME = "Targeting1";
     // XYZ
-    private static final double X_LOCATION = Units.inchesToMeters(6);
-    private static final double Y_LOCATION = Units.inchesToMeters(9.3);
-    private static final double Z_LOCATION = Units.inchesToMeters(10.5);
+    private static final double X_LOCATION = Units.inchesToMeters(1);
+    private static final double Y_LOCATION = Units.inchesToMeters(13.5);
+    private static final double Z_LOCATION = Units.inchesToMeters(12.5);
     // ROTATION
     private static final double ROLL = Units.degreesToRadians(0);
     private static final double PITCH = Units.degreesToRadians(0.0);
@@ -149,21 +149,12 @@ public final class Constants {
         new Transform3d(
             new Translation3d(X_LOCATION, Y_LOCATION, Z_LOCATION),
             new Rotation3d(ROLL, PITCH, YAW));
-
-    public static Transform3d modifiedTransform(double elevatorHeight, double armPitch) {
-      return new Transform3d(
-          new Translation3d(
-              TargetingCamera1.X_LOCATION,
-              TargetingCamera1.Y_LOCATION,
-              TargetingCamera1.Z_LOCATION),
-          new Rotation3d(TargetingCamera1.ROLL, TargetingCamera1.PITCH, TargetingCamera1.YAW));
-    }
   }
 
   public static final class AlgaeCamOffset {
-    // XYZ, should all be negative so that we dont run over ball
-    private static final double X_Location = Units.inchesToMeters(-1);
-    private static final double Y_Location = Units.inchesToMeters(-24.25);
+    // XYZ, should be measured from camera
+    private static final double X_Location = Units.inchesToMeters(0);
+    private static final double Y_Location = Units.inchesToMeters(12);
     private static final double Z_Location = Units.inchesToMeters(0);
     // ROTATION
     private static final double ROLL = Units.degreesToRadians(0);

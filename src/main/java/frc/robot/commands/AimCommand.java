@@ -10,11 +10,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.ShooterState;
-import frc.robot.ShooterState.ShooterMode;
 import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import java.util.ArrayList;
@@ -50,8 +50,7 @@ public class AimCommand extends Command {
     addRequirements(d_subsystem, c_subsystem);
 
     // The first offset takes the camera location and converts to center of robot
-    ShooterMode intakeMode = ShooterState.ShooterModes.INTAKE;
-    camOffset = Constants.TargetingCamera1.modifiedTransform(intakeMode.height, intakeMode.angle);
+    camOffset = Constants.TargetingCamera1.location;
     // this offset takes the center of robot and tells it to move back so that we dont just run over
     // the ball
     targetingOffset = camOffset.plus(Constants.AlgaeCamOffset.location);
@@ -76,10 +75,10 @@ public class AimCommand extends Command {
     // we can change this to be a certain april tag later
     // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
     // get the transform from the camera to the target
-    double yaw = target.getYaw();
+    double yaw = Units.degreesToRadians(target.getYaw());
     double area = target.getArea();
 
-    Logger.recordOutput("AimTargetYaw", yaw);
+    Logger.recordOutput("AimTargetYawRadians", yaw);
     Logger.recordOutput("AimTargetArea", area);
 
     // if area less then 10% do 1.5 meter otherwise do 0.5
