@@ -110,14 +110,17 @@ public class AimCommand extends Command {
 
     // convert to a pose2d for the drive subsystem
     Pose2d newTargetPose = robotToTarget.toPose2d();
+
+    Logger.recordOutput("AimNav2dPose", newTargetPose);
+
     // check if new pose within tolerance
     // Create list of target poses
     // One at halfway to target, one at the target
     List<Pose2d> targetPoses = new ArrayList<Pose2d>();
     targetPoses.add(
         new Pose2d(
-            newTargetPose.getTranslation().getX() / 2,
-            newTargetPose.getTranslation().getY() / 2,
+            robotPose.getTranslation().getX(),
+            robotPose.getTranslation().getY(),
             new Rotation2d(newTargetPose.getRotation().getDegrees())));
     targetPoses.add(
         new Pose2d(

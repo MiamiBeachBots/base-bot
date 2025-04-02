@@ -600,18 +600,13 @@ public class DriveSubsystem extends SubsystemBase {
       gyroZeroPending = false;
     }
     // This method will be called once per scheduler run
-    DifferentialDriveWheelSpeeds wheelSpeeds = this.getWheelSpeeds();
-    SmartDashboard.putNumber("Left Encoder Speed (M/s)", wheelSpeeds.leftMetersPerSecond);
-    SmartDashboard.putNumber("Right Encoder Speed (M/s)", wheelSpeeds.rightMetersPerSecond);
-    SmartDashboard.putNumber("Distance L", this.getPositionLeft());
-    SmartDashboard.putNumber("Distance R", this.getPositionRight());
     SmartDashboard.putNumber("Average Distance Traveled", currentDistance());
-    SmartDashboard.putNumber("Current Gyro Pitch", getPitch());
     SmartDashboard.putNumber("Current Gyro Yaw", getYaw());
     SmartDashboard.putBoolean("Gyro Calibrating", m_Gyro.isCalibrating());
     // Update the odometry in the periodic block
     m_driveOdometry.update(getRotation2d(), getPositionLeft(), getPositionRight());
     field.setRobotPose(getPose());
+    Logger.recordOutput("RobotPose", getPose());
     Logger.recordOutput("DriveLeftMotorPositionRotations", m_encoderBackLeft.getPosition());
     Logger.recordOutput("DriveRightMotorPositionRotations", m_encoderBackRight.getPosition());
     Logger.recordOutput("DriveLeftMotorVelocityRPM", m_encoderBackLeft.getVelocity());
