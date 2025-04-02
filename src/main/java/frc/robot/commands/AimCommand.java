@@ -71,6 +71,7 @@ public class AimCommand extends Command {
     SmartDashboard.putBoolean("CameraTargetDetected", true);
     // find target we want, we can change later
     PhotonTrackedTarget target = result.getBestTarget();
+    
 
     // we can change this to be a certain april tag later
     // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
@@ -140,6 +141,17 @@ public class AimCommand extends Command {
     resultingCommand.initialize();
   }
 
+  //Finds the distance from the camera to a target
+  private double distanceToTarget(PhotonPipelineResult result, double targetWidth){
+    PhotonTrackedTarget target = result.getBestTarget();
+    double pixelWidthAtSampleDistance = 0;
+    double sampleDistance = 0;
+    double realWidth = Units.inchesToMeters(16.5);
+    double currentPixelWidth = 0;
+    double ratio = pixelWidthAtSampleDistance * sampleDistance / realWidth;
+    double distance = realWidth * ratio / currentPixelWidth;
+    return distance;
+  }
   // Called every time the cheduler runs while the command is scheduled.
   @Override
   public void execute() {

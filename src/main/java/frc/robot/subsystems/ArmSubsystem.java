@@ -157,7 +157,7 @@ public class ArmSubsystem extends SubsystemBase {
     // PID coefficients
     kP = 0.64545;
     kI = 0;
-    kD = 0.25;
+    kD = 0.10;
     kIz = 0;
     kMaxOutput = 0.5;
     kMinOutput = -0.5;
