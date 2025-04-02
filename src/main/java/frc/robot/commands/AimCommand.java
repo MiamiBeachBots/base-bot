@@ -31,8 +31,6 @@ public class AimCommand extends Command {
   private final ShooterState m_shooterState;
   private final Transform3d camOffset;
   private final Transform3d targetingOffset;
-  private final double toleranceMeters = 0.1;
-  private Pose2d lastRobotToTarget2d = new Pose2d();
   private Command resultingCommand;
 
   /**
@@ -62,7 +60,6 @@ public class AimCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    lastRobotToTarget2d = new Pose2d();
     resultingCommand = null;
   }
 
@@ -85,16 +82,13 @@ public class AimCommand extends Command {
     Logger.recordOutput("AimTargetYaw", yaw);
     Logger.recordOutput("AimTargetArea", area);
 
-
     // if area less then 10% do 1.5 meter otherwise do 0.5
     double targetDistance;
     if (area < 0.1) {
       targetDistance = 1.5;
-    }
-    else if (area > 0.7) {
+    } else if (area > 0.7) {
       targetDistance = 0;
-    }
-    else {
+    } else {
       targetDistance = 0.5;
     }
     Transform3d cameraToTarget =
@@ -118,33 +112,28 @@ public class AimCommand extends Command {
     // convert to a pose2d for the drive subsystem
     Pose2d newTargetPose = robotToTarget.toPose2d();
     // check if new pose within tolerance
-    if (lastRobotToTarget2d.getTranslation().getDistance(newTargetPose.getTranslation())
-        > toleranceMeters) {
-      // Create list of target poses
-      // One at halfway to target, one at the target
-      List<Pose2d> targetPoses = new ArrayList<Pose2d>();
-      targetPoses.add(
-          new Pose2d(
-              newTargetPose.getTranslation().getX() / 2,
-              newTargetPose.getTranslation().getY() / 2,
-              new Rotation2d(newTargetPose.getRotation().getDegrees())));
-      targetPoses.add(
-          new Pose2d(
-              newTargetPose.getTranslation().getX(),
-              newTargetPose.getTranslation().getY(),
-              new Rotation2d(newTargetPose.getRotation().getDegrees())));
+    // Create list of target poses
+    // One at halfway to target, one at the target
+    List<Pose2d> targetPoses = new ArrayList<Pose2d>();
+    targetPoses.add(
+        new Pose2d(
+            newTargetPose.getTranslation().getX() / 2,
+            newTargetPose.getTranslation().getY() / 2,
+            new Rotation2d(newTargetPose.getRotation().getDegrees())));
+    targetPoses.add(
+        new Pose2d(
+            newTargetPose.getTranslation().getX(),
+            newTargetPose.getTranslation().getY(),
+            new Rotation2d(newTargetPose.getRotation().getDegrees())));
 
-      // update the drive subsystem
-      if (m_shooterState.isElevatorLowered) {
-        m_driveSubsystem.setReducedSpeed(false);
-      } else {
-        m_driveSubsystem.setReducedSpeed(true);
-      }
-      resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(targetPoses);
-      resultingCommand.initialize();
-      // update the pose
-      lastRobotToTarget2d = newTargetPose;
+    // update the drive subsystem
+    if (m_shooterState.isElevatorLowered) {
+      m_driveSubsystem.setReducedSpeed(false);
+    } else {
+      m_driveSubsystem.setReducedSpeed(true);
     }
+    resultingCommand = m_driveSubsystem.GenerateOnTheFlyCommand(targetPoses);
+    resultingCommand.initialize();
   }
 
   // Called every time the cheduler runs while the command is scheduled.
