@@ -91,7 +91,8 @@ public class AimCommand extends Command {
       targetDistance = 0.5;
     }
     Transform3d cameraToTarget =
-        new Transform3d(new Translation3d(0, targetDistance, 0), new Rotation3d(0, 0, yaw));
+        new Transform3d(
+            new Translation3d(0, targetDistance, 0), new Rotation3d(0, 0, -yaw));
 
     // Now take target transform and apply to target coords
     // This essentially makes them relative to robot pose, then relative to intake
@@ -113,20 +114,21 @@ public class AimCommand extends Command {
 
     Logger.recordOutput("AimNav2dPose", newTargetPose);
 
+    // calculate rotation
+    Rotation2d newRotation = new Rotation2d(newTargetPose.getRotation().getDegrees());
+
     // check if new pose within tolerance
     // Create list of target poses
     // One at halfway to target, one at the target
     List<Pose2d> targetPoses = new ArrayList<Pose2d>();
     targetPoses.add(
         new Pose2d(
-            robotPose.getTranslation().getX(),
-            robotPose.getTranslation().getY(),
-            new Rotation2d(newTargetPose.getRotation().getDegrees())));
+            robotPose.getTranslation().getX(), robotPose.getTranslation().getY(), newRotation));
     targetPoses.add(
         new Pose2d(
             newTargetPose.getTranslation().getX(),
             newTargetPose.getTranslation().getY(),
-            new Rotation2d(newTargetPose.getRotation().getDegrees())));
+            newRotation));
 
     // update the drive subsystem
     if (m_shooterState.isElevatorLowered) {
