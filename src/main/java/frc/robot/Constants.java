@@ -103,9 +103,9 @@ public final class Constants {
   public static final class PoseCamera1 {
     public static final String NAME = "Pose1";
     // XYZ
-    public static final double X_LOCATION = Units.inchesToMeters(-2); // 2 inches in front of center
+    public static final double X_LOCATION = Units.inchesToMeters(2); // 2 inches in front of center
     public static final double Y_LOCATION = Units.inchesToMeters(10.25); // 10.25 inches to the left
-    public static final double Z_LOCATION = Units.inchesToMeters(-33.875); // 33.8 up
+    public static final double Z_LOCATION = Units.inchesToMeters(33.875); // 33.8 up
     // ROTATION
     public static final double ROLL = Units.degreesToRadians(0);
     public static final double PITCH = Units.degreesToRadians(0.0);
@@ -121,10 +121,10 @@ public final class Constants {
     public static final String NAME = "Pose2";
     // XYZ
     public static final double X_Location =
-        Units.inchesToMeters(-4.75); // 4.75 inches in front of center
+        Units.inchesToMeters(4.75); // 4.75 inches in front of center
     public static final double Y_Location =
         Units.inchesToMeters(-9); // 9 inches to the right of center
-    public static final double Z_Location = Units.inchesToMeters(-33.25); // 33.25 up
+    public static final double Z_Location = Units.inchesToMeters(33.25); // 33.25 up
     // ROTATION
     public static final double ROLL = Units.degreesToRadians(0);
     public static final double PITCH = Units.degreesToRadians(0.0);
