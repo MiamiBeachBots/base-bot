@@ -66,7 +66,7 @@ public class ShooterState {
   }
   ;
 
-  public boolean isLoaded = true;
+  public boolean isLoaded = false;
   public boolean isElevatorLowered = true;
   public boolean isArmResting = true; // Starting position
   public boolean isShooting = false;
@@ -102,9 +102,13 @@ public class ShooterState {
     setQueuedMode(t_current);
   }
 
+  private void instantSwitch(ShooterMode requestedMode) {
+    setQueuedMode(currentMode);
+    currentMode = requestedMode;
+  }
+
   public void defaultOverride() {
-    setQueuedMode(ShooterModes.DEFAULT);
-    switchModes();
+    instantSwitch(ShooterModes.DEFAULT);
   }
 
   public void setArmResting(boolean isResting) {
@@ -119,10 +123,10 @@ public class ShooterState {
     isShooting = false;
     // If intaking, and shooter is loaded, go to default
     if (getCurrentMode() == ShooterModes.INTAKE && isLoaded) {
-      setCurrentMode(ShooterModes.DEFAULT);
+      instantSwitch(ShooterModes.DEFAULT);
       // After we finish shooting, go to default
     } else if (getCurrentMode() != ShooterModes.INTAKE && !isLoaded) {
-      setCurrentMode(ShooterModes.DEFAULT);
+      instantSwitch(ShooterModes.DEFAULT);
     }
   }
 
