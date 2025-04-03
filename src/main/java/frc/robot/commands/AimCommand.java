@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.TargetCorner;
 
 /** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends Command {
@@ -32,6 +33,9 @@ public class AimCommand extends Command {
   private final Transform3d camOffset;
   private final Transform3d targetingOffset;
   private Command resultingCommand;
+  private static final double kBallDiameter = Units.inchesToMeters(16.25);
+  private static final double kpixelWidthAtSampleDistance = 0; // TODO
+  private static final double kBallSampleDistance = 1; // Meters TODO
 
   /**
    * Creates a new AimCommand.
@@ -56,7 +60,7 @@ public class AimCommand extends Command {
     targetingOffset = camOffset.plus(Constants.AlgaeCamOffset.location);
   }
 
-  // Called when the command is initially scheduled.
+  // Called when the command is initially schedule
   @Override
   public void initialize() {
     resultingCommand = null;
@@ -71,29 +75,9 @@ public class AimCommand extends Command {
     SmartDashboard.putBoolean("CameraTargetDetected", true);
     // find target we want, we can change later
     PhotonTrackedTarget target = result.getBestTarget();
-    
+    Transform3d cameraToTarget = distanceToTarget(target);
 
-    // we can change this to be a certain april tag later
-    // https://docs.photonvision.org/en/latest/docs/examples/aimingatatarget.html
-    // get the transform from the camera to the target
-    double yaw = Units.degreesToRadians(target.getYaw());
-    double area = target.getArea();
-
-    Logger.recordOutput("AimTargetYawRadians", yaw);
-    Logger.recordOutput("AimTargetArea", area);
-
-    // if area less then 10% do 1.5 meter otherwise do 0.5
-    double targetDistance;
-    if (area < 0.1) {
-      targetDistance = 1.5;
-    } else if (area > 0.7) {
-      targetDistance = 0;
-    } else {
-      targetDistance = 0.5;
-    }
-    Transform3d cameraToTarget =
-        new Transform3d(
-            new Translation3d(0, targetDistance, 0), new Rotation3d(0, 0, -yaw));
+    Logger.recordOutput("AimCamToTargetTransform", cameraToTarget);
 
     // Now take target transform and apply to target coords
     // This essentially makes them relative to robot pose, then relative to intake
@@ -141,17 +125,32 @@ public class AimCommand extends Command {
     resultingCommand.initialize();
   }
 
-  //Finds the distance from the camera to a target
-  private double distanceToTarget(PhotonPipelineResult result, double targetWidth){
-    PhotonTrackedTarget target = result.getBestTarget();
-    double pixelWidthAtSampleDistance = 0;
-    double sampleDistance = 0;
-    double realWidth = Units.inchesToMeters(16.5);
-    double currentPixelWidth = 0;
-    double ratio = pixelWidthAtSampleDistance * sampleDistance / realWidth;
-    double distance = realWidth * ratio / currentPixelWidth;
-    return distance;
+  // Finds the distance from the camera to a target
+  private Transform3d distanceToTarget(PhotonTrackedTarget target) {
+    double sampleDistance = kBallSampleDistance;
+    List<TargetCorner> targetCorners = target.getDetectedCorners();
+    double minX = Double.MAX_VALUE;
+    double maxX = -Double.MAX_VALUE;
+
+    // Loop through each corner and update minX and maxX
+    for (TargetCorner corner : targetCorners) {
+      if (corner.x < minX) {
+        minX = corner.x;
+      }
+      if (corner.x > maxX) {
+        maxX = corner.x;
+      }
+    }
+    double currentPixelWidth = maxX - minX;
+    Logger.recordOutput("AimCurPixWidth", currentPixelWidth);
+    double ratio = kpixelWidthAtSampleDistance * sampleDistance / kBallDiameter; // shouldnt change
+    double distance = kBallDiameter * ratio / currentPixelWidth;
+    double yaw = Units.degreesToRadians(target.getYaw()); // rel x axis
+    double distance_x = distance * Math.cos(yaw);
+    double distance_y = distance * Math.sin(yaw);
+    return new Transform3d(new Translation3d(distance_x, distance_y, 0), new Rotation3d(0, 0, yaw));
   }
+
   // Called every time the cheduler runs while the command is scheduled.
   @Override
   public void execute() {
