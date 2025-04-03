@@ -129,12 +129,14 @@ public class ShooterState {
 
   public void stopShooting() {
     isShooting = false;
-    // If intaking, and shooter is loaded, go to default
-    if (getCurrentMode().isIntake && isLoaded && isAssistEnabled) {
-      instantSwitch(ShooterModes.DEFAULT);
-      // After we finish shooting, go to default
-    } else if (getCurrentMode().isIntake && !isLoaded && isAssistEnabled) {
-      instantSwitch(ShooterModes.DEFAULT);
+    if (isAssistEnabled) {
+      // If intaking, and shooter is loaded, go to default
+      if (getCurrentMode().isIntake && isLoaded) {
+        instantSwitch(ShooterModes.DEFAULT);
+        // After we finish shooting, go to default
+      } else if (getCurrentMode().isIntake && !isLoaded) {
+        instantSwitch(ShooterModes.DEFAULT);
+      }
     }
   }
 
