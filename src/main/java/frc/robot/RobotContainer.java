@@ -108,6 +108,7 @@ public class RobotContainer {
   private JoystickButton m_reefT2Button;
   private JoystickButton m_reefT3Button;
   private JoystickButton m_reefT4Button;
+  private JoystickButton m_processorButton;
   // Init For Autonomous
   private LoggedDashboardChooser<String> autoDashboardChooser =
       new LoggedDashboardChooser<String>("AutoMode");
@@ -157,6 +158,7 @@ public class RobotContainer {
     m_defaultButton = new JoystickButton(m_flightStick, Constants.DEFAULT_BUTTON);
     m_troughButton = new JoystickButton(m_flightStick, Constants.TROUGH_BUTTON);
     m_bargeButton = new JoystickButton(m_flightStick, Constants.BARGE_BUTTON);
+    m_processorButton = new JoystickButton(m_flightStick, Constants.PROCESSOR_BUTTON);
     m_intakeButton = new JoystickButton(m_flightStick, Constants.INTAKE_BUTTON);
     m_reefT2Button = new JoystickButton(m_flightStick, Constants.REEFT2_BUTTON);
     m_reefT3Button = new JoystickButton(m_flightStick, Constants.REEFT3_BUTTON);
@@ -176,6 +178,8 @@ public class RobotContainer {
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.TROUGH)));
     m_bargeButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.BARGE)));
+    m_processorButton.whileTrue(
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.PROCESSOR)));
     m_intakeButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.INTAKE)));
     m_reefT2Button.whileTrue(

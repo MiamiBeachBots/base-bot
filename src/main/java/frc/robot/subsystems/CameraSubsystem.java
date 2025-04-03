@@ -148,13 +148,14 @@ public class CameraSubsystem extends SubsystemBase {
    * @param poseEstimator Pose estimator
    */
   private void updateGlobalPose(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {
-    for (var result : camera.getAllUnreadResults()) {
-      Optional<EstimatedRobotPose> curPose = poseEstimator.update(result);
-      if (curPose.isPresent()) {
-        m_driveSubsystem.updateVisionPose(
-            curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
+    for (var result : camera.getAllUnreadResults())
+      if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() < 0.025) {
+        Optional<EstimatedRobotPose> curPose = poseEstimator.update(result);
+        if (curPose.isPresent()) {
+          m_driveSubsystem.updateVisionPose(
+              curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
+        }
       }
-    }
   }
 
   @Override

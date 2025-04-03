@@ -57,7 +57,7 @@ public final class Constants {
   }
 
   // Max speeds
-  public static final double MAX_SPEED = 0.8;
+  public static final double MAX_SPEED = 0.7;
   public static final double MAX_EXTENDED_SPEED = 0.3;
   public static final double MAX_SHOOTER_SPEED = 0.9;
   public static final double LIFTER_SPEED = 0.5;
@@ -83,13 +83,13 @@ public final class Constants {
   // Joystick buttons
   public static final int TRIGGER = 1;
   public static final int DEFAULT_BUTTON = 2;
+  public static final int PROCESSOR_BUTTON = 3;
   public static final int TROUGH_BUTTON = 7;
   public static final int REEFT2_BUTTON = 8;
   public static final int REEFT3_BUTTON = 9;
   public static final int REEFT4_BUTTON = 10;
   public static final int BARGE_BUTTON = 12;
   public static final int INTAKE_BUTTON = 11;
-  public static final int AIM_BUTTON = 3;
 
   // Analog Ports
   /// Ultrasonic Sensors and ports.
