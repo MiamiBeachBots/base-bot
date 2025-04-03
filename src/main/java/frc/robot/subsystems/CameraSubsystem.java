@@ -57,6 +57,8 @@ public class CameraSubsystem extends SubsystemBase {
   private PhotonCameraSim poseCamera2Sim;
   private PhotonCameraSim targetingCamera1Sim;
 
+  private boolean multiModeUsed = false;
+
   /** Creates a new CameraSubsystem. */
   public CameraSubsystem(DriveSubsystem d_subsystem) {
     m_driveSubsystem = d_subsystem;
@@ -76,8 +78,8 @@ public class CameraSubsystem extends SubsystemBase {
             aprilTagFieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             Constants.PoseCamera2.location);
-    poseCamera1PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-    poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseCamera1PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
+    poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
 
     if (Robot.isSimulation()) {
       simulationInit();
@@ -152,8 +154,14 @@ public class CameraSubsystem extends SubsystemBase {
       if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() < 0.025) {
         Optional<EstimatedRobotPose> curPose = poseEstimator.update(result);
         if (curPose.isPresent()) {
-          m_driveSubsystem.updateVisionPose(
-              curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
+          if (!multiModeUsed
+              || curPose.get().strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
+            m_driveSubsystem.updateVisionPose(
+                curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
+            if (curPose.get().strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
+              multiModeUsed = true;
+            }
+          }
         }
       }
   }

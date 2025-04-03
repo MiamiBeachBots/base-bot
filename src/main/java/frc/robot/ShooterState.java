@@ -62,7 +62,7 @@ public class ShooterState {
     public static final ShooterMode REEFT4 =
         new ShooterMode("ReefT4", -Constants.MAX_SHOOTER_SPEED, 72, -125);
     public static final ShooterMode BARGE =
-        new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.5, 84, -45);
+        new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.4, 84, -45);
   }
   ;
 
