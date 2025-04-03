@@ -54,15 +54,15 @@ public class ShooterState {
             Constants.ELEVATOR_STARTING_HEIGHT_INCHES + 5,
             -85);
     public static final ShooterMode TROUGH =
-        new ShooterMode("Trough", Constants.MAX_SHOOTER_SPEED, 19, -15);
+        new ShooterMode("Trough", 0.25 * Constants.MAX_SHOOTER_SPEED, 32, -105);
     public static final ShooterMode REEFT2 =
-        new ShooterMode("ReefT2", -Constants.MAX_SHOOTER_SPEED, 32+5, -125);
+        new ShooterMode("ReefT2", -Constants.MAX_SHOOTER_SPEED, 40 + 12, -125);
     public static final ShooterMode REEFT3 =
-        new ShooterMode("ReefT3", -Constants.MAX_SHOOTER_SPEED, 48+5, -125);
+        new ShooterMode("ReefT3", -Constants.MAX_SHOOTER_SPEED, 56 + 12, -125);
     public static final ShooterMode REEFT4 =
-        new ShooterMode("ReefT4", -Constants.MAX_SHOOTER_SPEED, 72+5, -125);
+        new ShooterMode("ReefT4", -Constants.MAX_SHOOTER_SPEED, 72, -125);
     public static final ShooterMode BARGE =
-        new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.5, 83, -45);
+        new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.5, 84, -45);
   }
   ;
 
