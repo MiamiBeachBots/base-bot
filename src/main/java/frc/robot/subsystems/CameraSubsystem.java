@@ -163,7 +163,7 @@ public class CameraSubsystem extends SubsystemBase {
                   curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
             }
             Logger.recordOutput(
-              "CameraPose" + camera.getName(), curPose.get().estimatedPose.toPose2d());
+                "CameraPose" + camera.getName(), curPose.get().estimatedPose.toPose2d());
             if (curPose.get().strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
               multiModeUsed = true;
             }
