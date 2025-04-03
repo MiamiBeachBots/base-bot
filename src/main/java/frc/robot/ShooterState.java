@@ -72,8 +72,8 @@ public class ShooterState {
     public static final ShooterMode BARGE =
         new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.4, 84, -45, false);
   }
-  ;
 
+  private static final boolean isAssistEnabled = false;
   public boolean isLoaded = false;
   public boolean isElevatorLowered = true;
   public boolean isArmResting = true; // Starting position
@@ -130,10 +130,10 @@ public class ShooterState {
   public void stopShooting() {
     isShooting = false;
     // If intaking, and shooter is loaded, go to default
-    if (getCurrentMode().isIntake && isLoaded) {
+    if (getCurrentMode().isIntake && isLoaded && isAssistEnabled) {
       instantSwitch(ShooterModes.DEFAULT);
       // After we finish shooting, go to default
-    } else if (getCurrentMode().isIntake && !isLoaded) {
+    } else if (getCurrentMode().isIntake && !isLoaded && isAssistEnabled) {
       instantSwitch(ShooterModes.DEFAULT);
     }
   }
