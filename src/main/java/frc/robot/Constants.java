@@ -128,7 +128,7 @@ public final class Constants {
     // ROTATION
     public static final double ROLL = Units.degreesToRadians(0);
     public static final double PITCH = Units.degreesToRadians(0.0);
-    public static final double YAW = Units.degreesToRadians(-180);
+    public static final double YAW = Units.degreesToRadians(-176);
 
     public static final Transform3d location =
         new Transform3d(
