@@ -16,6 +16,7 @@ public class ShooterState {
     public final double speed;
     public final double height;
     public final double angle;
+    public final boolean isIntake;
 
     /**
      * @param Name Which preset is it
@@ -23,7 +24,7 @@ public class ShooterState {
      * @param Height inches from ground
      * @param Angle degrees from angle offset (180)
      */
-    public ShooterMode(String Name, double Speed, double Height, double Angle) {
+    public ShooterMode(String Name, double Speed, double Height, double Angle, boolean IsIntake) {
       name = Name;
       speed = Speed;
       height = Units.inchesToMeters(Height) - Constants.ELEVATOR_STARTING_HEIGHT;
@@ -33,6 +34,7 @@ public class ShooterState {
       } else if (height > Constants.ELEVATOR_MAX_HEIGHT || angle > Constants.ARM_ANGLE_OFFSET) {
         throw new RuntimeException("Height and or Angle exceeds soft limits");
       }
+      isIntake = IsIntake;
     }
   }
 
@@ -40,29 +42,35 @@ public class ShooterState {
   public static class ShooterModes {
     public static final ShooterMode DEFAULT =
         new ShooterMode(
-            "Default", Constants.MAX_SHOOTER_SPEED, Constants.ELEVATOR_STARTING_HEIGHT_INCHES, 0);
+            "Default",
+            Constants.MAX_SHOOTER_SPEED,
+            Constants.ELEVATOR_STARTING_HEIGHT_INCHES,
+            0,
+            false);
     public static final ShooterMode INTAKE =
         new ShooterMode(
             "Intake",
             -Constants.MAX_SHOOTER_SPEED,
             Constants.ELEVATOR_STARTING_HEIGHT_INCHES,
-            -100);
+            -100,
+            true);
     public static final ShooterMode PROCESSOR =
         new ShooterMode(
             "Processor",
             Constants.MAX_SHOOTER_SPEED * 0.4,
             Constants.ELEVATOR_STARTING_HEIGHT_INCHES + 5,
-            -85);
+            -85,
+            false);
     public static final ShooterMode TROUGH =
-        new ShooterMode("Trough", 0.25 * Constants.MAX_SHOOTER_SPEED, 32, -105);
+        new ShooterMode("Trough", 0.25 * Constants.MAX_SHOOTER_SPEED, 32, -105, false);
     public static final ShooterMode REEFT2 =
-        new ShooterMode("ReefT2", -Constants.MAX_SHOOTER_SPEED, 40 + 12, -125);
+        new ShooterMode("ReefT2", -Constants.MAX_SHOOTER_SPEED, 40 + 12, -125, true);
     public static final ShooterMode REEFT3 =
-        new ShooterMode("ReefT3", -Constants.MAX_SHOOTER_SPEED, 56 + 12, -125);
+        new ShooterMode("ReefT3", -Constants.MAX_SHOOTER_SPEED, 56 + 12, -125, true);
     public static final ShooterMode REEFT4 =
-        new ShooterMode("ReefT4", -Constants.MAX_SHOOTER_SPEED, 72, -125);
+        new ShooterMode("ReefT4", -Constants.MAX_SHOOTER_SPEED, 72, -125, true);
     public static final ShooterMode BARGE =
-        new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.4, 84, -45);
+        new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.4, 84, -45, false);
   }
   ;
 
@@ -122,10 +130,10 @@ public class ShooterState {
   public void stopShooting() {
     isShooting = false;
     // If intaking, and shooter is loaded, go to default
-    if (getCurrentMode() == ShooterModes.INTAKE && isLoaded) {
+    if (getCurrentMode().isIntake && isLoaded) {
       instantSwitch(ShooterModes.DEFAULT);
       // After we finish shooting, go to default
-    } else if (getCurrentMode() != ShooterModes.INTAKE && !isLoaded) {
+    } else if (getCurrentMode().isIntake && !isLoaded) {
       instantSwitch(ShooterModes.DEFAULT);
     }
   }
