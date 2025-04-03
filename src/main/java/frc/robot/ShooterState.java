@@ -56,11 +56,11 @@ public class ShooterState {
     public static final ShooterMode TROUGH =
         new ShooterMode("Trough", Constants.MAX_SHOOTER_SPEED, 19, -15);
     public static final ShooterMode REEFT2 =
-        new ShooterMode("ReefT2", -Constants.MAX_SHOOTER_SPEED, 40, -125);
+        new ShooterMode("ReefT2", -Constants.MAX_SHOOTER_SPEED, 32+5, -125);
     public static final ShooterMode REEFT3 =
-        new ShooterMode("ReefT3", -Constants.MAX_SHOOTER_SPEED, 56, -125);
+        new ShooterMode("ReefT3", -Constants.MAX_SHOOTER_SPEED, 48+5, -125);
     public static final ShooterMode REEFT4 =
-        new ShooterMode("ReefT4", -Constants.MAX_SHOOTER_SPEED, 80, -125);
+        new ShooterMode("ReefT4", -Constants.MAX_SHOOTER_SPEED, 72+5, -125);
     public static final ShooterMode BARGE =
         new ShooterMode("Barge", Constants.MAX_SHOOTER_SPEED * 0.5, 83, -45);
   }
