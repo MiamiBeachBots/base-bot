@@ -171,6 +171,8 @@ public class CameraSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     // update the pipeline result for targeting cameras
     targetingCamera1Result = getPipelineResults(targetingCamera1);
+    // update robot state
+    updateState();
     // update the pose estimators
     updateGlobalPose(poseCamera1, poseCamera1PoseEstimator);
     updateGlobalPose(poseCamera2, poseCamera2PoseEstimator);
@@ -179,6 +181,8 @@ public class CameraSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("poseCamera2Connected", poseCamera2.isConnected());
     SmartDashboard.putBoolean("TargetingCamera1Connnected", targetingCamera1.isConnected());
   }
+
+  private void updateState() {}
 
   @Override
   public void simulationPeriodic() {
