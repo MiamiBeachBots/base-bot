@@ -152,10 +152,6 @@ public class RobotContainer {
     m_aimButton = m_controller1.rightBumper();
     m_switchQueuedButton = m_controller1.y();
     m_defaultButton_driver = m_controller1.a();
-    // m_lifterRightButton = m_controller1.rightTrigger();
-    // m_lifterLeftButton = m_controller1.leftTrigger();
-    // m_driveToAmpButton= m_controller1.y();
-    // m_lifterDirectionButton = m_controller1.a();
 
     // Joystick buttons
     m_defaultButton = new JoystickButton(m_flightStick, Constants.DEFAULT_BUTTON);
@@ -171,7 +167,6 @@ public class RobotContainer {
 
   private void bindCommands() {
     // commands
-    // m_balanceButton.whileTrue(m_balanceCommand);
     m_straightButton.whileTrue(m_straightCommand);
     m_switchQueuedButton.whileTrue(new InstantCommand(() -> m_shooterState.switchModes()));
     m_defaultButton.whileTrue(
@@ -192,11 +187,6 @@ public class RobotContainer {
 
     m_aimButton.whileTrue(m_aimCommand);
 
-    // m_lifterRightButton.whileTrue(m_RightLifterCommand);
-    // m_lifterLeftButton.whileTrue(m_LeftLifterCommand);
-    // m_lifterDirectionButton.whileTrue(
-    //    new InstantCommand(() -> m_leftLifterSubsystem.changeDirection())
-    //        .andThen(new InstantCommand(() -> m_rightLifterSubsystem.changeDirection())));
     m_toggleBrakeButton.whileTrue(new InstantCommand(() -> m_driveSubsystem.SwitchBrakemode()));
     // shooter + arm commands
     m_shooterTrigger.whileTrue(m_shooterCommand);
@@ -234,8 +224,10 @@ public class RobotContainer {
 
   private void initializeAutonomous() {
     // Network Table Routine Options
-    autoDashboardChooser.addDefaultOption("SFR", "SFR");
-    autoDashboardChooser.addOption("DriveForward", "DriveForward");
+    autoDashboardChooser.addDefaultOption("ReefCenter", "ReefCenter");
+    autoDashboardChooser.addOption("ReefLeft", "ReefLeft");
+    autoDashboardChooser.addOption("ReefRight", "ReefRight");
+    autoDashboardChooser.addOption("DriveStraight", "DriveStraight");
     autoDashboardChooser.addOption("Do Nothing", "DoNothing");
     SmartDashboard.putData(autoDashboardChooser.getSendableChooser());
 
@@ -246,8 +238,15 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "BrakeCommand", new InstantCommand(() -> m_driveSubsystem.SetBrakemode()));
     NamedCommands.registerCommand("ShooterCommand", m_shooterCommand);
-    // NamedCommands.registerCommand("AimAmpCommand", m_AimAmpCommand);
-
+    NamedCommands.registerCommand("AimCommand", m_aimCommand);
+    NamedCommands.registerCommand(
+        "IntakeCommand",
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.INTAKE)));
+    NamedCommands.registerCommand(
+        "BargeCommand", new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.BARGE)));
+    NamedCommands.registerCommand(
+        "TroughCommand",
+        new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.TROUGH)));
   }
 
   private void configureTeleopPaths() {

@@ -1,7 +1,7 @@
 {
   "robotWidth": 0.9,
   "robotLength": 0.9,
-  "holonomicMode": true,
+  "holonomicMode": false,
   "pathFolders": [],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
@@ -16,7 +16,7 @@
   "driveGearing": 5.143,
   "maxDriveSpeed": 5.45,
   "driveMotorType": "NEO",
-  "driveCurrentLimit": 60.0,
+  "driveCurrentLimit": 80.0,
   "wheelCOF": 1.2,
   "flModuleX": 0.273,
   "flModuleY": 0.273,
