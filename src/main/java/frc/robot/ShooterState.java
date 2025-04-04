@@ -116,7 +116,7 @@ public class ShooterState {
   }
 
   public void defaultOverride() {
-    instantSwitch(ShooterModes.DEFAULT);
+    setCurrentMode(ShooterModes.DEFAULT);
   }
 
   public void setArmResting(boolean isResting) {
