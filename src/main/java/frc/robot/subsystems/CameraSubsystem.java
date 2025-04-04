@@ -151,7 +151,8 @@ public class CameraSubsystem extends SubsystemBase {
    * @param camera Pose Camera
    * @param poseEstimator Pose estimator
    */
-  private void updateGlobalPose(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {
+  private void updateGlobalPose(
+      PhotonCamera camera, PhotonPoseEstimator poseEstimator, String cameraName) {
     for (var result : camera.getAllUnreadResults())
       if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() < 0.025) {
         Optional<EstimatedRobotPose> curPose = poseEstimator.update(result);
@@ -160,10 +161,10 @@ public class CameraSubsystem extends SubsystemBase {
               || curPose.get().strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
             if (cameraPoseEnabled) {
               m_driveSubsystem.updateVisionPose(
-                  curPose.get().estimatedPose.toPose2d(), curPose.get().timestampSeconds);
+                  curPose.get().estimatedPose.toPose2d(),
+                  curPose.get().timestampSeconds,
+                  cameraName);
             }
-            Logger.recordOutput(
-                "CameraPose" + camera.getName(), curPose.get().estimatedPose.toPose2d());
             if (curPose.get().strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
               multiModeUsed = true;
             }
@@ -180,8 +181,8 @@ public class CameraSubsystem extends SubsystemBase {
     // update robot state
     updateState();
     // update the pose estimators
-    updateGlobalPose(poseCamera1, poseCamera1PoseEstimator);
-    updateGlobalPose(poseCamera2, poseCamera2PoseEstimator);
+    updateGlobalPose(poseCamera1, poseCamera1PoseEstimator, poseCamera1.getName());
+    updateGlobalPose(poseCamera2, poseCamera2PoseEstimator, poseCamera2.getName());
     // Update dashboard
     SmartDashboard.putBoolean("poseCamera1Connected", poseCamera1.isConnected());
     SmartDashboard.putBoolean("poseCamera2Connected", poseCamera2.isConnected());
