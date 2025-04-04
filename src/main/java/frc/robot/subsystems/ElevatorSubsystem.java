@@ -81,7 +81,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   // setup trapezoidal motion profile
   private final double kMaxVelocity = 1.00; // M/S
-  private final double kMaxAcceleration = 0.5; // M/S^2
+  private final double kMaxAcceleration = 0.75; // M/S^2
   private final double kAllowedClosedLoopError = 0.01; // Meters
 
   private final TrapezoidProfile m_profile =
