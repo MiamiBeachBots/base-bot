@@ -57,8 +57,8 @@ public final class Constants {
   }
 
   // Max speeds
-  public static final double MAX_SPEED = 0.7;
-  public static final double MAX_EXTENDED_SPEED = 0.3;
+  public static final double MAX_SPEED = 0.75;
+  public static final double MAX_EXTENDED_SPEED = 0.5;
   public static final double MAX_SHOOTER_SPEED = 0.9;
   public static final double LIFTER_SPEED = 0.5;
 
