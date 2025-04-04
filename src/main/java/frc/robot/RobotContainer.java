@@ -31,7 +31,6 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.FlywheelSubsystem;
 // import frc.robot.subsystems.LifterSubsystem;
-import frc.robot.subsystems.UltrasonicSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -53,8 +52,8 @@ public class RobotContainer {
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   // Init Gyro & ultrasonic
-  private final UltrasonicSubsystem m_ultrasonicShooterSubsystem =
-      new UltrasonicSubsystem(Constants.ULTRASONIC_SHOOTER_PORT); // TODO: Color sensor
+  // private final UltrasonicSubsystem m_ultrasonicShooterSubsystem =
+  //    new UltrasonicSubsystem(Constants.ULTRASONIC_SHOOTER_PORT); // TODO: Color sensor
 
   private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
   private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_driveSubsystem);

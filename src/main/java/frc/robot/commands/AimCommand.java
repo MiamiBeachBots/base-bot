@@ -35,7 +35,7 @@ public class AimCommand extends Command {
   private Command resultingCommand;
   private static final double kBallDiameter = Units.inchesToMeters(16.25);
   private static final double kpixelWidthAtSampleDistance = 0; // TODO
-  private static final double kBallSampleDistance = 1; // Meters TODO
+  private static final double kBallSampleDistance = Units.inchesToMeters(40); // Meters TODO
 
   /**
    * Creates a new AimCommand.
