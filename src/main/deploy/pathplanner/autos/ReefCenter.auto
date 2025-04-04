@@ -29,15 +29,40 @@
           }
         },
         {
-          "type": "wait",
+          "type": "race",
           "data": {
-            "waitTime": 2.0
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShooterCommand"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefCenterv2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ShooterCommand"
+            "name": "T2Command"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SwitchQueuedCommand"
           }
         }
       ]

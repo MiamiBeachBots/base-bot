@@ -484,8 +484,11 @@ public class DriveSubsystem extends SubsystemBase {
     return m_driveOdometry.getEstimatedPosition();
   }
 
-  public void updateVisionPose(Pose2d visionRobotPose, double timestamp, String cameraName) {
-    m_driveOdometry.addVisionMeasurement(visionRobotPose, timestamp);
+  public void updateVisionPose(
+      Pose2d visionRobotPose, double timestamp, String cameraName, boolean cameraEnabled) {
+    if (cameraEnabled) {
+      m_driveOdometry.addVisionMeasurement(visionRobotPose, timestamp);
+    }
     Logger.recordOutput("PoseCamera" + cameraName, visionRobotPose);
   }
 

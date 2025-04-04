@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -159,12 +158,11 @@ public class CameraSubsystem extends SubsystemBase {
         if (curPose.isPresent()) {
           if (!multiModeUsed
               || curPose.get().strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
-            if (cameraPoseEnabled) {
-              m_driveSubsystem.updateVisionPose(
-                  curPose.get().estimatedPose.toPose2d(),
-                  curPose.get().timestampSeconds,
-                  cameraName);
-            }
+            m_driveSubsystem.updateVisionPose(
+                curPose.get().estimatedPose.toPose2d(),
+                curPose.get().timestampSeconds,
+                cameraName,
+                cameraPoseEnabled);
             if (curPose.get().strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
               multiModeUsed = true;
             }
