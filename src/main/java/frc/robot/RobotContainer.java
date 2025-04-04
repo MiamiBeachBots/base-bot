@@ -250,6 +250,8 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "TroughCommand",
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.TROUGH)));
+    NamedCommands.registerCommand(
+        "SwitchQueuedCommand", new InstantCommand(() -> m_shooterState.switchModes()));
   }
 
   private void configureTeleopPaths() {

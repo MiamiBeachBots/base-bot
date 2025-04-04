@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "SwitchQueuedCommand"
+          }
+        },
+        {
           "type": "wait",
           "data": {
             "waitTime": 2.0
