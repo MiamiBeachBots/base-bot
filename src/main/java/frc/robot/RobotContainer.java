@@ -254,6 +254,8 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "T2Command", new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.REEFT2)));
     NamedCommands.registerCommand(
+        "T3Command", new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.REEFT3)));
+    NamedCommands.registerCommand(
         "TroughCommand",
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.TROUGH)));
     NamedCommands.registerCommand(
