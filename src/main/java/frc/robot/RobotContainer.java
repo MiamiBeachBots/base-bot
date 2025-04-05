@@ -100,7 +100,7 @@ public class RobotContainer {
   // private Trigger m_lifterDirectionButton;
   // joystick buttons
   private JoystickButton m_defaultButton;
-  private JoystickButton m_defaultOverrideButton;
+  private JoystickButton m_switchQueued2;
   private JoystickButton m_troughButton;
   private JoystickButton m_bargeButton;
   private JoystickButton m_intakeButton;
@@ -163,7 +163,7 @@ public class RobotContainer {
     m_reefT2Button = new JoystickButton(m_flightStick, Constants.REEFT2_BUTTON);
     m_reefT3Button = new JoystickButton(m_flightStick, Constants.REEFT3_BUTTON);
     m_reefT4Button = new JoystickButton(m_flightStick, Constants.REEFT4_BUTTON);
-    m_defaultOverrideButton = new JoystickButton(m_flightStick, Constants.DEFAULT_OVERRIDE_BUTTON);
+    m_switchQueued2 = new JoystickButton(m_flightStick, Constants.SWITCH_QUEUED_2);
 
     // load and shoot buttons
     m_shooterTrigger = new JoystickButton(m_flightStick, Constants.TRIGGER);
@@ -176,7 +176,7 @@ public class RobotContainer {
     m_defaultButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.DEFAULT)));
     m_defaultButton_driver.whileTrue(new InstantCommand(() -> m_shooterState.defaultOverride()));
-    m_defaultOverrideButton.whileTrue(new InstantCommand(() -> m_shooterState.defaultOverride()));
+    m_switchQueued2.whileTrue(new InstantCommand(() -> m_shooterState.switchModes()));
     m_troughButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.TROUGH)));
     m_bargeButton.whileTrue(
