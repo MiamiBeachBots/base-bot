@@ -20,6 +20,8 @@ import frc.robot.subsystems.DriveSubsystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.LoggingMXBean;
+
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -130,6 +132,7 @@ public class AimCommand extends Command {
   private Transform3d distanceToTarget(PhotonTrackedTarget target) {
     double detectedArea = target.area; // X for the power func
     double distance = distancePowerA * Math.pow(detectedArea, distancePowerB);
+    Logger.recordOutput("BallDistance", distance);
     double yaw = Units.degreesToRadians(target.getYaw()); // rel x axis
     double distance_x = distance * Math.cos(yaw);
     double distance_y = distance * Math.sin(yaw);

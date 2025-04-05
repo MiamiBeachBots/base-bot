@@ -79,8 +79,8 @@ public class CameraSubsystem extends SubsystemBase {
             aprilTagFieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             Constants.PoseCamera2.location);
-    poseCamera1PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
-    poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
+    poseCamera1PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
     if (Robot.isSimulation()) {
       simulationInit();
@@ -165,6 +165,9 @@ public class CameraSubsystem extends SubsystemBase {
                 cameraPoseEnabled);
             if (curPose.get().strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR) {
               multiModeUsed = true;
+              poseCamera1PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
+              poseCamera2PoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
+          
             }
           }
         }
