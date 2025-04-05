@@ -33,8 +33,8 @@ public class AimCommand extends Command {
   private final Transform3d targetingOffset;
 
   // Generated using Vernier Graphical Analysis
-  private final double distancePowerA = 43.07;
-  private final double distancePowerB = -1.645;
+  private final double distancePowerA = 9.847;
+  private final double distancePowerB = -0.6214;
 
   private Command resultingCommand;
 
