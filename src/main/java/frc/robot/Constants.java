@@ -84,6 +84,7 @@ public final class Constants {
   public static final int TRIGGER = 1;
   public static final int DEFAULT_BUTTON = 2;
   public static final int PROCESSOR_BUTTON = 3;
+  public static final int DEFAULT_OVERRIDE_BUTTON = 4;
   public static final int TROUGH_BUTTON = 7;
   public static final int REEFT2_BUTTON = 8;
   public static final int REEFT3_BUTTON = 9;

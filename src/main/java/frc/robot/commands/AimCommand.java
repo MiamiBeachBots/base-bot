@@ -37,6 +37,7 @@ public class AimCommand extends Command {
   private final double distancePowerB = -1.645;
 
   private Command resultingCommand;
+
   /**
    * Creates a new AimCommand.
    *
@@ -128,7 +129,7 @@ public class AimCommand extends Command {
   // Finds the distance from the camera to a target
   private Transform3d distanceToTarget(PhotonTrackedTarget target) {
     double detectedArea = target.area; // X for the power func
-    double distance = distancePowerA * Math.pow(detectedArea,distancePowerB);
+    double distance = distancePowerA * Math.pow(detectedArea, distancePowerB);
     double yaw = Units.degreesToRadians(target.getYaw()); // rel x axis
     double distance_x = distance * Math.cos(yaw);
     double distance_y = distance * Math.sin(yaw);
