@@ -19,7 +19,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 1.0
           }
         },
         {
@@ -35,7 +35,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 2.0
                 }
               },
               {
@@ -50,7 +50,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ReefCenterv2"
+            "pathName": "ReefCenterp2"
           }
         },
         {
@@ -63,6 +63,37 @@
           "type": "named",
           "data": {
             "name": "SwitchQueuedCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefCenterp3"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShooterCommand"
+                }
+              }
+            ]
           }
         }
       ]

@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import org.photonvision.targeting.TargetCorner;
 
 /** The Aim command that uses the camera + gyro to control the robot. */
 public class AimCommand extends Command {
@@ -32,11 +31,12 @@ public class AimCommand extends Command {
   private final ShooterState m_shooterState;
   private final Transform3d camOffset;
   private final Transform3d targetingOffset;
-  private Command resultingCommand;
-  private static final double kBallDiameter = Units.inchesToMeters(16.25);
-  private static final double kpixelWidthAtSampleDistance = 0; // TODO
-  private static final double kBallSampleDistance = Units.inchesToMeters(40); // Meters TODO
 
+  // Generated using Vernier Graphical Analysis
+  private final double distancePowerA = 43.07;
+  private final double distancePowerB = -1.645;
+
+  private Command resultingCommand;
   /**
    * Creates a new AimCommand.
    *
@@ -127,24 +127,8 @@ public class AimCommand extends Command {
 
   // Finds the distance from the camera to a target
   private Transform3d distanceToTarget(PhotonTrackedTarget target) {
-    double sampleDistance = kBallSampleDistance;
-    List<TargetCorner> targetCorners = target.getDetectedCorners();
-    double minX = Double.MAX_VALUE;
-    double maxX = -Double.MAX_VALUE;
-
-    // Loop through each corner and update minX and maxX
-    for (TargetCorner corner : targetCorners) {
-      if (corner.x < minX) {
-        minX = corner.x;
-      }
-      if (corner.x > maxX) {
-        maxX = corner.x;
-      }
-    }
-    double currentPixelWidth = maxX - minX;
-    Logger.recordOutput("AimCurPixWidth", currentPixelWidth);
-    double ratio = kpixelWidthAtSampleDistance * sampleDistance / kBallDiameter; // shouldnt change
-    double distance = kBallDiameter * ratio / currentPixelWidth;
+    double detectedArea = target.area; // X for the power func
+    double distance = distancePowerA * Math.pow(detectedArea,distancePowerB);
     double yaw = Units.degreesToRadians(target.getYaw()); // rel x axis
     double distance_x = distance * Math.cos(yaw);
     double distance_y = distance * Math.sin(yaw);
