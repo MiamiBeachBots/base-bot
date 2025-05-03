@@ -90,6 +90,7 @@ public class RobotContainer {
   // Init Buttons
   // private Trigger m_balanceButton;
   private Trigger m_straightButton;
+  private Trigger m_resetElevatorEncoders;
   private Trigger m_toggleBrakeButton;
   private Trigger m_aimButton;
   private Trigger m_switchQueuedButton;
@@ -149,6 +150,7 @@ public class RobotContainer {
   private void setupTriggers() {
     // Controller buttons
     m_toggleBrakeButton = m_controller1.b();
+    m_resetElevatorEncoders = m_controller1.leftTrigger();
     m_straightButton = m_controller1.leftBumper();
     m_aimButton = m_controller1.rightBumper();
     m_switchQueuedButton = m_controller1.y();
@@ -172,6 +174,7 @@ public class RobotContainer {
   private void bindCommands() {
     // commands
     m_straightButton.whileTrue(m_straightCommand);
+    m_resetElevatorEncoders.whileTrue(new InstantCommand(() -> m_ElevatorSubsystem.ResetEncoders()));
     m_switchQueuedButton.whileTrue(new InstantCommand(() -> m_shooterState.switchModes()));
     m_defaultButton.whileTrue(
         new InstantCommand(() -> m_shooterState.setQueuedMode(ShooterModes.DEFAULT)));

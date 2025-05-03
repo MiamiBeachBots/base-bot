@@ -236,6 +236,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     SetHeight(0);
   }
 
+  public void ResetEncoders(){
+    m_elevatorEncoderLeft.setPosition(0);
+    m_elevatorEncoderRight.setPosition(0);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
