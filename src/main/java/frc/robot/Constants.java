@@ -6,7 +6,10 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import java.io.File;
+import swervelib.math.Matter;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -126,4 +129,14 @@ public final class Constants {
         new Transform3d(
             new Translation3d(xLocation, yLocation, zLocation), new Rotation3d(roll, pitch, yaw));
   }
+
+  // Swerve JSON directory
+  public static final File SWERVE_JSON_DIRECTORY =
+      new File(Filesystem.getDeployDirectory(), "swerve");
+  public static final double SWERVE_MAX_SPEED = Units.feetToMeters(8);
+  // TODO Replace with actual measurements
+  public static final double SWERVE_LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
+  public static final double ROBOT_MASS = (0) * 0.453592; // 32lbs * kg per pound
+  public static final Matter CHASSIS =
+      new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
 }
