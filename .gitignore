@@ -177,6 +177,7 @@ out/
 # Simulation GUI and other tools window save file
 networktables.json
 simgui.json
+simgui-ds.json
 *-window.json
 
 # Simulation data log directory
@@ -191,3 +192,6 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+
+# Local Gradle cache when overriding GRADLE_USER_HOME
+.gradle-user/
