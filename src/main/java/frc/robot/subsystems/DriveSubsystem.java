@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Constants.CANConstants;
 import frc.robot.DriveConstants;
 import java.util.ArrayList;
@@ -176,6 +177,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     // init drive function
     m_ddrive = new DifferentialDrive(m_backLeft, m_backRight);
+    // MotorSafety errors are helpful on the real robot but noisy in desktop sim.
+    m_ddrive.setSafetyEnabled(Constants.currentMode == Constants.Mode.REAL);
 
     // init Encoders, we use all 4 encoders even though only 2 are used in feedback to decrease
     // error

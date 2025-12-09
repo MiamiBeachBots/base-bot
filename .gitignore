@@ -195,3 +195,4 @@ compile_commands.json
 
 # Local Gradle cache when overriding GRADLE_USER_HOME
 .gradle-user/
+.gradle-cache/
